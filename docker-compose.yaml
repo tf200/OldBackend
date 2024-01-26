@@ -6,7 +6,7 @@ services:
 
   web:
     build: .
-    command: bash -c "daphne Nlchat.asgi:application --bind 0.0.0.0 --port 8000"
+    command: bash -c "daphne healty.asgi:application --bind 0.0.0.0 --port 8000"
     volumes:
       - .:/usr/src/app
     ports:

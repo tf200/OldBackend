@@ -25,4 +25,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Start the application using Daphne with HTTP/2 support enabled
-CMD ["daphne", "-u", "/tmp/daphne.sock", "Nlchat.asgi:application"]
+CMD ["daphne", "-u", "/tmp/daphne.sock", "healty.asgi:application"]
