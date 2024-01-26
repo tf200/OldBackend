@@ -9,6 +9,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /healty/
 
 # Install dependencies
+RUN apt-get update && apt-get install -y libpq-dev python3-dev
+
 COPY requirements.txt .
 RUN pip3.12 install --no-cache-dir -r requirements.txt
 
