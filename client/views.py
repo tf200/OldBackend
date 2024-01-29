@@ -8,6 +8,11 @@ class ClientDetailsView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
+
+
+
+# class ClientListView (generics.ListAPIView) : 
+
     
 
 

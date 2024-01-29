@@ -14,6 +14,7 @@ class ClientDetails(models.Model):
     filenumber = models.IntegerField()
 
 class ClientDiagnosis(models.Model):
+    title = models.CharField(max_length = 50 , blank= True , null = True)
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='diagnoses')
     diagnosis_code = models.CharField(max_length=10)  # Adjust length based on coding system
     description = models.TextField()
