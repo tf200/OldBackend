@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vrw!mq7f#wac=db+jgzumdn-slvi@ce7*@-!ks3!6)1*#dx!&=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com' ]
+ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com', '127.0.0.1' ]
 
 
 # Application definition
@@ -39,11 +39,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_extensions',
     'storages',
-    "corsheaders",
-    'authentication'
+    'corsheaders',
+    'authentication',
+    'client',
 ]
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+SIMPLE_JWT = {
+  # It will work instead of the default serializer(TokenObtainPairSerializer).
+  'TOKEN_OBTAIN_SERIALIZER': "authentication.serializers.MyTokenObtainPairSerializer",
+  'ACCESS_TOKEN_LIFETIME': timedelta(days=5),  # Set access token lifetime to 5 minutes
+  'REFRESH_TOKEN_LIFETIME': timedelta(days=7), 
+  # ...
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -72,6 +85,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 # WSGI_APPLICATION = 'healty.wsgi.application'
 ASGI_APPLICATION = 'healty.asgi.application'
@@ -128,6 +143,7 @@ USE_TZ = True
 AWS_ACCESS_KEY_ID = 'AKIASD75TGXPJFCXFP6M'
 AWS_SECRET_ACCESS_KEY = 'JrPtI+ZdirMv5PSEyVspRwbr5QqiuW5glgzDg5gB'
 AWS_STORAGE_BUCKET_NAME = 'healtystorages'
+AWS_DEFAULT_ACL = None
 AWS_S3_REGION_NAME = 'us-east-2'  # e.g., us-east-2
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
@@ -138,7 +154,7 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # Media files
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-
+AUTH_USER_MODEL = 'authentication.CustomUser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
