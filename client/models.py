@@ -8,7 +8,8 @@ from authentication.models import CustomUser
 class ClientDetails(models.Model):
     firt_name = models.CharField(max_length = 100, blank= True , null = True)
     last_name = models.CharField(max_length = 100, blank= True , null = True)
-    email = models.CharField(max_length = 100, blank= True , null = True)
+    email = models.CharField(max_length = 100, blank= True , null = True )
+    phone_number=models.CharField(max_length = 20 , blank= True , )
     organisation = models.CharField(max_length = 100, blank= True , null = True)
     location = models.CharField(max_length=100, blank= True , null = True)
     departement= models.CharField(max_length=100, blank= True , null = True)
