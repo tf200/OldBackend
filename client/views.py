@@ -4,6 +4,18 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import ClientDetailsSerializer
 from .models import ClientDetails
 # Create your views here.
+
+
+
+class ClientCreateView(generics.CreateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientDetailsSerializer
+
+
+    
+
+
+
 class ClientDetailsView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
@@ -11,7 +23,10 @@ class ClientDetailsView(generics.RetrieveAPIView):
 
 
 
-# class ClientListView (generics.ListAPIView) : 
+class ClientListView (generics.ListAPIView) : 
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientDetailsSerializer
+    queryset = ClientDetails.objects.all()
 
     
 

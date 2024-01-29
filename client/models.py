@@ -6,11 +6,13 @@ from authentication.models import CustomUser
 
 
 class ClientDetails(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    organisation = models.CharField(max_length = 100)
-    location = models.CharField(max_length=100)
-    departement= models.CharField(max_length=100)
-    gender = models.CharField(max_length = 100)
+    firt_name = models.CharField(max_length = 100, blank= True , null = True)
+    last_name = models.CharField(max_length = 100, blank= True , null = True)
+    email = models.CharField(max_length = 100, blank= True , null = True)
+    organisation = models.CharField(max_length = 100, blank= True , null = True)
+    location = models.CharField(max_length=100, blank= True , null = True)
+    departement= models.CharField(max_length=100, blank= True , null = True)
+    gender = models.CharField(max_length = 100, blank= True , null = True)
     filenumber = models.IntegerField()
 
 class ClientDiagnosis(models.Model):

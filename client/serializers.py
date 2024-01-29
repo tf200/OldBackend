@@ -5,7 +5,6 @@ from authentication.serializers import CustomUserSerializer
 
 
 class ClientDetailsSerializer (serializers.ModelSerializer) :
-    user = CustomUserSerializer(read_only = True)
     class Meta :
         model = ClientDetails
         fields = '__all__'
