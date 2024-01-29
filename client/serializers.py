@@ -10,3 +10,7 @@ class ClientDetailsSerializer (serializers.ModelSerializer) :
         fields = '__all__'
 
 
+class ClientDiagnosisSerializer (serializers.ModelSerializer):
+    class Meta : 
+        model = ClientDiagnosis
+        fields = '__all__'

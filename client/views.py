@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ClientDetailsSerializer
+from .serializers import *
 from .models import ClientDetails
 # Create your views here.
 
@@ -31,3 +31,21 @@ class ClientListView (generics.ListAPIView) :
     
 
 
+class DiagnosisCreateView(generics.CreateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientDiagnosisSerializer
+
+
+
+class DiagnosisRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientDiagnosisSerializer
+    queryset = ClientDiagnosis.objects.all()
+    lookup_field = 'client'
+
+
+
+class DiagnosisListView (generics.ListAPIView) : 
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientDiagnosisSerializer
+    queryset = ClientDiagnosis.objects.all()
