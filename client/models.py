@@ -30,6 +30,7 @@ class ClientDiagnosis(models.Model):
 
 
 
+
 class Treatments(models.Model) : 
     user= models.ForeignKey(ClientDetails , related_name='treatments', on_delete = models.CASCADE)
     treatment_name = models.CharField(max_length = 500 )
