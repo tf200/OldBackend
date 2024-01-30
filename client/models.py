@@ -1,5 +1,4 @@
 from django.db import models
-from authentication.models import CustomUser
 
 
 
@@ -21,7 +20,7 @@ class ClientDiagnosis(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='diagnoses')
     diagnosis_code = models.CharField(max_length=10)  # Adjust length based on coding system
     description = models.TextField()
-    date_of_diagnosis = models.DateField()
+    date_of_diagnosis = models.DateField(auto_now_add=True)
     severity = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=100)  # e.g., 'current', 'in remission', etc.
     diagnosing_clinician = models.CharField(max_length=100)
