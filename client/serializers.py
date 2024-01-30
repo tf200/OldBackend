@@ -14,3 +14,10 @@ class ClientDiagnosisSerializer (serializers.ModelSerializer):
     class Meta : 
         model = ClientDiagnosis
         fields = '__all__'
+
+
+
+class ClientEmergencyContactSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model= ClientEmergencyContact
+        fields = '__all__'

@@ -74,3 +74,39 @@ class DiagnosisDeleteView(generics.DestroyAPIView):
     serializer_class = ClientDiagnosisSerializer
     queryset = ClientDiagnosis.objects.all()
   
+#=======================================================================
+    
+
+
+class ClientEmergencyContactCreateView(generics.CreateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmergencyContactSerializer
+
+
+
+class ClientEmergencyContactRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmergencyContactSerializer
+    queryset = ClientEmergencyContact.objects.all()
+
+
+
+class ClientEmergencyContactListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmergencyContactSerializer
+
+    def get_queryset(self):
+        client_id = self.kwargs['client'] 
+        return ClientEmergencyContact.objects.filter(client=client_id)
+
+
+class ClientEmergencyContactUpdateView(generics.UpdateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmergencyContactSerializer
+    queryset = ClientEmergencyContact.objects.all()
+
+
+class ClientEmergencyContactDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmergencyContactSerializer
+    queryset = ClientEmergencyContact.objects.all()
