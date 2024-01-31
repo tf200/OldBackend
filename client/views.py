@@ -3,6 +3,8 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from .models import ClientDetails
+from django_filters.rest_framework import DjangoFilterBackend
+from client.filters import ClientDiagnosisFilter
 # Create your views here.
 
 
@@ -24,6 +26,7 @@ class ClientListView (generics.ListAPIView) :
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
+    filter_backends = [DjangoFilterBackend]
 
 
 class ClientUpdateView(generics.UpdateAPIView) :
@@ -57,6 +60,8 @@ class DiagnosisRetrieveView(generics.RetrieveAPIView):
 class DiagnosisListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDiagnosisSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ClientDiagnosisFilter
 
     def get_queryset(self):
         client_id = self.kwargs['client'] 
