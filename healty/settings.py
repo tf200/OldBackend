@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vrw!mq7f#wac=db+jgzumdn-slvi@ce7*@-!ks3!6)1*#dx!&=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com', '127.0.0.1' ]
+ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com', '127.0.0.1' , 'api.aichatkings.com' ]
 
 
 # Application definition
