@@ -21,3 +21,11 @@ class ClientEmergencyContactSerializer(serializers.ModelSerializer):
     class Meta : 
         model= ClientEmergencyContact
         fields = '__all__'
+
+
+
+
+class ClientDocumentsSerializers(serializers.ModelSerializer) :
+    class Meta :
+        model= ClientDocuments
+        fields = '__all__'

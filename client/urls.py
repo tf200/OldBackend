@@ -23,5 +23,9 @@ urlpatterns = [
     path('emergency_list/<int:client>/' , ClientEmergencyContactListView.as_view() , name='diagnosis_list'),
     path('emergency_update/<int:pk>/' , ClientEmergencyContactUpdateView.as_view() , name='diagnosis_update'),
     path('emergency_delete/<int:pk>/' , ClientEmergencyContactDeleteView.as_view() , name='diagnosis_delete'),
-    
+
+
+    path('document_upload/' , ClientDocumentsUploadView.as_view() , name= 'document_upload'),
+    path('document_list/<int:client>/' , ClientDocumentsListView.as_view() , name = 'document_list'),
+    path('document_delete/<int:client>/', ClientDocumentsDeleteView.as_view() , name ='document_delete')    
 ]
