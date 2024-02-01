@@ -15,6 +15,11 @@ class ClientDetails(models.Model):
     gender = models.CharField(max_length = 100, blank= True , null = True)
     filenumber = models.IntegerField(blank = True , null = True)
     profile_picture = models.ImageField(upload_to='clients_pics/', blank=True, null=True)
+    city = models.CharField(max_length = 100, blank= True , null = True)
+    Zipcode = models.CharField(max_length = 100, blank= True , null = True)
+    infix = models.CharField(max_length = 100, blank= True , null = True)
+    streetname = models.CharField(max_length = 100, blank= True , null = True)
+    street_number = models.CharField(max_length = 100, blank= True , null = True)
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length = 50 , blank= True , null = True)
