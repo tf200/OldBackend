@@ -5,7 +5,7 @@ from django.db import models
 
 
 class ClientDetails(models.Model):
-    firt_name = models.CharField(max_length = 100, blank= True , null = True)
+    first_name = models.CharField(max_length = 100, blank= True , null = True)
     last_name = models.CharField(max_length = 100, blank= True , null = True)
     email = models.CharField(max_length = 100, blank= True , null = True )
     phone_number=models.CharField(max_length = 20 , blank= True , null = True )
@@ -14,6 +14,7 @@ class ClientDetails(models.Model):
     departement= models.CharField(max_length=100, blank= True , null = True)
     gender = models.CharField(max_length = 100, blank= True , null = True)
     filenumber = models.IntegerField(blank = True , null = True)
+    profile_picture = models.ImageField(upload_to='clients_pics/', blank=True, null=True)
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length = 50 , blank= True , null = True)
@@ -33,7 +34,7 @@ class ClientEmergencyContact(models.Model) :
     last_name = models.CharField(max_length = 100, blank= True , null = True)
     email = models.CharField(max_length = 100, blank= True , null = True )
     phone_number=models.CharField(max_length = 20 , blank= True , null = True )
-    adress = models.CharField(max_length = 100 , blank= True , null = True )
+    address = models.CharField(max_length = 100 , blank= True , null = True )
     relationship = models.CharField(max_length = 100 , blank= True , null = True )
 
 class Treatments(models.Model) : 
