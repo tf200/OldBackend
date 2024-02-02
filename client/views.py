@@ -167,6 +167,7 @@ class ClientMedicationRetrieveView(generics.RetrieveAPIView):
 class ClientMedicationListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
+    pagination_class = DiagnosisPagination
 
     def get_queryset(self):
         client_id = self.kwargs['client'] 
