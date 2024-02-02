@@ -74,8 +74,8 @@ class ClientAllergy(models.Model):
 class ClientDocuments(models.Model):
     user = models.ForeignKey(ClientDetails, related_name='documents', on_delete=models.CASCADE)
     documents = models.FileField(upload_to='client_documents/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    original_filename = models.CharField(max_length=255, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null = True)
+    original_filename = models.CharField(max_length=255, blank=True, null = True)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # If this is a new object (not being updated)
