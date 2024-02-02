@@ -35,5 +35,11 @@ urlpatterns = [
     path('medication_update/<int:pk>/' , ClientMedicationUpdateView.as_view() , name='medication_update'),
     path('medication_delete/<int:pk>/' , ClientMedicationDeleteView.as_view() , name='medication_delete'),
 
+    path('allergy_create/', ClientAllergyCreateView.as_view(), name='allergy_create'),
+    path('allergy_retrieve/<int:pk>/', ClientAllergyRetrieveView.as_view(), name='allergy_retrieve'),
+    path('allergy_list/<int:client>/', ClientAllergyListView.as_view(), name='allergy_list'),
+    path('allergy_update/<int:pk>/', ClientAllergyUpdateView.as_view(), name='allergy_update'),
+    path('allergy_delete/<int:pk>/', ClientAllergyDeleteView.as_view(), name='allergy_delete'),
+
 
 ]

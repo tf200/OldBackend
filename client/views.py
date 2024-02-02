@@ -4,9 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from .models import ClientDetails
 from django_filters.rest_framework import DjangoFilterBackend
-from client.filters import ClientDiagnosisFilter
+from client.filters import ClientDiagnosisFilter , ClientMedicationFilter , ClientAllergyFilter
 from rest_framework.filters import OrderingFilter
-from .pagination import DiagnosisPagination
+from .pagination import CustomPagination
 # Create your views here.
 
 
@@ -66,7 +66,7 @@ class DiagnosisListView(generics.ListAPIView):
     filterset_class = ClientDiagnosisFilter
     ordering_fields = ['title', 'date_of_diagnosis', 'severity', 'status', 'diagnosing_clinician']
     ordering = ['date_of_diagnosis']
-    pagination_class = DiagnosisPagination  # Use your custom pagination class
+    pagination_class = CustomPagination  # Use your custom pagination class
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -167,7 +167,11 @@ class ClientMedicationRetrieveView(generics.RetrieveAPIView):
 class ClientMedicationListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
-    pagination_class = DiagnosisPagination
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = ClientMedicationFilter
+    ordering_fields = ['name', 'dosage', 'frequency', 'start_date', 'end_date']
+    ordering = ['start_date']
 
     def get_queryset(self):
         client_id = self.kwargs['client'] 
@@ -184,3 +188,41 @@ class ClientMedicationDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
     queryset = ClientMedication.objects.all()
+
+
+
+
+
+#================================================================
+
+class ClientAllergyCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientAllergySerializer
+
+class ClientAllergyRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientAllergySerializer
+    queryset = ClientAllergy.objects.all()
+
+class ClientAllergyListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientAllergySerializer
+    pagination_class = CustomPagination  # Adjust if you have a specific pagination class
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = ClientAllergyFilter  # You will need to create and define this
+    ordering_fields = ['allergy_type', 'severity', 'reaction']
+    ordering = ['severity']
+
+    def get_queryset(self):
+        client_id = self.kwargs['client']
+        return ClientAllergy.objects.filter(client=client_id)
+
+class ClientAllergyUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientAllergySerializer
+    queryset = ClientAllergy.objects.all()
+
+class ClientAllergyDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientAllergySerializer
+    queryset = ClientAllergy.objects.all()
