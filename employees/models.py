@@ -8,10 +8,10 @@ from django.core.exceptions import ValidationError
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     # Personal Information
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    date_of_birth = models.DateField(null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
+    # first_name = models.CharField(max_length=50)
+    # last_name = models.CharField(max_length=50)
+    # date_of_birth = models.DateField(null=True, blank=True)
+    # address = models.TextField(null=True, blank=True)
     # Professional Information
     position = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
@@ -58,5 +58,13 @@ class Assignment(models.Model):
         # Check if employee's skills match client's requirements
         if not self.employee.skills.filter(id__in=self.client.required_skills.all()).exists():
             raise ValidationError("The employee does not have the required skills for this client.")
+        
 
-# Create your models here.
+
+
+
+
+        
+
+
+

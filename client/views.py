@@ -145,3 +145,41 @@ class ClientDocumentsDeleteView(generics.DestroyAPIView) :
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDocumentsSerializers
     queryset = ClientDocuments.objects.all()
+
+
+
+#========================================================================
+
+
+class ClientMedicationCreateView(generics.CreateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientMedicationSerializer
+
+
+
+class ClientMedicationRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientMedicationSerializer
+    queryset = ClientMedication.objects.all()
+
+
+
+class ClientMedicationListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientMedicationSerializer
+
+    def get_queryset(self):
+        client_id = self.kwargs['client'] 
+        return ClientMedication.objects.filter(client=client_id)
+
+
+class ClientMedicationUpdateView(generics.UpdateAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientMedicationSerializer
+    queryset = ClientMedication.objects.all()
+
+
+class ClientMedicationDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientMedicationSerializer
+    queryset = ClientMedication.objects.all()
