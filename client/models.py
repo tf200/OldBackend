@@ -71,9 +71,16 @@ class ClientAllergy(models.Model):
         return f"{self.allergy_type} allergy for {self.client.name}"
     
 
-class ClientDocuments(models.Model) : 
-    user= models.ForeignKey(ClientDetails , related_name='documents' , on_delete = models.CASCADE)
+class ClientDocuments(models.Model):
+    user = models.ForeignKey(ClientDetails, related_name='documents', on_delete=models.CASCADE)
     documents = models.FileField(upload_to='client_documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    original_filename = models.CharField(max_length=255, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # If this is a new object (not being updated)
+            self.original_filename = self.documents.name
+        super(ClientDocuments, self).save(*args, **kwargs)
 
 class Contract(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='contracts')

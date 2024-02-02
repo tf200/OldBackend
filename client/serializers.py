@@ -32,10 +32,11 @@ class ClientEmergencyContactSerializer(serializers.ModelSerializer):
 
 
 
-class ClientDocumentsSerializers(serializers.ModelSerializer) :
-    class Meta :
-        model= ClientDocuments
+class ClientDocumentsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ClientDocuments
         fields = '__all__'
+        read_only_fields = ('uploaded_at', 'original_filename')  
 
 
 
@@ -50,3 +51,5 @@ class ClientAllergySerializer(serializers.ModelSerializer) :
     class Meta :
         model= ClientAllergy
         fields = '__all__'
+
+
