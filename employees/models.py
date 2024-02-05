@@ -7,12 +7,6 @@ from django.core.exceptions import ValidationError
 
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    # Personal Information
-    # first_name = models.CharField(max_length=50)
-    # last_name = models.CharField(max_length=50)
-    # date_of_birth = models.DateField(null=True, blank=True)
-    # address = models.TextField(null=True, blank=True)
-    # Professional Information
     position = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
     # Education

@@ -60,8 +60,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
   # It will work instead of the default serializer(TokenObtainPairSerializer).
   'TOKEN_OBTAIN_SERIALIZER': "authentication.serializers.MyTokenObtainPairSerializer",
-  'ACCESS_TOKEN_LIFETIME': timedelta(days=5),  # Set access token lifetime to 5 minutes
-  'REFRESH_TOKEN_LIFETIME': timedelta(days=7), 
+  'ACCESS_TOKEN_LIFETIME': timedelta(days=90),  # Set access token lifetime to 5 minutes
+  'REFRESH_TOKEN_LIFETIME': timedelta(days=95), 
   # ...
 }
 MIDDLEWARE = [

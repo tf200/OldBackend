@@ -17,7 +17,7 @@ class ClientDetailsNestedSerializer (serializers.ModelSerializer) :
 
 
 class ClientDiagnosisSerializer (serializers.ModelSerializer):
-    client = ClientDetailsNestedSerializer(read_only = True)
+    client_details = ClientDetailsNestedSerializer(read_only = True)
     class Meta : 
         model = ClientDiagnosis
         fields = '__all__'
