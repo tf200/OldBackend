@@ -116,7 +116,7 @@ class FrameworkAgreement(models.Model):
 
 class ProgressReport(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     report_text = models.TextField()
 
 
