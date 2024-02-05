@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('document_upload/' , ClientDocumentsUploadView.as_view() , name= 'document_upload'),
     path('document_list/<int:client>/' , ClientDocumentsListView.as_view() , name = 'document_list'),
-    path('document_delete/<int:client>/', ClientDocumentsDeleteView.as_view() , name ='document_delete'),
+    path('document_delete/<int:pk>/', ClientDocumentsDeleteView.as_view() , name ='document_delete'),
 
     path('medication_create/' , ClientMedicationCreateView.as_view() , name='medication_create'),
     path('medication_retreive/<int:pk>/' , ClientMedicationRetrieveView.as_view() , name='medication_retrieve'),
