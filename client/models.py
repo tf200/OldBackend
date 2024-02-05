@@ -74,12 +74,14 @@ class ClientAllergy(models.Model):
 class ClientDocuments(models.Model):
     user = models.ForeignKey(ClientDetails, related_name='documents', on_delete=models.CASCADE)
     documents = models.FileField(upload_to='client_documents/')
-    uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null = True)
-    original_filename = models.CharField(max_length=255, blank=True, null = True)
+    uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    original_filename = models.CharField(max_length=255, blank=True, null=True)
+    file_size = models.BigIntegerField(blank=True, null=True)  # Store file size in bytes
 
     def save(self, *args, **kwargs):
         if not self.pk:  # If this is a new object (not being updated)
             self.original_filename = self.documents.name
+            self.file_size = self.documents.file.size  # Capture file size
         super(ClientDocuments, self).save(*args, **kwargs)
 
 class Contract(models.Model):
