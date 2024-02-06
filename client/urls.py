@@ -47,6 +47,12 @@ urlpatterns = [
     path('progress_report/update/<int:pk>/', ProgressReportUpdateView.as_view(), name='progress_report_update'),
     path('progress_report/delete/<int:pk>/', ProgressReportDeleteView.as_view(), name='progress_report_delete'),
 
+    path('contract_create/', ContractCreateView.as_view(), name='contract_create'),
+    path('contract_retrieve/<int:pk>/', ContractRetrieveView.as_view(), name='contract_retrieve'),
+    path('contract_list/<int:client>/', ContractListView.as_view(), name='contract_list'),  
+    path('contract_update/<int:pk>/', ContractUpdateView.as_view(), name='contract_update'),
+    path('contract_delete/<int:pk>/', ContractDeleteView.as_view(), name='contract_delete'),
+
 
 
 

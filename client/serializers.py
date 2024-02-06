@@ -57,3 +57,9 @@ class ClientprogressSerializer(serializers.ModelSerializer):
     class Meta :
         model = ProgressReport
         fields = '__all__'
+
+
+class ContractSerializer(serializers.ModelSerializer) :
+    class Meta :
+        model = Contract
+        fields = '__all__'

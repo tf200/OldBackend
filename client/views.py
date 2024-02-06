@@ -207,9 +207,9 @@ class ClientAllergyRetrieveView(generics.RetrieveAPIView):
 class ClientAllergyListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientAllergySerializer
-    pagination_class = CustomPagination  # Adjust if you have a specific pagination class
+    pagination_class = CustomPagination  
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_class = ClientAllergyFilter  # You will need to create and define this
+    filterset_class = ClientAllergyFilter 
     ordering_fields = ['allergy_type', 'severity', 'reaction']
     ordering = ['severity']
 
@@ -261,3 +261,39 @@ class ProgressReportDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
+
+
+#=============================================================
+class ContractCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContractSerializer
+
+class ContractRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContractSerializer
+    queryset = Contract.objects.all()
+
+class ContractListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContractSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    #filterset_class = ContractFilter
+    ordering_fields = ['start_date', 'end_date', 'rate_per_day', 'rate_per_minute', 'rate_per_hour']
+    ordering = ['start_date']  # Default ordering
+
+    def get_queryset(self):
+        client_id = self.kwargs.get('client', None)
+        if client_id is not None:
+            return Contract.objects.filter(client=client_id)
+        return Contract.objects.all()
+
+class ContractUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContractSerializer
+    queryset = Contract.objects.all()
+
+class ContractDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContractSerializer
+    queryset = Contract.objects.all()

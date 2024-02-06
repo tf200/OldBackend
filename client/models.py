@@ -24,11 +24,11 @@ class ClientDetails(models.Model):
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length = 50 , blank= True , null = True)
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='diagnoses')
-    diagnosis_code = models.CharField(max_length=10)  # Adjust length based on coding system
+    diagnosis_code = models.CharField(max_length=10) 
     description = models.TextField()
     date_of_diagnosis = models.DateTimeField(auto_now_add=True)
     severity = models.CharField(max_length=50, blank=True, null=True)
-    status = models.CharField(max_length=100)  # e.g., 'current', 'in remission', etc.
+    status = models.CharField(max_length=100)  
     diagnosing_clinician = models.CharField(max_length=100)
     notes = models.TextField(blank=True, null=True)
 
@@ -51,21 +51,21 @@ class Treatments(models.Model) :
 class ClientMedication(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='medications')
     name = models.CharField(max_length=100)
-    dosage = models.CharField(max_length=100)  # e.g., '50mg'
-    frequency = models.CharField(max_length=100)  # e.g., 'Twice a day'
+    dosage = models.CharField(max_length=100)  
+    frequency = models.CharField(max_length=100)  
     start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)  # Optional, in case of temporary medication
-    notes = models.TextField(blank=True, null=True)  # Any additional notes or instructions
+    end_date = models.DateField(null=True, blank=True)  
+    notes = models.TextField(blank=True, null=True)  
 
     def __str__(self):
         return f"{self.name} for {self.client.name}"
 
 class ClientAllergy(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name='allergies')
-    allergy_type = models.CharField(max_length=100)  # e.g., 'Food', 'Drug', 'Environmental'
-    severity = models.CharField(max_length=100)  # e.g., 'Mild', 'Moderate', 'Severe'
-    reaction = models.TextField()  # Describe the allergic reaction
-    notes = models.TextField(blank=True, null=True)  # Any additional notes
+    allergy_type = models.CharField(max_length=100)  
+    severity = models.CharField(max_length=100)  
+    reaction = models.TextField()  
+    notes = models.TextField(blank=True, null=True)  
 
     def __str__(self):
         return f"{self.allergy_type} allergy for {self.client.name}"
@@ -76,12 +76,12 @@ class ClientDocuments(models.Model):
     documents = models.FileField(upload_to='client_documents/')
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
-    file_size = models.BigIntegerField(blank=True, null=True)  # Store file size in bytes
+    file_size = models.BigIntegerField(blank=True, null=True)  
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # If this is a new object (not being updated)
+        if not self.pk:  
             self.original_filename = self.documents.name
-            self.file_size = self.documents.file.size  # Capture file size
+            self.file_size = self.documents.file.size 
         super(ClientDocuments, self).save(*args, **kwargs)
 
 class Contract(models.Model):
