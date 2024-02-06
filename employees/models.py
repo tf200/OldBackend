@@ -57,7 +57,9 @@ class Assignment(models.Model):
 class ProgressReport(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
-    report_text = models.TextField()
+    title = models.CharField(max_length=50 , blank= True , null = True)
+    report_text = models.TextField() 
+    author  = models.ForeignKey(EmployeeProfile , on_delete=models.CASCADE, related_name='author', blank= True , null = True)
 
 
 
