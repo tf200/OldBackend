@@ -19,8 +19,7 @@ services:
 
 
   celery:
-    build:
-
+    build: .
     command: celery -A healty worker --loglevel=info
     volumes:
       - .:/usr/src/app
@@ -31,7 +30,7 @@ services:
       - REDIS_URL=redis://redis:6379/1
 
 
-      
+
   nginx:
     image: nginx:alpine
     ports:
