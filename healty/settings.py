@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'storages',
     'corsheaders',
+    'django_celery_results',
     'authentication',
     'client',
     'employees'
@@ -177,3 +178,31 @@ CORS_ALLOW_METHODS = (
 )
 CORS_ALLOW_ALL_ORIGINS = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+import os
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/1')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+CELERY_BROKER_URL = REDIS_URL  
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_TIME_LIMIT = 900
+CELERY_TASK_SOFT_TIME_LIMIT = 850
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'farjiataha@gmail.com'
+EMAIL_HOST_PASSWORD = 'silqjqcevnoymqmu'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -16,6 +16,22 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/1
 
+
+
+  celery:
+    build:
+
+    command: celery -A healty worker --loglevel=info
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - web
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+
+
+      
   nginx:
     image: nginx:alpine
     ports:
@@ -28,4 +44,5 @@ services:
 
     depends_on:
       - web
+      - celery
 

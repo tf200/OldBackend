@@ -41,6 +41,7 @@ class ClientEmergencyContact(models.Model) :
     phone_number=models.CharField(max_length = 20 , blank= True , null = True )
     address = models.CharField(max_length = 100 , blank= True , null = True )
     relationship = models.CharField(max_length = 100 , blank= True , null = True )
+    auto_reports = models.BooleanField(default =False)
 
 class Treatments(models.Model) : 
     user= models.ForeignKey(ClientDetails , related_name='treatments', on_delete = models.CASCADE)

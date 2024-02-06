@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from client.filters import ClientDiagnosisFilter , ClientMedicationFilter , ClientAllergyFilter
 from rest_framework.filters import OrderingFilter
 from .pagination import CustomPagination
+from .tasks import send_progress_report_email 
 # Create your views here.
 
 
@@ -233,6 +234,9 @@ class ClientAllergyDeleteView(generics.DestroyAPIView):
 class ProgressReportCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
+    def perform_create(self, serializer):
+        instance = serializer.save()  # Save the instance created by the serializer
+        send_progress_report_email.delay(instance.id , instance.report_text) 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
@@ -280,7 +284,7 @@ class ContractListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     #filterset_class = ContractFilter
     ordering_fields = ['start_date', 'end_date', 'rate_per_day', 'rate_per_minute', 'rate_per_hour']
-    ordering = ['start_date']  # Default ordering
+    ordering = ['start_date']  
 
     def get_queryset(self):
         client_id = self.kwargs.get('client', None)
@@ -288,7 +292,7 @@ class ContractListView(generics.ListAPIView):
             return Contract.objects.filter(client=client_id)
         return Contract.objects.all()
 
-class ContractUpdateView(generics.UpdateAPIView):
+class ContractUpdateView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ContractSerializer
     queryset = Contract.objects.all()
@@ -297,3 +301,6 @@ class ContractDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ContractSerializer
     queryset = Contract.objects.all()
+
+
+#======================================================
