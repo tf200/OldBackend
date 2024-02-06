@@ -36,7 +36,7 @@ class Assignment(models.Model):
         return f"{self.employee} assigned to {self.client} from {self.start_datetime} to {self.end_datetime}"
 
     def clean(self):
-        # Check for time conflicts
+        
         overlapping_assignments = Assignment.objects.filter(
             employee=self.employee,
             start_datetime__lt=self.end_datetime,
