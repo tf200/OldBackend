@@ -1,4 +1,5 @@
-from .models import ClientEmergencyContact , ProgressReport
+from .models import ClientEmergencyContact 
+from employees.models import ProgressReport
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings

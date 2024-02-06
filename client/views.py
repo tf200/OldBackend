@@ -231,40 +231,40 @@ class ClientAllergyDeleteView(generics.DestroyAPIView):
 #=================================================================================
 
 
-class ProgressReportCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ClientprogressSerializer
-    def perform_create(self, serializer):
-        instance = serializer.save()  # Save the instance created by the serializer
-        send_progress_report_email.delay(instance.id , instance.report_text) 
+# class ProgressReportCreateView(generics.CreateAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientprogressSerializer
+#     def perform_create(self, serializer):
+#         instance = serializer.save()  # Save the instance created by the serializer
+#         send_progress_report_email.delay(instance.id , instance.report_text) 
 
-class ProgressReportRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ClientprogressSerializer
-    queryset = ProgressReport.objects.all()
+# class ProgressReportRetrieveView(generics.RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientprogressSerializer
+#     queryset = ProgressReport.objects.all()
 
-class ProgressReportListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ClientprogressSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    # filterset_class = ProgressReportFilter  # Uncomment this if you have a filter class
-    ordering_fields = ['date', 'client']
-    ordering = ['date']
-    pagination_class = CustomPagination  # Use your custom pagination class
+# class ProgressReportListView(generics.ListAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientprogressSerializer
+#     filter_backends = [DjangoFilterBackend, OrderingFilter]
+#     # filterset_class = ProgressReportFilter  # Uncomment this if you have a filter class
+#     ordering_fields = ['date', 'client']
+#     ordering = ['date']
+#     pagination_class = CustomPagination  # Use your custom pagination class
 
-    def get_queryset(self):
-        client_id = self.kwargs['client']
-        return ProgressReport.objects.filter(client=client_id)
+#     def get_queryset(self):
+#         client_id = self.kwargs['client']
+#         return ProgressReport.objects.filter(client=client_id)
 
-class ProgressReportUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ClientprogressSerializer
-    queryset = ProgressReport.objects.all()
+# class ProgressReportUpdateView(generics.UpdateAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientprogressSerializer
+#     queryset = ProgressReport.objects.all()
 
-class ProgressReportDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ClientprogressSerializer
-    queryset = ProgressReport.objects.all()
+# class ProgressReportDeleteView(generics.DestroyAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientprogressSerializer
+#     queryset = ProgressReport.objects.all()
 
 
 #=============================================================

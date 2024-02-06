@@ -52,6 +52,17 @@ class Assignment(models.Model):
         # Check if employee's skills match client's requirements
         if not self.employee.skills.filter(id__in=self.client.required_skills.all()).exists():
             raise ValidationError("The employee does not have the required skills for this client.")
+
+
+class ProgressReport(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    report_text = models.TextField()
+
+
+
+
+
         
 
 

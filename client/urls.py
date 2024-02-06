@@ -41,11 +41,11 @@ urlpatterns = [
     path('allergy_update/<int:pk>/', ClientAllergyUpdateView.as_view(), name='allergy_update'),
     path('allergy_delete/<int:pk>/', ClientAllergyDeleteView.as_view(), name='allergy_delete'),
 
-    path('progress_report/create/', ProgressReportCreateView.as_view(), name='progress_report_create'),
-    path('progress_report/retrieve/<int:pk>/', ProgressReportRetrieveView.as_view(), name='progress_report_retrieve'),
-    path('progress_report/list/<int:client>/', ProgressReportListView.as_view(), name='progress_report_list'),
-    path('progress_report/update/<int:pk>/', ProgressReportUpdateView.as_view(), name='progress_report_update'),
-    path('progress_report/delete/<int:pk>/', ProgressReportDeleteView.as_view(), name='progress_report_delete'),
+    # path('progress_report/create/', ProgressReportCreateView.as_view(), name='progress_report_create'),
+    # path('progress_report/retrieve/<int:pk>/', ProgressReportRetrieveView.as_view(), name='progress_report_retrieve'),
+    # path('progress_report/list/<int:client>/', ProgressReportListView.as_view(), name='progress_report_list'),
+    # path('progress_report/update/<int:pk>/', ProgressReportUpdateView.as_view(), name='progress_report_update'),
+    # path('progress_report/delete/<int:pk>/', ProgressReportDeleteView.as_view(), name='progress_report_delete'),
 
     path('contract_create/', ContractCreateView.as_view(), name='contract_create'),
     path('contract_retrieve/<int:pk>/', ContractRetrieveView.as_view(), name='contract_retrieve'),

@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import EmployeeProfile
+from .models import EmployeeProfile , ProgressReport
 from authentication.models import CustomUser
 
 
@@ -26,3 +26,9 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
             }
         except EmployeeProfile.DoesNotExist:
             return None
+
+
+class ClientprogressSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = ProgressReport
+        fields = '__all__'
