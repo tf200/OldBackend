@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import EmployeeProfile , ProgressReport
+from .models import EmployeeProfile , ProgressReport , Measurement
 from authentication.models import CustomUser
 
 
@@ -31,4 +31,10 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
 class ClientprogressSerializer(serializers.ModelSerializer):
     class Meta :
         model = ProgressReport
+        fields = '__all__'
+
+
+class MeasurementSerializer(serializers.ModelSerializer) :
+    class Meta :
+        model = Measurement
         fields = '__all__'

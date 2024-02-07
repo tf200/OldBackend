@@ -9,4 +9,8 @@ urlpatterns = [
     path('progress_report/list/<int:client>/', ProgressReportListView.as_view(), name='progress_report_list'),
     path('progress_report/update/<int:pk>/', ProgressReportUpdateView.as_view(), name='progress_report_update'),
     path('progress_report/delete/<int:pk>/', ProgressReportDeleteView.as_view(), name='progress_report_delete'),
+    path('measurment_rud/<int:pk>/' , ClientMeasurmentRUDView.as_view() , name='measurment rud' ),
+    path('measurment_cl/' ,ClientMeasurmentCLView.as_view() , name = 'measurment_cl'),
+    path('measurment_list/<int:client>/' ,ClientMeasurmentListView.as_view() , name = 'measurment_list')
+
 ]

@@ -62,6 +62,43 @@ class ProgressReport(models.Model):
 
 
 
+class Measurement(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add = True)
+    measurement_type = models.CharField(max_length=100)
+    value = models.FloatField()
+    
+
+class Observations(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateField()
+    observation_text = models.TextField()
+
+class Feedback(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateField()
+    feedback_text = models.TextField()
+
+
+class EmotionalState(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    state_description = models.TextField()
+    intensity = models.IntegerField()  # You can use a scale like 1-10
+
+    def __str__(self):
+        return f"Emotional State for {self.client.name} - {self.date}"
+
+class PhysicalState(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    symptoms = models.TextField()
+    severity = models.IntegerField()  # You can use a scale like 1-10
+
+    def __str__(self):
+        return f"Physical State for {self.client.name} - {self.date}"
+
+
 
 
         
