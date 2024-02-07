@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import UserEmployeeProfileSerializer , ClientprogressSerializer
 from rest_framework.response import Response
 from client.tasks import send_progress_report_email
-from .models import ProgressReport
+from .models import ProgressReport , EmployeeProfile
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from client.pagination import CustomPagination
@@ -31,8 +31,9 @@ class ProgressReportCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     def perform_create(self, serializer):
-        author = self.request.user
-        serializer.save(author=author) 
+        user = self.request.user
+        employee_profile = EmployeeProfile.objects.get(user=user)
+        serializer.save(author=employee_profile)
         # send_progress_report_email.delay(instance.id , instance.report_text) 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
