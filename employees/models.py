@@ -7,10 +7,10 @@ from django.core.exceptions import ValidationError
 
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    position = models.CharField(max_length=100)
-    department = models.CharField(max_length=100)
+    position = models.CharField(max_length=100, null=True, blank=True)
+    department = models.CharField(max_length=100, null=True, blank=True)
     # Education
-    highest_education = models.CharField(max_length=100)
+    highest_education = models.CharField(max_length=100, null=True, blank=True)
     university = models.CharField(max_length=100, null=True, blank=True)
     graduation_year = models.IntegerField(null=True, blank=True)
     # Certifications
@@ -18,8 +18,7 @@ class EmployeeProfile(models.Model):
     # Relevant Work Experience
     experience = models.TextField(help_text='List of relevant work experiences', null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}'s Profile"
+
 
 
 
