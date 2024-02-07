@@ -31,8 +31,8 @@ class ProgressReportCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     def perform_create(self, serializer):
-        instance = serializer.save()  # Save the instance created by the serializer
-        send_progress_report_email.delay(instance.id , instance.report_text) 
+        instance = serializer.save()  
+        # send_progress_report_email.delay(instance.id , instance.report_text) 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
@@ -46,7 +46,7 @@ class ProgressReportListView(generics.ListAPIView):
     # filterset_class = ProgressReportFilter  # Uncomment this if you have a filter class
     ordering_fields = ['date', 'client']
     ordering = ['date']
-    pagination_class = CustomPagination  # Use your custom pagination class
+    pagination_class = CustomPagination  
 
     def get_queryset(self):
         client_id = self.kwargs['client']
