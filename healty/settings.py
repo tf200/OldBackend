@@ -149,8 +149,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-AWS_ACCESS_KEY_ID = 'AKIASD75TGXPJFCXFP6M'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = 'AKIASD75TGXPOTYOVZNV'
+AWS_SECRET_ACCESS_KEY = 'DEsX2LDwJpR99VFkLmMImRCFI8BujP9xz5e1dTr0'
 AWS_STORAGE_BUCKET_NAME = 'healtystorages'
 AWS_DEFAULT_ACL = None
 AWS_S3_REGION_NAME = 'us-east-2'  # e.g., us-east-2
