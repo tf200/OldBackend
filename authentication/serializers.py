@@ -6,21 +6,21 @@ from employees.serializers import UserEmployeeProfileSerializer
 class MyCustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
-        # Call the superclass method to get a token
+        
         token = super().get_token(user)
 
         # Add custom claims
         groups = user.groups.values_list('name', flat=True)
-        token['groups'] = list(groups)  # Add group information to the token
+        token['groups'] = list(groups)  
 
         return token
 
     def validate(self, attrs):
-        # Call the superclass's validate method to get the token pair
+       
         data = super().validate(attrs)
 
-        # Add user details to the response. Adjust this to include any information you need.
-        user_data = UserEmployeeProfileSerializer(self.user).data  # Assuming you have this serializer defined elsewhere
+        
+        user_data = UserEmployeeProfileSerializer(self.user).data  
         data.update({'user': user_data})
 
         return data

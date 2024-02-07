@@ -31,7 +31,8 @@ class ProgressReportCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     def perform_create(self, serializer):
-        instance = serializer.save()  
+        author = self.request.user
+        serializer.save(author=author) 
         # send_progress_report_email.delay(instance.id , instance.report_text) 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
@@ -43,7 +44,7 @@ class ProgressReportListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    # filterset_class = ProgressReportFilter  # Uncomment this if you have a filter class
+    # filterset_class = ProgressReportFilter  
     ordering_fields = ['date', 'client']
     ordering = ['date']
     pagination_class = CustomPagination  
