@@ -73,6 +73,7 @@ class Measurement(models.Model):
 
 class Observations(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    category = models.CharField(max_length=100, blank=True, null=True)
     date = models.DateField(auto_now_add=True)
     observation_text = models.TextField()
 
