@@ -180,3 +180,5 @@ class ClientPhysicalStateListView(generics.ListAPIView):
     def get_queryset(self):
         client_id = self.kwargs['client']
         return PhysicalState.objects.filter(client=client_id)        
+
+

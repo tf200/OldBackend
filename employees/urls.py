@@ -33,9 +33,9 @@ urlpatterns = [
 
 
 
-    path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
-    path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
-    path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),
+    # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
+    # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
+    # path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),
 
 
 
