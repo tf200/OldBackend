@@ -48,9 +48,17 @@ class ObservationsSerializer(serializers.ModelSerializer):
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    def get_author_name(self, obj):
+        if obj.author:
+            return obj.author.username
+        else:
+            return None
+
     class Meta:
         model = Feedback
-        fields = '__all__'
+        fields = ['id', 'author', 'author_name', 'client', 'date', 'feedback_text']
 
 
 
