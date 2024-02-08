@@ -34,9 +34,17 @@ class ClientprogressSerializer(serializers.ModelSerializer):
 
 
 class MeasurementSerializer(serializers.ModelSerializer) :
+    client_name = serializers.SerializerMethodField()
+
+    def get_client_name(self, obj):
+        if obj.client:
+            return f"{obj.client.first_name} {obj.client.last_name}"
+        else:
+            return None
+
     class Meta :
         model = Measurement
-        fields = '__all__'
+        fields = ['client', 'client_name', 'date', 'measurement_type', 'value']
 
 
 
@@ -52,7 +60,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
     def get_author_name(self, obj):
         if obj.author:
-            return f"obj.author.user.first_name + ' ' + obj.author.user.last_name"
+            return f"{obj.author.user.first_name}  {obj.author.user.last_name}"
         else:
             return None
 
