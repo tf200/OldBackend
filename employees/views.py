@@ -116,6 +116,10 @@ class ClientFeedbackRUDView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FeedbackSerializer
     queryset = Feedback.objects.all()
+    def perform_create(self, serializer):
+        user = self.request.user
+        employee_profile = EmployeeProfile.objects.get(user=user)
+        serializer.save(author=employee_profile)
 
 class ClientFeedbackCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
