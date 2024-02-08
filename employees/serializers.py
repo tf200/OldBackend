@@ -1,4 +1,4 @@
-from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState , ProgressReport , Measurement
+from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState , ProgressReport , Measurement ,ClientEmployeeAssignment
 from authentication.models import CustomUser
 from rest_framework import serializers
 
@@ -64,4 +64,10 @@ class EmotionalStateSerializer(serializers.ModelSerializer):
 class PhysicalStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalState
+        fields = '__all__'
+
+
+class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientEmployeeAssignment
         fields = '__all__'
