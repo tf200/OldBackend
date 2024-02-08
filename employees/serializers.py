@@ -71,3 +71,10 @@ class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientEmployeeAssignment
         fields = '__all__'
+
+
+
+class EmployeeProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeProfile
+        fields = '__all__'

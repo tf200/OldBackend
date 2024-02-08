@@ -46,7 +46,7 @@ class ClientEmergencyContact(models.Model):
     relationship = models.CharField(max_length=100, blank=True, null=True)
     auto_reports = models.BooleanField(default=False)
     relation_status = models.CharField(max_length=50,  choices=[(
-        'PrimaryRelationship', 'Primary-Relationship'), ('SecondaryRelationship', 'Secondary-Relationship')], null=True, blank=True)
+        'Primary-Relationship', 'Primary Relationship'), ('Secondary-Relationship', 'Secondary Relationship')], null=True, blank=True)
 
 
 class Treatments(models.Model):

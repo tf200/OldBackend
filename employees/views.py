@@ -1,5 +1,5 @@
 from .serializers import ClientEmployeeAssignmentSerializer, EmotionalStateSerializer, FeedbackSerializer, ObservationsSerializer, PhysicalStateSerializer, UserEmployeeProfileSerializer , ClientprogressSerializer , MeasurementSerializer
-from .models import EmotionalState, Feedback, Observations, PhysicalState, ProgressReport , EmployeeProfile,Measurement
+from .models import ClientEmployeeAssignment, EmotionalState, Feedback, Observations, PhysicalState, ProgressReport , EmployeeProfile,Measurement
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from client.tasks import send_progress_report_email
@@ -192,6 +192,30 @@ class ClientPhysicalStateListView(generics.ListAPIView):
 
 
 #=====================================================
+class ClientEmployeeAssignmentRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmployeeAssignmentSerializer
+    queryset = ClientEmployeeAssignment.objects.all()
+
+class ClientEmployeeAssignmentCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmployeeAssignmentSerializer
+
+class ClientEmployeeAssignmentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmployeeAssignmentSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ['client', 'start_date']
+    ordering = ['start_date']
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        client_id = self.kwargs['client']
+        return ClientEmployeeAssignment.objects.filter(client=client_id)        
+
+
+
+#=====================================================
 # class ClientEmployeeAssignmentRUDView(generics.RetrieveUpdateDestroyAPIView):
 #     permission_classes = [IsAuthenticated]
 #     serializer_class = ClientEmployeeAssignmentSerializer
@@ -201,16 +225,15 @@ class ClientPhysicalStateListView(generics.ListAPIView):
 #     permission_classes = [IsAuthenticated]
 #     serializer_class = ClientEmployeeAssignmentSerializer
 
-# class ClientEmployeeAssignmentListView(generics.ListAPIView):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ClientEmployeeAssignmentSerializer
-#     filter_backends = [DjangoFilterBackend, OrderingFilter]
-#     ordering_fields = ['client', 'date']
-#     ordering = ['date']
-#     pagination_class = CustomPagination
+class ClientEmployeeAssignmentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientEmployeeAssignmentSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ['client', 'date']
+    ordering = ['date']
+    pagination_class = CustomPagination
 
-#     def get_queryset(self):
-#         client_id = self.kwargs['client']
-#         return EmployeeAssignment.objects.filter(client=client_id)        
-
+    def get_queryset(self):
+        client_id = self.kwargs['client']
+        return ClientEmployeeAssignment.objects.filter(client=client_id)        
 
