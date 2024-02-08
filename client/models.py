@@ -5,6 +5,7 @@ class ClientDetails(models.Model):
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
+    # identity = models.BooleanField(default=False)
     email = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     organisation = models.CharField(max_length=100, blank=True, null=True)

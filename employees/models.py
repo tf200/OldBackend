@@ -79,6 +79,7 @@ class Observations(models.Model):
 
 
 class Feedback(models.Model):
+    author  = models.ForeignKey(EmployeeProfile , on_delete=models.CASCADE, related_name='author', blank= True , null = True)
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateField()
     feedback_text = models.TextField()
