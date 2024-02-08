@@ -42,6 +42,7 @@ class ClientEmergencyContact(models.Model) :
     address = models.CharField(max_length = 100 , blank= True , null = True )
     relationship = models.CharField(max_length = 100 , blank= True , null = True )
     auto_reports = models.BooleanField(default =False)
+    relation_status = models.CharField(max_length = 50 ,  choices=[('Primary-Relationship', 'Primary-Relationship'), ('Secondary-Relationship', 'Secondary-Relationship')])
 
 class Treatments(models.Model) : 
     user= models.ForeignKey(ClientDetails , related_name='treatments', on_delete = models.CASCADE)

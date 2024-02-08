@@ -30,4 +30,14 @@ urlpatterns = [
     path('physicalstate_rud/<int:pk>/' , ClientPhysicalStateRUDView.as_view() , name='physicalstate_rud' ),
     path('physicalstate_cl/' ,ClientPhysicalStateCreateView.as_view() , name = 'physicalstate_cl'),
     path('physicalstate_list/<int:client>/' ,ClientPhysicalStateListView.as_view() , name = 'physicalstate_list'),
+
+
+
+    path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
+    path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
+    path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),
+
+
+
+
 ]
