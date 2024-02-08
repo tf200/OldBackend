@@ -1,7 +1,6 @@
-
-from rest_framework import serializers
-from .models import EmployeeProfile , ProgressReport , Measurement
+from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState , ProgressReport , Measurement
 from authentication.models import CustomUser
+from rest_framework import serializers
 
 
 
@@ -37,4 +36,32 @@ class ClientprogressSerializer(serializers.ModelSerializer):
 class MeasurementSerializer(serializers.ModelSerializer) :
     class Meta :
         model = Measurement
+        fields = '__all__'
+
+
+
+class ObservationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Observations
+        fields = '__all__'
+
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = '__all__'
+
+
+
+class EmotionalStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmotionalState
+        fields = '__all__'
+
+
+
+class PhysicalStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhysicalState
         fields = '__all__'

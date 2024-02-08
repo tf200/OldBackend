@@ -1,8 +1,8 @@
-from django.db import models
-from authentication.models import CustomUser
-from django.conf import settings
-from client.models import ClientDetails
 from django.core.exceptions import ValidationError
+from authentication.models import CustomUser
+from client.models import ClientDetails
+from django.conf import settings
+from django.db import models
 
 
 class EmployeeProfile(models.Model):
@@ -17,10 +17,6 @@ class EmployeeProfile(models.Model):
     certifications = models.TextField(help_text='List of certifications', null=True, blank=True)
     # Relevant Work Experience
     experience = models.TextField(help_text='List of relevant work experiences', null=True, blank=True)
-
-
-
-
 
 
 
@@ -53,6 +49,7 @@ class Assignment(models.Model):
             raise ValidationError("The employee does not have the required skills for this client.")
 
 
+
 class ProgressReport(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
@@ -69,15 +66,19 @@ class Measurement(models.Model):
     value = models.FloatField()
     
 
+
 class Observations(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     observation_text = models.TextField()
+
+
 
 class Feedback(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateField()
     feedback_text = models.TextField()
+
 
 
 class EmotionalState(models.Model):
@@ -89,6 +90,8 @@ class EmotionalState(models.Model):
     def __str__(self):
         return f"Emotional State for {self.client.name} - {self.date}"
 
+
+
 class PhysicalState(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateTimeField()
@@ -97,17 +100,5 @@ class PhysicalState(models.Model):
 
     def __str__(self):
         return f"Physical State for {self.client.name} - {self.date}"
-
-
-
-
-        
-
-
-
-
-
-        
-
 
 
