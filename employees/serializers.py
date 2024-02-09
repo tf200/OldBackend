@@ -81,9 +81,17 @@ class PhysicalStateSerializer(serializers.ModelSerializer):
 
 
 class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
+    employee_name = serializers.SerializerMethodField()
+
+    def get_employee_name(self, obj):
+        if obj.employee:
+            return f"{obj.employee.user.first_name} {obj.employee.user.last_name}"
+        else:
+            return None
+        
     class Meta:
         model = ClientEmployeeAssignment
-        fields = '__all__'
+        fields = ['client', 'employee', 'employee_name', 'start_date', 'role']
 
 
 class EmployeeProfileSerializer(serializers.ModelSerializer):
