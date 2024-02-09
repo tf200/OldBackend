@@ -7,7 +7,7 @@ class ClientDetails(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     identity = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=(('In Care', 'In Care'), ('On Waiting List',
-                              'On Waiting List'), ('Out Of Concern', 'Out Of Concern')), blank=True, null=True)
+                              'On Waiting List'), ('Out Of Concern', 'Out Of Concern')), default='On Waiting List', blank=True, null=True)
     bsn = models.CharField(max_length=100, blank=True, null=True)
     source = models.CharField(max_length=100, blank=True, null=True)
     birthplace = models.CharField(max_length=100, blank=True, null=True)

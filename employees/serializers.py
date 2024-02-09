@@ -1,6 +1,6 @@
-from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState, ProgressReport, Measurement, ClientEmployeeAssignment
 from authentication.models import CustomUser
 from rest_framework import serializers
+from .models import *
 
 
 class UserEmployeeProfileSerializer(serializers.ModelSerializer):
