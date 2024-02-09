@@ -1,13 +1,13 @@
-from django.shortcuts import render
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from .serializers import *
-from .models import ClientDetails
 from django_filters.rest_framework import DjangoFilterBackend
-from client.filters import ClientDetailsFilter, ClientDiagnosisFilter, ClientMedicationFilter, ClientAllergyFilter
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter
-from .pagination import CustomPagination
 from .tasks import send_progress_report_email
+from .pagination import CustomPagination
+from rest_framework import generics
+from django.shortcuts import render
+from .models import ClientDetails
+from client.filters import *
+from .serializers import *
 from rest_framework import filters
 # Create your views here.
 

@@ -1,5 +1,3 @@
-from .serializers import ClientEmployeeAssignmentSerializer, EmotionalStateSerializer, EmployeeProfileSerializer, FeedbackSerializer, ObservationsSerializer, PhysicalStateSerializer, UserEmployeeProfileSerializer , ClientprogressSerializer , MeasurementSerializer
-from .models import ClientEmployeeAssignment, EmotionalState, Feedback, Observations, PhysicalState, ProgressReport , EmployeeProfile,Measurement
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from client.tasks import send_progress_report_email
@@ -8,6 +6,8 @@ from client.pagination import CustomPagination
 from rest_framework.response import Response
 from rest_framework import generics
 from django.shortcuts import render
+from .serializers import *
+from .models import *
 
 
 

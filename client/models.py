@@ -8,6 +8,9 @@ class ClientDetails(models.Model):
     identity = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=(('In Care', 'In Care'), ('On Waiting List',
                               'On Waiting List'), ('Out Of Concern', 'Out Of Concern')), blank=True, null=True)
+    bsn = models.CharField(max_length=100, blank=True, null=True)
+    source = models.CharField(max_length=100, blank=True, null=True)
+    birthplace = models.CharField(max_length=100, blank=True, null=True)
     email = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     organisation = models.CharField(max_length=100, blank=True, null=True)
@@ -149,25 +152,25 @@ class FrameworkAgreement(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
-class EmotionalState(models.Model):
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="client_emotional")
-    severity = models.CharField(max_length=50, blank=True, null=True)
-    date = models.DateTimeField()
-    state_description = models.TextField()
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+# class EmotionalState(models.Model):
+#     client = models.ForeignKey(
+#         ClientDetails, on_delete=models.CASCADE, related_name="client_emotional")
+#     severity = models.CharField(max_length=50, blank=True, null=True)
+#     date = models.DateTimeField()
+#     state_description = models.TextField()
+#     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-    def __str__(self):
-        return f"Emotional State for {self.client.name} - {self.date}"
+#     def __str__(self):
+#         return f"Emotional State for {self.client.name} - {self.date}"
 
 
-class PhysicalState(models.Model):
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="client_physical")
-    severity = models.CharField(max_length=50, blank=True, null=True)
-    date = models.DateTimeField()
-    symptoms = models.TextField()
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+# class PhysicalState(models.Model):
+#     client = models.ForeignKey(
+#         ClientDetails, on_delete=models.CASCADE, related_name="client_physical")
+#     severity = models.CharField(max_length=50, blank=True, null=True)
+#     date = models.DateTimeField()
+#     symptoms = models.TextField()
+#     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-    def __str__(self):
-        return f"Physical State for {self.client.name} - {self.date}"
+#     def __str__(self):
+#         return f"Physical State for {self.client.name} - {self.date}"
