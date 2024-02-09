@@ -8,6 +8,7 @@ from client.filters import ClientDetailsFilter, ClientDiagnosisFilter, ClientMed
 from rest_framework.filters import OrderingFilter
 from .pagination import CustomPagination
 from .tasks import send_progress_report_email
+from rest_framework import filters
 # Create your views here.
 
 
@@ -26,9 +27,12 @@ class ClientListView (generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_class = ClientDetailsFilter
-    ordering_fields = ['first_name', 'last_name', 'date_of_birth', 'city', 'streetname']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'last_name', 'date_of_birth', 'email', 'phone_number', 'organisation',
+                     'location', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
+    # filterset_class = ClientDetailsFilter
+    ordering_fields = ['first_name', 'last_name',
+                       'date_of_birth', 'city', 'streetname']
     ordering = ['date_of_birth']
     pagination_class = CustomPagination
 
