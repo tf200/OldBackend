@@ -134,3 +134,24 @@ class FrameworkAgreement(models.Model):
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='framework_agreements')
     agreement_details = models.TextField()
+
+
+
+class EmotionalState(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="client_emotional")
+    severity = models.CharField(max_length=50, blank=True, null=True)
+    date = models.DateTimeField()
+    state_description = models.TextField()
+
+    def __str__(self):
+        return f"Emotional State for {self.client.name} - {self.date}"
+    
+
+class PhysicalState(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="client_physical")
+    severity = models.CharField(max_length=50, blank=True, null=True)
+    date = models.DateTimeField()
+    symptoms = models.TextField()
+
+    def __str__(self):
+        return f"Physical State for {self.client.name} - {self.date}"

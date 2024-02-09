@@ -228,12 +228,9 @@ class ClientEmployeeAssignmentListView(generics.ListAPIView):
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EmployeeProfileSerializer
+    queryset = EmployeeProfile.objects.all()    
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['user', 'graduation_year']
     ordering = ['graduation_year']
     pagination_class = CustomPagination
-
-    def get_queryset(self):
-        user_id = self.kwargs['user']
-        return ClientEmployeeAssignment.objects.filter(user=user_id)        
 
