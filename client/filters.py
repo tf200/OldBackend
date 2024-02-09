@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import ClientDiagnosis , ClientMedication , ClientAllergy
+from .models import ClientDetails, ClientDiagnosis , ClientMedication , ClientAllergy
 from django_filters.filters import DateFilter , DateFromToRangeFilter
 
 
@@ -51,3 +51,32 @@ class ClientAllergyFilter(filters.FilterSet):
     class Meta:
         model = ClientAllergy
         fields = ['allergy_type', 'severity', 'reaction', 'notes']
+
+
+
+class ClientDetailsFilter(filters.FilterSet):
+    date_of_birth = DateFilter()
+    date_of_birth_range = DateFromToRangeFilter()
+    date_of_birth_year = DateFilter(field_name='date_of_birth', lookup_expr='year')
+    date_of_birth_month = DateFilter(field_name='date_of_birth', lookup_expr='month')
+    date_of_birth_day = DateFilter(field_name='date_of_birth', lookup_expr='day')
+
+    class Meta:
+        model = ClientDetails
+        fields = {
+            'first_name': ['exact', 'icontains'],
+            'last_name': ['exact', 'icontains'],
+            'date_of_birth': ['year__gt', 'year__lt'],
+            'email': ['exact', 'icontains'],
+            'phone_number': ['exact', 'icontains'],
+            'organisation': ['exact', 'icontains'],
+            'location': ['exact', 'icontains'],
+            'departement': ['exact', 'icontains'],
+            'gender': ['exact', 'icontains'],
+            'filenumber': ['exact', 'gt', 'lt'],
+            'city': ['exact', 'icontains'],
+            'Zipcode': ['exact', 'icontains'],
+            'infix': ['exact', 'icontains'],
+            'streetname': ['exact', 'icontains'],
+            'street_number': ['exact', 'icontains'],
+        }
