@@ -1,7 +1,6 @@
-from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState , ProgressReport , Measurement ,ClientEmployeeAssignment
+from .models import EmotionalState, EmployeeProfile, Feedback, Observations, PhysicalState, ProgressReport, Measurement, ClientEmployeeAssignment
 from authentication.models import CustomUser
 from rest_framework import serializers
-
 
 
 class UserEmployeeProfileSerializer(serializers.ModelSerializer):
@@ -9,8 +8,9 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'first_name', 'last_name', 'profile_picture' , 'phone_number','profile' )
-    
+        fields = ('username', 'email', 'first_name', 'last_name',
+                  'profile_picture', 'phone_number', 'profile')
+
     def get_profile(self, obj):
         try:
             profile = EmployeeProfile.objects.get(user=obj)
@@ -28,12 +28,12 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
 
 
 class ClientprogressSerializer(serializers.ModelSerializer):
-    class Meta :
+    class Meta:
         model = ProgressReport
         fields = '__all__'
 
 
-class MeasurementSerializer(serializers.ModelSerializer) :
+class MeasurementSerializer(serializers.ModelSerializer):
     client_name = serializers.SerializerMethodField()
 
     def get_client_name(self, obj):
@@ -42,17 +42,15 @@ class MeasurementSerializer(serializers.ModelSerializer) :
         else:
             return None
 
-    class Meta :
+    class Meta:
         model = Measurement
         fields = ['client', 'client_name', 'date', 'measurement_type', 'value']
-
 
 
 class ObservationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observations
         fields = '__all__'
-
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -66,15 +64,14 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feedback
-        fields = ['id', 'author', 'author_name', 'client', 'date', 'feedback_text']
-
+        fields = ['id', 'author', 'author_name',
+                  'client', 'date', 'feedback_text']
 
 
 class EmotionalStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmotionalState
         fields = '__all__'
-
 
 
 class PhysicalStateSerializer(serializers.ModelSerializer):
@@ -89,8 +86,16 @@ class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class EmployeeProfileSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+
+    def get_user_name(self, obj):
+        if obj.user:
+            return f"{obj.user.first_name} {obj.user.last_name}"
+        else:
+            return None
+
     class Meta:
         model = EmployeeProfile
-        fields = '__all__'
+        fields = ['user', 'user_name', 'position', 'department', 'highest_education',
+                  'university', 'graduation_year', 'certifications', 'experience']
