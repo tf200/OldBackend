@@ -42,7 +42,7 @@ class ProgressReportListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     # filterset_class = ProgressReportFilter  
     ordering_fields = ['date', 'client']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination  
 
     def get_queryset(self):
@@ -78,7 +78,7 @@ class ClientMeasurmentListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     # filterset_class = ProgressReportFilter  
     ordering_fields = ['date', 'client']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination  
 
     def get_queryset(self):
@@ -102,7 +102,7 @@ class ClientObservationsListView(generics.ListAPIView):
     serializer_class = ObservationsSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -134,7 +134,7 @@ class ClientFeedbackListView(generics.ListAPIView):
     serializer_class = FeedbackSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -158,7 +158,7 @@ class ClientEmotionalStateListView(generics.ListAPIView):
     serializer_class = EmotionalStateSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -182,7 +182,7 @@ class ClientPhysicalStateListView(generics.ListAPIView):
     serializer_class = PhysicalStateSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
-    ordering = ['date']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -206,7 +206,7 @@ class ClientEmployeeAssignmentListView(generics.ListAPIView):
     serializer_class = ClientEmployeeAssignmentSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'start_date']
-    ordering = ['start_date']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -231,6 +231,6 @@ class EmployeeProfileListView(generics.ListAPIView):
     queryset = EmployeeProfile.objects.all()    
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['user', 'graduation_year']
-    ordering = ['graduation_year']
+    ordering = ['-created']
     pagination_class = CustomPagination
 

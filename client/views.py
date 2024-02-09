@@ -27,13 +27,14 @@ class ClientListView (generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'last_name', 'date_of_birth', 'email', 'phone_number', 'organisation',
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {'status': ['exact', 'in']}
+    search_fields = ['first_name', 'last_name', 'status', 'date_of_birth', 'identity', 'email', 'phone_number', 'organisation',
                      'location', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
     # filterset_class = ClientDetailsFilter
     ordering_fields = ['first_name', 'last_name',
                        'date_of_birth', 'city', 'streetname']
-    ordering = ['date_of_birth']
+    ordering = ['-created']
     pagination_class = CustomPagination
 
 
@@ -69,7 +70,7 @@ class DiagnosisListView(generics.ListAPIView):
     filterset_class = ClientDiagnosisFilter
     ordering_fields = ['title', 'date_of_diagnosis',
                        'severity', 'status', 'diagnosing_clinician']
-    ordering = ['date_of_diagnosis']
+    ordering = ['-created']
     pagination_class = CustomPagination  # Use your custom pagination class
 
     def get_queryset(self):
@@ -105,6 +106,7 @@ class ClientEmergencyContactRetrieveView(generics.RetrieveAPIView):
 class ClientEmergencyContactListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientEmergencyContactSerializer
+    ordering = ['-created']
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -134,6 +136,7 @@ class ClientDocumentsUploadView(generics.CreateAPIView):
 class ClientDocumentsListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientDocumentsSerializers
+    ordering = ['-created']
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -167,7 +170,7 @@ class ClientMedicationListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ClientMedicationFilter
     ordering_fields = ['name', 'dosage', 'frequency', 'start_date', 'end_date']
-    ordering = ['start_date']
+    ordering = ['-created']
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -206,7 +209,7 @@ class ClientAllergyListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ClientAllergyFilter
     ordering_fields = ['allergy_type', 'severity', 'reaction']
-    ordering = ['severity']
+    ordering = ['-created']
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -283,7 +286,7 @@ class ContractListView(generics.ListAPIView):
     # filterset_class = ContractFilter
     ordering_fields = ['start_date', 'end_date',
                        'rate_per_day', 'rate_per_minute', 'rate_per_hour']
-    ordering = ['start_date']
+    ordering = ['-created']
 
     def get_queryset(self):
         client_id = self.kwargs.get('client', None)

@@ -22,6 +22,7 @@ class ClientDetails(models.Model):
     infix = models.CharField(max_length=100, blank=True, null=True)
     streetname = models.CharField(max_length=100, blank=True, null=True)
     street_number = models.CharField(max_length=100, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class ClientDiagnosis(models.Model):
@@ -35,6 +36,7 @@ class ClientDiagnosis(models.Model):
     status = models.CharField(max_length=100)
     diagnosing_clinician = models.CharField(max_length=100)
     notes = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class ClientEmergencyContact(models.Model):
@@ -49,6 +51,7 @@ class ClientEmergencyContact(models.Model):
     auto_reports = models.BooleanField(default=False)
     relation_status = models.CharField(max_length=50,  choices=[(
         'Primary Relationship', 'Primary Relationship'), ('Secondary Relationship', 'Secondary Relationship')], null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class Treatments(models.Model):
@@ -56,6 +59,7 @@ class Treatments(models.Model):
         ClientDetails, related_name='treatments', on_delete=models.CASCADE)
     treatment_name = models.CharField(max_length=500)
     treatment_date = models.CharField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class ClientMedication(models.Model):
@@ -67,6 +71,7 @@ class ClientMedication(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} for {self.client.name}"
@@ -79,6 +84,7 @@ class ClientAllergy(models.Model):
     severity = models.CharField(max_length=100)
     reaction = models.TextField()
     notes = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"{self.allergy_type} allergy for {self.client.name}"
@@ -92,6 +98,7 @@ class ClientDocuments(models.Model):
         auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.BigIntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -112,12 +119,14 @@ class Contract(models.Model):
         max_digits=10, decimal_places=4, null=True, blank=True, verbose_name="Rate per Minute")
     rate_per_hour = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Rate per Hour")
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class ClientAgreement(models.Model):
     contract = models.ForeignKey(
         Contract, on_delete=models.CASCADE, related_name='client_agreements')
     agreement_details = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"Client Agreement for {self.contract.client.name}"
@@ -127,6 +136,7 @@ class Provision(models.Model):
     contract = models.ForeignKey(
         Contract, on_delete=models.CASCADE, related_name='provisions')
     provision_details = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"Provision for {self.contract.client.name}"
@@ -136,6 +146,7 @@ class FrameworkAgreement(models.Model):
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='framework_agreements')
     agreement_details = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
 class EmotionalState(models.Model):
@@ -144,6 +155,7 @@ class EmotionalState(models.Model):
     severity = models.CharField(max_length=50, blank=True, null=True)
     date = models.DateTimeField()
     state_description = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"Emotional State for {self.client.name} - {self.date}"
@@ -155,6 +167,7 @@ class PhysicalState(models.Model):
     severity = models.CharField(max_length=50, blank=True, null=True)
     date = models.DateTimeField()
     symptoms = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"Physical State for {self.client.name} - {self.date}"
