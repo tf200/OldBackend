@@ -4,10 +4,12 @@ from client.tasks import send_progress_report_email
 from rest_framework.filters import OrderingFilter
 from client.pagination import CustomPagination
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics , status
+from rest_framework.views import APIView
 from django.shortcuts import render
 from .serializers import *
 from .models import *
+from django.db.utils import IntegrityError
 
 
 
@@ -19,9 +21,10 @@ class CurrentUserProfileView(generics.RetrieveAPIView):
     def get(self, request):
         serializer = UserEmployeeProfileSerializer(request.user)
         return Response(serializer.data)
+#=============================================================================
 
 
-
+#=============================================================================
 class ProgressReportCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
@@ -225,12 +228,57 @@ class ClientEmployeeAssignmentListView(generics.ListAPIView):
 #     permission_classes = [IsAuthenticated]
 #     serializer_class = ClientEmployeeAssignmentSerializer
 
+
+#=====================================================
+
+
+
+class EmployeeProfileRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EmployeeCRUDSerializer
+    queryset = EmployeeProfile.objects.all()
+
+
+class EmployeeProfileCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            employee_data = request.data
+
+            first_name = employee_data.get('first_name', '')
+            last_name = employee_data.get('last_name', '')
+            username = generate_unique_username(first_name, last_name)
+            print(username)
+            password = make_password(None)  
+
+            
+            user, user_created = CustomUser.objects.get_or_create(username=username)
+            if user_created:
+                user.set_password(password)
+                user.save()
+        
+            else:
+                
+                if hasattr(user, 'profile'):
+                
+                    return Response({"error": "This user already has an associated EmployeeProfile."},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        
+            try:
+                employee_profile = EmployeeProfile.objects.create(user=user, **employee_data)
+                print(employee_profile.id)
+                serializer = EmployeeCRUDSerializer(employee_profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError as e:
+                 
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = EmployeeProfileSerializer
-    queryset = EmployeeProfile.objects.all()    
+    serializer_class = ClientEmployeeAssignmentSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    ordering_fields = ['user', 'graduation_year']
+    #ordering_fields = ['client', 'start_date']
     ordering = ['-created']
     pagination_class = CustomPagination
-
+ 

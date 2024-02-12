@@ -36,6 +36,8 @@ urlpatterns = [
     path('clientassignment_list/<int:client>/' ,ClientEmployeeAssignmentListView.as_view() , name = 'clientassignment_list'),
 
     path('employees_list/' ,EmployeeProfileListView.as_view() , name = 'employees_list'),
+    path('employees_create/' ,EmployeeProfileCreateView.as_view() , name = 'employees_list'),
+    path('employees_create/<int:pk>/' ,EmployeeProfileRUDView.as_view() , name = 'employees_list'),
 
     # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
     # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),

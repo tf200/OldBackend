@@ -1,23 +1,37 @@
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from authentication.models import CustomUser
 from client.models import ClientDetails
 from django.conf import settings
 from django.db import models
-
+from .utils import generate_unique_username
+from django.contrib.auth.hashers import make_password
 
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    first_name= models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
     position = models.CharField(max_length=100, null=True, blank=True)
     department = models.CharField(max_length=100, null=True, blank=True)
+    employee_number= models.CharField(max_length = 50 , null = True , blank = True)
+    employment_number = models.CharField(max_length = 50 , null = True , blank = True)
+    private_email_address = models.EmailField( null = True , blank = True)
     # Education
     highest_education = models.CharField(max_length=100, null=True, blank=True)
     university = models.CharField(max_length=100, null=True, blank=True)
     graduation_year = models.IntegerField(null=True, blank=True)
-    # Certifications
+    authentication_phone_number = models.CharField(max_length=100, null=True, blank=True)
+    private_phone_number = models.CharField(max_length=100, null=True, blank=True)
+
+    work_phone_number = models.CharField(max_length=100, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    home_telephone_number = models.CharField(max_length=100, null=True, blank=True)
+
     certifications = models.TextField(help_text='List of certifications', null=True, blank=True)
-    # Relevant Work Experience
     experience = models.TextField(help_text='List of relevant work experiences', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    is_subcontractor = models.BooleanField(null=True, blank=True)
+    gender = models.CharField(max_length=100, null=True, blank=True)
 
 
 
