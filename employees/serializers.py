@@ -107,3 +107,10 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         model = EmployeeProfile
         fields = ['user', 'user_name', 'position', 'department', 'highest_education',
                   'university', 'graduation_year', 'certifications', 'experience']
+
+
+class EmployeeCRUDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeProfile
+        fields = '__all__'
+        extra_kwargs = {'user': {'read_only': True}}
