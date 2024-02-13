@@ -282,7 +282,6 @@ class EmployeeProfileListView(generics.ListAPIView):
     pagination_class = CustomPagination
     queryset = EmployeeProfile.objects.all()
 
-    # Define fields that you want to be searchable
     search_fields = [
         'first_name', 
         'last_name', 
@@ -298,8 +297,6 @@ class EmployeeProfileListView(generics.ListAPIView):
         'private_phone_number', 
         'work_phone_number', 
         'home_telephone_number', 
-        'certifications', 
-        'experience',
         'gender'
     ]
  
