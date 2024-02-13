@@ -321,7 +321,7 @@ class CertificationListView(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        employee_id = self.kwargs['client']
+        employee_id = self.kwargs['employee_id']
         return Certification.objects.filter(employee=employee_id)  
 #================================================================
 
