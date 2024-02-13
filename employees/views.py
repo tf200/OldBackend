@@ -276,7 +276,7 @@ class EmployeeProfileCreateView(APIView):
         
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ClientEmployeeAssignmentSerializer
+    serializer_class = EmployeeCRUDSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     #ordering_fields = ['client', 'start_date']
     ordering = ['-created']
