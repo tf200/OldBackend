@@ -99,7 +99,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
     def get_user_name(self, obj):
         if obj.user:
-            return f"{obj.user.first_name} {obj.user.last_name}"
+            return f"{obj.user.first_name} {obj.user.last_name} {obj.user.profile_picture}"
         else:
             return None
 
