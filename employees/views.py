@@ -303,3 +303,73 @@ class EmployeeProfileListView(generics.ListAPIView):
         'gender'
     ]
  
+#================================================================
+
+class CertificationRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CertificationSerializer
+    queryset = Certification.objects.all()
+
+
+class CertificationCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CertificationSerializer
+
+
+class CertificationListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CertificationSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering = ['-created']
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        employee_id = self.kwargs['client']
+        return Certification.objects.filter(employee=employee_id)  
+#================================================================
+
+class ExperienceRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    queryset = Experience.objects.all()
+
+class ExperienceCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+
+class ExperienceListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering = ['-created']
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        employee_id = self.kwargs['employee_id']
+        return Experience.objects.filter(employee=employee_id)
+
+
+#========================================================================
+
+class ExperienceRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    queryset = Experience.objects.all()
+
+class ExperienceCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+
+class ExperienceListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering = ['-created']
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        employee_id = self.kwargs['employee_id']
+        return Experience.objects.filter(employee=employee_id)
+    
+
+

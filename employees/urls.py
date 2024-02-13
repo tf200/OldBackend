@@ -39,6 +39,16 @@ urlpatterns = [
     path('employees_create/' ,EmployeeProfileCreateView.as_view() , name = 'employees_list'),
     path('employees_create/<int:pk>/' ,EmployeeProfileRUDView.as_view() , name = 'employees_list'),
 
+
+    path('certifications/<int:employee_id>/', CertificationListView.as_view(), name='certification-list'),
+    path('certifications/create/', CertificationCreateView.as_view(), name='certification-create'),
+    path('certificationsRUD/<int:pk>/', CertificationRUDView.as_view(), name='certification-detail'),
+
+    path('experiences/<int:employee_id>/', ExperienceListView.as_view(), name='experience-list'),
+    path('experiences/create/', ExperienceCreateView.as_view(), name='experience-create'),
+    path('experiencesRUD/<int:pk>/', ExperienceRUDView.as_view(), name='experience-detail'),
+    
+
     # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
     # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
     # path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),

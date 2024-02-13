@@ -28,13 +28,29 @@ class EmployeeProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     home_telephone_number = models.CharField(max_length=100, null=True, blank=True)
 
-    certifications = models.TextField(help_text='List of certifications', null=True, blank=True)
-    experience = models.TextField(help_text='List of relevant work experiences', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     is_subcontractor = models.BooleanField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
 
+class Certification(models.Model):
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='certifications')
+    name = models.CharField(max_length=255)
+    issued_by = models.CharField(max_length=255)
+    date_issued = models.DateField()
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    # Add any other fields that are relevant to a certification
 
+    def __str__(self):
+        return self.name
+
+class Experience(models.Model):
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='experiences')
+    job_title = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)  # null and blank for current jobs
+    description = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 class Assignment(models.Model):
     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='assignments')

@@ -20,8 +20,6 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
                 "highest_education": profile.highest_education,
                 "university": profile.university,
                 "graduation_year": profile.graduation_year,
-                "certifications": profile.certifications,
-                "experience": profile.experience,
             }
         except EmployeeProfile.DoesNotExist:
             return None
@@ -114,3 +112,16 @@ class EmployeeCRUDSerializer(serializers.ModelSerializer):
         model = EmployeeProfile
         fields = '__all__'
         extra_kwargs = {'user': {'read_only': True}}
+
+
+
+class CertificationSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = '__all__'
+
+
+class ExperienceSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = '__all__'
