@@ -16,6 +16,7 @@ class EmployeeProfile(models.Model):
     employee_number= models.CharField(max_length = 50 , null = True , blank = True)
     employment_number = models.CharField(max_length = 50 , null = True , blank = True)
     private_email_address = models.EmailField( null = True , blank = True)
+    email_address = models.EmailField( null = True , blank = True)
     # Education
     highest_education = models.CharField(max_length=100, null=True, blank=True)
     university = models.CharField(max_length=100, null=True, blank=True)
