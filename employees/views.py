@@ -281,4 +281,5 @@ class EmployeeProfileListView(generics.ListAPIView):
     #ordering_fields = ['client', 'start_date']
     ordering = ['-created']
     pagination_class = CustomPagination
+    queryset = EmployeeProfile.objects.all()
  
