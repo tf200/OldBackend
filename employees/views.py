@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from client.tasks import send_progress_report_email
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter , SearchFilter
 from client.pagination import CustomPagination
 from rest_framework.response import Response
 from rest_framework import generics , status
@@ -277,9 +277,29 @@ class EmployeeProfileCreateView(APIView):
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EmployeeCRUDSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    #ordering_fields = ['client', 'start_date']
-    ordering = ['-created']
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]  # Add SearchFilter here
+    ordering_fields = ['-created']  # If you want to keep sorting functionality
     pagination_class = CustomPagination
     queryset = EmployeeProfile.objects.all()
+
+    # Define fields that you want to be searchable
+    search_fields = [
+        'first_name', 
+        'last_name', 
+        'position', 
+        'department', 
+        'employee_number', 
+        'employment_number', 
+        'private_email_address', 
+        'email_address',
+        'highest_education', 
+        'university',
+        'authentication_phone_number', 
+        'private_phone_number', 
+        'work_phone_number', 
+        'home_telephone_number', 
+        'certifications', 
+        'experience',
+        'gender'
+    ]
  
