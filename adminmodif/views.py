@@ -10,6 +10,7 @@ from authentication.models import CustomUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])  # Ensure only admins can access this endpoint
@@ -29,5 +30,20 @@ class ListGroups(APIView):
 
     def get(self, request, format=None):
         groups = Group.objects.all()
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
+
+
+
+class UserGroupsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id=None):
+        try:
+            user = CustomUser.objects.get(pk=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        groups = user.groups.all()
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data)
