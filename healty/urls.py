@@ -24,6 +24,8 @@ urlpatterns = [
     path('' , include('authentication.urls')),
     path('client/', include('client.urls') ),
     path('employee/' , include('employees.urls')),
+    path('ad/' , include('adminmodif.urls')),
+
     
 
 ]

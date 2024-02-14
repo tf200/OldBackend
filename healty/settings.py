@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'authentication',
     'client',
-    'employees'
+    'employees',
+    'adminmodif'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
