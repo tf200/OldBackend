@@ -17,9 +17,6 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
             return {
                 "position": profile.position,
                 "department": profile.department,
-                "highest_education": profile.highest_education,
-                "university": profile.university,
-                "graduation_year": profile.graduation_year,
             }
         except EmployeeProfile.DoesNotExist:
             return None
