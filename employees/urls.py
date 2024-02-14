@@ -49,6 +49,11 @@ urlpatterns = [
     path('experiencesRUD/<int:pk>/', ExperienceRUDView.as_view(), name='experience-detail'),
     
 
+    path('educations/<int:employee_id>/', EducationListView.as_view(), name='education-list'),
+    path('educations/create/', EducationCreateView.as_view(), name='education-create'),
+    path('educationsRUD/<int:pk>/', EducationRUDView.as_view(), name='education-detail'),
+    
+
     # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
     # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
     # path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),

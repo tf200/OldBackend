@@ -291,8 +291,6 @@ class EmployeeProfileListView(generics.ListAPIView):
         'employment_number', 
         'private_email_address', 
         'email_address',
-        'highest_education', 
-        'university',
         'authentication_phone_number', 
         'private_phone_number', 
         'work_phone_number', 
@@ -367,6 +365,31 @@ class ExperienceListView(generics.ListAPIView):
     def get_queryset(self):
         employee_id = self.kwargs['employee_id']
         return Experience.objects.filter(employee=employee_id)
+    
+
+
+class EducationRUDView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EducationSerializer
+    queryset = Education.objects.all()
+
+class EducationCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EducationSerializer
+
+
+class EducationListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EducationSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering = ['-end_date']  
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        employee_id = self.kwargs.get('employee_id')
+        return Education.objects.filter(employee=employee_id)
+
+
     
 
 

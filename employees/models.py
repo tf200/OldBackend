@@ -18,9 +18,7 @@ class EmployeeProfile(models.Model):
     private_email_address = models.EmailField( null = True , blank = True)
     email_address = models.EmailField( null = True , blank = True)
     # Education
-    highest_education = models.CharField(max_length=100, null=True, blank=True)
-    university = models.CharField(max_length=100, null=True, blank=True)
-    graduation_year = models.IntegerField(null=True, blank=True)
+
     authentication_phone_number = models.CharField(max_length=100, null=True, blank=True)
     private_phone_number = models.CharField(max_length=100, null=True, blank=True)
 
@@ -51,6 +49,20 @@ class Experience(models.Model):
     end_date = models.DateField(null=True, blank=True)  # null and blank for current jobs
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+class Education(models.Model):
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='education_history')
+    institution_name = models.CharField(max_length=255)
+    degree = models.CharField(max_length=100)
+    field_of_study = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)  # null and blank are True if the degree is not completed
+ # Orders the query results by end_date in descending order
+
+    def __str__(self):
+        return f"{self.degree} in {self.field_of_study} from {self.institution_name}"
+
+
 
 class Assignment(models.Model):
     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='assignments')
