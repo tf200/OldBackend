@@ -5,8 +5,8 @@ from authentication.models import CustomUser
 class AssignGroupSerializer(serializers.Serializer):
     employee_id = serializers.IntegerField()
     group_id = serializers.IntegerField()
-    start_date = serializers.DateField(required=True)  # Adjusted to DateField
-    end_date = serializers.DateField(required=True)  # Adjusted to DateField
+    start_date = serializers.DateField(required=False)  # Adjusted to DateField
+    end_date = serializers.DateField(required=False)  # Adjusted to DateField
 
     def validate_user_id(self, value):
         try:
