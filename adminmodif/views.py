@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import GroupMembership
 from django.utils import timezone
+from employees.models import EmployeeProfile
 from django.http import JsonResponse 
 
 @api_view(['POST'])
@@ -20,8 +21,15 @@ from django.http import JsonResponse
 def assign_group(request):
     serializer = AssignGroupSerializer(data=request.data)
     if serializer.is_valid():
-        user_id = serializer.validated_data['user_id']
-        user = CustomUser.objects.get(pk=user_id)
+        employee_id = serializer.validated_data['employee_id']
+        
+        # Find the EmployeeProfile and then the associated CustomUser
+        try:
+            employee_profile = EmployeeProfile.objects.get(pk=employee_id)
+            user = employee_profile.user
+        except EmployeeProfile.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
         group = Group.objects.get(pk=serializer.validated_data['group_id'])
         start_date = serializer.validated_data['start_date']
         end_date = serializer.validated_data['end_date']
