@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from authentication.models import CustomUser
 
 class AssignGroupSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
+    employee_id = serializers.IntegerField()
     group_id = serializers.IntegerField()
     start_date = serializers.DateField(required=True)  # Adjusted to DateField
     end_date = serializers.DateField(required=True)  # Adjusted to DateField
