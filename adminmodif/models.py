@@ -10,18 +10,12 @@ from django.utils import timezone
 class GroupMembership(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(null=True, blank=True)  # Can be null for immediate effect
+    end_date = models.DateField(null=True, blank=True)  # Can be null for permanence
 
     def is_active(self):
-        """Check if the group membership is currently active."""
-        return self.start_date <= timezone.now().date() <= self.end_date
+        now = timezone.now().date()
+        start_condition = (self.start_date is None or self.start_date <= now)
+        end_condition = (self.end_date is None or self.end_date >= now)
+        return start_condition and end_condition
 
-    def save(self, *args, **kwargs):
-        """Override the save method to update group membership."""
-        super(GroupMembership, self).save(*args, **kwargs)  # Call the "real" save() method.
-        # Now we check the membership status and update the group accordingly.
-        if self.is_active():
-            self.group.user_set.add(self.user)
-        else:
-            self.group.user_set.remove(self.user)
