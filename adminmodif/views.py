@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import GroupMembership
 from django.utils import timezone
+from django.http import JsonResponse 
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -36,13 +37,17 @@ def assign_group(request):
             end_date__gte=today
         ).prefetch_related('group')
 
-        # Prepare a list of group names the user is currently assigned to
-        active_groups = [membership.group.name for membership in active_memberships]
+        # Prepare a list of dictionaries for each group with its start and end date
+        active_groups_info = [{
+            'group_name': membership.group.name,
+            'start_date': membership.start_date,
+            'end_date': membership.end_date
+        } for membership in active_memberships]
 
-        # Return the response including the list of active groups
-        return Response({
+        # Return the response including the list of active groups with start and end dates
+        return JsonResponse({
             'status': 'Group assigned successfully.',
-            'active_groups': active_groups
+            'active_groups': active_groups_info
         })
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
