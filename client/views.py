@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from authentication.permissions import IsMemberOfAuthorizedGroup
+from adminmodif.permissions import IsMemberOfAuthorizedGroup
 from rest_framework.filters import OrderingFilter
 from .tasks import send_progress_report_email
 from .pagination import CustomPagination

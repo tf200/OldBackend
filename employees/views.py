@@ -11,7 +11,7 @@ from .serializers import *
 from .models import *
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
-from authentication.permissions import IsMemberOfAuthorizedGroup
+from adminmodif.permissions import IsMemberOfAuthorizedGroup
 
 
 

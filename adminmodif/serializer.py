@@ -5,6 +5,8 @@ from authentication.models import CustomUser
 class AssignGroupSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     group_id = serializers.IntegerField()
+    start_date = serializers.DateField(required=True)  # Adjusted to DateField
+    end_date = serializers.DateField(required=True)  # Adjusted to DateField
 
     def validate_user_id(self, value):
         try:
@@ -19,6 +21,14 @@ class AssignGroupSerializer(serializers.Serializer):
         except Group.DoesNotExist:
             raise serializers.ValidationError("Group does not exist")
         return value
+
+    def validate(self, data):
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        if start_date >= end_date:
+            raise serializers.ValidationError("End date must be greater than start date")
+        return data
+
 
 
 
