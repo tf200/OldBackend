@@ -14,7 +14,8 @@ from rest_framework import status
 from .models import GroupMembership
 from django.utils import timezone
 from employees.models import EmployeeProfile
-from django.http import JsonResponse 
+from django.http import JsonResponse , Http404
+from django.db.models import Q
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -41,8 +42,12 @@ def assign_group(request):
         today = timezone.now().date()
         active_memberships = GroupMembership.objects.filter(
             user=user,
-            start_date__lte=today,
-            end_date__gte=today
+        ).filter(
+            # Filter by memberships that are either ongoing, or end in the future, and consider null start_dates
+            Q(end_date__isnull=True) | 
+            Q(end_date__gte=today),
+            Q(start_date__isnull=True) |
+            Q(start_date__lte=today)
         ).prefetch_related('group')
 
         # Prepare a list of dictionaries for each group with its start and end date
@@ -71,15 +76,34 @@ class ListGroups(APIView):
 
 
 
-class UserGroupsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_employee_groups(request, employee_id):
+    # Find the EmployeeProfile and then the associated CustomUser
+    try:
+        employee_profile = EmployeeProfile.objects.get(pk=employee_id)
+        user = employee_profile.user
+    except EmployeeProfile.DoesNotExist:
+        raise Http404("Employee not found")
 
-    def get(self, request, user_id=None):
-        try:
-            user = CustomUser.objects.get(pk=user_id)
-        except CustomUser.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    # Fetch all relevant group memberships for the user
+    today = timezone.now().date()
+    relevant_memberships = GroupMembership.objects.filter(
+        user=user,
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=today),
+        Q(start_date__isnull=True) | Q(start_date__lte=today)
+    ).prefetch_related('group')
 
-        groups = user.groups.all()
-        serializer = GroupSerializer(groups, many=True)
-        return Response(serializer.data)
+    # Prepare a list of dictionaries for each group with its start and end date
+    groups_info = [{
+        'group_name': membership.group.name,
+        'start_date': membership.start_date,
+        'end_date': membership.end_date
+    } for membership in relevant_memberships]
+
+    # Return the response including the list of groups
+    return JsonResponse({
+        'employee_id': employee_id,
+        'groups': groups_info
+    })
