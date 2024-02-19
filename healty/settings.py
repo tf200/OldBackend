@@ -110,7 +110,7 @@ DATABASES = {
         'NAME': 'mydb',
         'USER': 'postgres',
         'PASSWORD': 'Mop3oXOy5T729eatqxMj',
-        'HOST': 'database-2.cbzpt1yxfsxs.eu-north-1.rds.amazonaws.com', 
+        'HOST': 'micaredb.c6h0zwjoyzco.eu-central-1.rds.amazonaws.com', 
         'PORT': '5432',
     }
 }
