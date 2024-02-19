@@ -26,5 +26,4 @@ urlpatterns = [
     path('employee/' , include('employees.urls')),
     path('ad/' , include('adminmodif.urls')),
 
-
 ]
