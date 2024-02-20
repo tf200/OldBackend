@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'authentication',
     'client',
     'employees',
-    'adminmodif'
+    'adminmodif',
+    'planning'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

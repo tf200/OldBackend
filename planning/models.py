@@ -18,7 +18,7 @@ class Appointment(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     employees = models.ManyToManyField(EmployeeProfile, related_name='employee_appointments')  # Assuming Employee is a User
-    clients = models.ManyToManyField(ClientDetails, related_name='client_appointments')  # Reference to your Client model
+    clients = models.ManyToManyField(ClientDetails, related_name='client_appointments' ,blank=True)  # Reference to your Client model
     location = models.CharField(max_length=255, blank=True, null=True) 
     created_by = models.ForeignKey(EmployeeProfile, related_name='created_appointments', on_delete=models.SET_NULL, null=True)
     modified_by = models.ForeignKey(EmployeeProfile, related_name='modified_appointments', on_delete=models.SET_NULL, null=True) # Optional, for in-person appointments
@@ -26,16 +26,16 @@ class Appointment(models.Model):
     def __str__(self):
         return self.title
 
-class AppointmentConfirmation(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=(('confirmed', 'Confirmed'), ('refused', 'Refused')), default='confirmed')
-    date_responded = models.DateTimeField(default=now)
+# class AppointmentConfirmation(models.Model):
+#     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+#     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE)
+#     status = models.CharField(max_length=10, choices=(('confirmed', 'Confirmed'), ('refused', 'Refused')), default='confirmed')
+#     date_responded = models.DateTimeField(default=now)
 
-    class Meta:
-        unique_together = ('appointment', 'employee')  # Ensure each employee responds only once per appointment
+#     class Meta:
+#         unique_together = ('appointment', 'employee')  # Ensure each employee responds only once per appointment
 
-Appointment.employees.through = AppointmentConfirmation
+# Appointment.employees.through = AppointmentConfirmation
 
 
 
