@@ -36,3 +36,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
             AppointmentAttachment.objects.create(appointment=appointment, **attachment_data)
 
         return appointment
+
+
+class AppointmentSerializerGet(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = '__all__' 
