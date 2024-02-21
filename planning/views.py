@@ -25,6 +25,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 class AppointmentListView(generics.ListAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializerGet
+    pagination_class = None
 
 
 

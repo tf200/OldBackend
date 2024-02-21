@@ -57,20 +57,14 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
             for file_id in temporary_file_ids:
                 temp_file = TemporaryFile.objects.get(id=file_id)
-                # Determine new key for the file in the permanent storage
                 old_key = temp_file.file.name
                 new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
-               
-                # Move the file on S3
                 move_file_s3(old_key, new_key)
-                
-                # Create the AppointmentAttachment with the new file location
                 AppointmentAttachment.objects.create(
                     appointment=appointment,
-                    file=f"{settings.MEDIA_URL}{new_key}",  # Adjust based on your MEDIA_URL configuration
+                    file=f"{settings.MEDIA_URL}{new_key}",  
                     name=temp_file.file.name.split('/')[-1]
                 )
-                # Delete the TemporaryFile instance
                 temp_file.delete()
 
             return appointment
