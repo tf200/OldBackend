@@ -80,7 +80,7 @@ class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
 
     def get_employee_name(self, obj):
         if obj.employee:
-            return f"{obj.employee.user.first_name} {obj.employee.user.last_name}"
+            return f"{obj.employee.first_name} {obj.employee.last_name}"
         else:
             return None
         
