@@ -2,6 +2,7 @@ from django.db import models
 from  employees.models import EmployeeProfile
 from client.models import ClientDetails
 from django.utils.timezone import now
+import uuid
 
 
 
@@ -37,7 +38,13 @@ class Appointment(models.Model):
 
 # Appointment.employees.through = AppointmentConfirmation
 
+class TemporaryFile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file = models.FileField(upload_to='temporary_files/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Temporary file {self.id} uploaded at {self.uploaded_at}"
 
 class AppointmentAttachment(models.Model):
     appointment = models.ForeignKey(Appointment, related_name='attachments', on_delete=models.CASCADE)
