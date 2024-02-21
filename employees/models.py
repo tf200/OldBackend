@@ -36,7 +36,7 @@ class Certification(models.Model):
     issued_by = models.CharField(max_length=255)
     date_issued = models.DateField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    # Add any other fields that are relevant to a certification
+
 
     def __str__(self):
         return self.name
@@ -46,7 +46,7 @@ class Experience(models.Model):
     job_title = models.CharField(max_length=255)
     company_name = models.CharField(max_length=255)
     start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)  # null and blank for current jobs
+    end_date = models.DateField(null=True, blank=True)  
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
@@ -56,8 +56,8 @@ class Education(models.Model):
     degree = models.CharField(max_length=100)
     field_of_study = models.CharField(max_length=100)
     start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)  # null and blank are True if the degree is not completed
- # Orders the query results by end_date in descending order
+    end_date = models.DateField(null=True, blank=True) 
+
 
     def __str__(self):
         return f"{self.degree} in {self.field_of_study} from {self.institution_name}"

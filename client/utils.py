@@ -15,7 +15,7 @@ def send_progress_report_email(progress_report_id):
         for contact in emergency_contacts:
             send_mail(
                 subject='Progress Report Update',
-                message='Here is the progress report...',  # Customize your message
+                message='Here is the progress report...', 
                 from_email='your_email@example.com',
                 recipient_list=[contact.email],
             )

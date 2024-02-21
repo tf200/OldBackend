@@ -11,11 +11,11 @@ class IsMemberOfAuthorizedGroup(BasePermission):
 
         authorized_group = 'AuthorizedGroupName'
         today = timezone.now().date()
-        # Query adjusted to accommodate immediate effect and permanence
+       
         return GroupMembership.objects.filter(
             user=request.user,
             group__name=authorized_group,
-            start_date__lte=today,  # Accounts for immediate effect by including null start_dates
+            start_date__lte=today,  
         ).filter(
-            models.Q(end_date__gte=today) | models.Q(end_date__isnull=True)  # Permanence for null end_dates
+            models.Q(end_date__gte=today) | models.Q(end_date__isnull=True) 
         ).exists()

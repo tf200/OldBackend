@@ -67,7 +67,7 @@ def assign_group(request):
 
 
 class ListGroups(APIView):
-    permission_classes = [IsAuthenticated]  # Or any other permission class you find suitable
+    permission_classes = [IsAuthenticated]  
 
     def get(self, request, format=None):
         groups = Group.objects.all()
@@ -79,14 +79,14 @@ class ListGroups(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_employee_groups(request, employee_id):
-    # Find the EmployeeProfile and then the associated CustomUser
+   
     try:
         employee_profile = EmployeeProfile.objects.get(pk=employee_id)
         user = employee_profile.user
     except EmployeeProfile.DoesNotExist:
         raise Http404("Employee not found")
 
-    # Fetch all relevant group memberships for the user
+   
     today = timezone.now().date()
     relevant_memberships = GroupMembership.objects.filter(
         user=user,
@@ -95,14 +95,14 @@ def list_employee_groups(request, employee_id):
         Q(start_date__isnull=True) | Q(start_date__lte=today)
     ).prefetch_related('group')
 
-    # Prepare a list of dictionaries for each group with its start and end date
+    
     groups_info = [{
         'group_name': membership.group.name,
         'start_date': membership.start_date,
         'end_date': membership.end_date
     } for membership in relevant_memberships]
 
-    # Return the response including the list of groups
+   
     return JsonResponse({
         'employee_id': employee_id,
         'groups': groups_info
