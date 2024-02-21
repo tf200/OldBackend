@@ -75,6 +75,12 @@ class AppointmentSerializerGet(serializers.ModelSerializer):
         model = Appointment
         fields = '__all__' 
 
+class AppointmentSerializerRUD(serializers.ModelSerializer):
+    attachments = AppointmentAttachmentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Appointment
+        fields = '__all__' 
+
 
 class TemporaryFileSerializer(serializers.ModelSerializer):
     class Meta:

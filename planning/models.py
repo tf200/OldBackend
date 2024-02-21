@@ -22,7 +22,8 @@ class Appointment(models.Model):
     clients = models.ManyToManyField(ClientDetails, related_name='client_appointments' ,blank=True)  # Reference to your Client model
     location = models.CharField(max_length=255, blank=True, null=True) 
     created_by = models.ForeignKey(EmployeeProfile, related_name='created_appointments', on_delete=models.SET_NULL, null=True)
-    modified_by = models.ForeignKey(EmployeeProfile, related_name='modified_appointments', on_delete=models.SET_NULL, null=True) # Optional, for in-person appointments
+    modified_by = models.ForeignKey(EmployeeProfile, related_name='modified_appointments', on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length = 50 , null = True , blank = True)
 
     def __str__(self):
         return self.title
