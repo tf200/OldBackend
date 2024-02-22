@@ -12,6 +12,7 @@ from .models import *
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
 from adminmodif.permissions import IsMemberOfAuthorizedGroup
+from django.shortcuts import get_object_or_404
 
 
 
@@ -241,6 +242,32 @@ class EmployeeProfileRUDView(generics.RetrieveUpdateDestroyAPIView):
     queryset = EmployeeProfile.objects.all()
 
 
+class ProfilePictureAPIView(APIView):
+    def get(self, request, employee_id):
+        employee_profile = get_object_or_404(EmployeeProfile, pk=employee_id)
+        user = employee_profile.user
+        serializer = ProfilePictureSerializer(user)
+        return Response(serializer.data)
+
+    def patch(self, request, employee_id):
+        employee_profile = get_object_or_404(EmployeeProfile, pk=employee_id)
+        user = employee_profile.user
+        serializer = ProfilePictureSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, employee_id):
+        employee_profile = get_object_or_404(EmployeeProfile, pk=employee_id)
+        user = employee_profile.user
+        user.profile_picture.delete()
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
 class EmployeeProfileCreateView(APIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     def post(self, request, *args, **kwargs):
@@ -256,13 +283,8 @@ class EmployeeProfileCreateView(APIView):
             if user_created:
                 user.set_password(password)
                 user.save()
-                print("iamhere")
-                # Ensure the Default group exists
                 default_group, group_created = Group.objects.get_or_create(name='Default')
-                print("iamhere")
-                # Add the user to the Default group
                 default_group.user_set.add(user)
-                print("iamhere")
 
             else:
                 if hasattr(user, 'profile'):
@@ -270,14 +292,15 @@ class EmployeeProfileCreateView(APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                print("iamhere1")
                 employee_profile = EmployeeProfile.objects.create(user=user, **employee_data)
-                print("iamhere2")
                 serializer = EmployeeCRUDSerializer(employee_profile)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except IntegrityError as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
+
+
         
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]

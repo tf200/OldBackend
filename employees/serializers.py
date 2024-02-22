@@ -21,6 +21,11 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
         except EmployeeProfile.DoesNotExist:
             return None
 
+class ProfilePictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_picture']
+
 
 class ClientprogressSerializer(serializers.ModelSerializer):
     class Meta:

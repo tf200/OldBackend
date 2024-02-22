@@ -38,6 +38,7 @@ urlpatterns = [
     path('employees_list/' ,EmployeeProfileListView.as_view() , name = 'employees_list'),
     path('employees_create/' ,EmployeeProfileCreateView.as_view() , name = 'employees_create'),
     path('employees_RUD/<int:pk>/' ,EmployeeProfileRUDView.as_view() , name = 'employees_RUD'),
+    path('employee_pic/<int:employee_id>/', ProfilePictureAPIView.as_view(), name='profile_picture_api'),
 
 
     path('certifications/<int:employee_id>/', CertificationListView.as_view(), name='certification-list'),
