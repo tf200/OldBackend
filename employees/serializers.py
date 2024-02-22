@@ -1,6 +1,7 @@
 from authentication.models import CustomUser
 from rest_framework import serializers
 from .models import *
+from django.shortcuts import get_object_or_404
 
 
 class UserEmployeeProfileSerializer(serializers.ModelSerializer):
@@ -110,10 +111,20 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
 
 class EmployeeCRUDSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
     class Meta:
         model = EmployeeProfile
         fields = '__all__'
         extra_kwargs = {'user': {'read_only': True}}
+
+    def get_profile_picture(self, obj):
+        if obj:
+            user = obj.user  # Access the associated CustomUser instance
+            if user.profile_picture:  # Check if profile_picture exists
+                return user.profile_picture.url
+        return None
+    
 
 
 

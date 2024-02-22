@@ -21,7 +21,7 @@ RUN pip3.12 install daphne[twisted] twisted[tls,http2]
 COPY . .
 
 # Collect static files
-RUN python3.12 manage.py collectstatic --noinput
+# RUN python3.12 manage.py collectstatic --noinput
 
 # Expose the port the app runs on
 EXPOSE 8000
