@@ -20,7 +20,7 @@ def move_file_s3(old_key, new_key):
 class AppointmentAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentAttachment
-        fields = ['file', 'name']
+        fields = ['id' ,'file', 'name']
 
 class AppointmentSerializer(serializers.ModelSerializer):
     temporary_file_ids = serializers.ListField(
