@@ -32,7 +32,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['title', 'description', 'appointment_type', 'start_time', 'end_time', 'employees', 'clients', 'location' , 'temporary_file_ids']
+        fields = ['title', 'description', 'appointment_type', 'start_time', 'end_time', 'employees', 'clients', 'location' , 'temporary_file_ids', 'attachment_ids_to_delete']
         extra_kwargs = {
             'employees': {'required': False},
             'clients': {'required': False},
