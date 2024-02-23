@@ -36,6 +36,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'employees': {'required': False},
             'clients': {'required': False},
+            'attachment_ids_to_delete' : {'required': False},
         }
         
     def create(self, validated_data):
