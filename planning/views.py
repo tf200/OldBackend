@@ -14,12 +14,11 @@ from employees.models import EmployeeProfile
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Or any custom permission class
+    permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        # Assuming you have a way to get the EmployeeProfile from the request.user (JWT)
+    def perform_update(self, serializer):
         employee_profile = get_object_or_404(EmployeeProfile, user=self.request.user)
-        serializer.save(created_by=employee_profile)
+        serializer.save(modified_by=employee_profile)
 
 
 class AppointmentListView(generics.ListAPIView):

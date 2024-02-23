@@ -26,7 +26,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
     temporary_file_ids = serializers.ListField(
         child=serializers.UUIDField(), write_only=True, required=False
     )
-    
+    attachment_ids_to_delete = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model = Appointment
@@ -35,26 +37,17 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'employees': {'required': False},
             'clients': {'required': False},
         }
-
-
-
-    def create(self, validated_data):
-        print('hello')
-        with transaction.atomic():
-            
-
-            temporary_file_ids = validated_data.pop('temporary_file_ids', [])
         
+    def create(self, validated_data):
+        with transaction.atomic():          
+            temporary_file_ids = validated_data.pop('temporary_file_ids', [])       
             employees_data = validated_data.pop('employees', [])
             clients_data = validated_data.pop('clients', [])
-
             appointment = Appointment.objects.create(**validated_data)
-
             if employees_data:
                 appointment.employees.set(employees_data)
             if clients_data:
                 appointment.clients.set(clients_data)
-
             for file_id in temporary_file_ids:
                 temp_file = TemporaryFile.objects.get(id=file_id)
                 old_key = temp_file.file.name
@@ -68,6 +61,42 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 temp_file.delete()
 
             return appointment
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            temporary_file_ids = validated_data.pop('temporary_file_ids', [])
+            employees_data = validated_data.pop('employees', None)
+            clients_data = validated_data.pop('clients', None)
+            attachment_ids_to_delete = validated_data.pop('attachment_ids_to_delete', [])
+
+            # Update instance fields
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+            # Update ManyToMany fields (employees and clients)
+            if employees_data is not None:
+                instance.employees.set(employees_data)
+            if clients_data is not None:
+                instance.clients.set(clients_data)
+
+            # Handle temporary file attachments
+            for file_id in temporary_file_ids:
+                temp_file = TemporaryFile.objects.get(id=file_id)
+                old_key = temp_file.file.name
+                new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
+                move_file_s3(old_key, new_key)
+                AppointmentAttachment.objects.create(
+                    appointment=instance,
+                    file=f"{settings.MEDIA_URL}{new_key}",
+                    name=temp_file.file.name.split('/')[-1]
+                )
+                temp_file.delete()
+
+            # Delete specified attachments
+            if attachment_ids_to_delete:
+                AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
+
+            return instance
 
 
 class AppointmentSerializerGet(serializers.ModelSerializer):
