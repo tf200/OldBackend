@@ -13,11 +13,11 @@
 - Make sure you are in the root directory of the project
 
 ### INSTALL DEPENDENCIES
-- Install the dependencies `pip install -r requirements.txt`
+- Install the dependencies `pip3.12 install -r requirements.txt`
 
 ### RUN THE APPLICATION
-- Run the application `python3 manage.py runserver`
+- Run the application `python3.12 manage.py runserver`
 
 ### MIGRATE DATABASE
-- run `python3 manage.py makemigrations` to create the migration file
-- run `python3 manage.py migrate` to apply the migration
+- run `python3.12 manage.py makemigrations` to create the migration file
+- run `python3.12 manage.py migrate` to apply the migration
