@@ -112,6 +112,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
 class EmployeeCRUDSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField() 
 
     class Meta:
         model = EmployeeProfile
@@ -124,6 +125,11 @@ class EmployeeCRUDSerializer(serializers.ModelSerializer):
             if user.profile_picture:  # Check if profile_picture exists
                 return user.profile_picture.url
         return None
+
+    def get_groups(self, obj):
+        if obj and obj.user:
+            return [group.name for group in obj.user.groups.all()]  # Return list of group names
+        return []
     
 
 

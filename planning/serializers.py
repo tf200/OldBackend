@@ -32,36 +32,55 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['title', 'description', 'appointment_type', 'start_time', 'end_time', 'employees', 'clients', 'location' , 'temporary_file_ids', 'attachment_ids_to_delete']
+        fields = ['title', 'description', 'appointment_type', 'start_time', 'end_time', 'employees', 'clients', 'location', 'temporary_file_ids', 'attachment_ids_to_delete']
         extra_kwargs = {
             'employees': {'required': False},
             'clients': {'required': False},
-            'attachment_ids_to_delete' : {'required': False},
+            'attachment_ids_to_delete': {'required': False},
         }
-        
+
     def create(self, validated_data):
-        with transaction.atomic():          
-            temporary_file_ids = validated_data.pop('temporary_file_ids', [])       
+        with transaction.atomic():
+            temporary_file_ids = validated_data.pop('temporary_file_ids', [])
+            attachment_ids_to_delete = validated_data.pop('attachment_ids_to_delete', [])
             employees_data = validated_data.pop('employees', [])
             clients_data = validated_data.pop('clients', [])
+            
             appointment = Appointment.objects.create(**validated_data)
+            
             if employees_data:
                 appointment.employees.set(employees_data)
             if clients_data:
                 appointment.clients.set(clients_data)
-            for file_id in temporary_file_ids:
-                temp_file = TemporaryFile.objects.get(id=file_id)
+            
+            # Bulk delete specified attachments
+            if attachment_ids_to_delete:
+                AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
+            
+            # Fetch all TemporaryFiles in one go
+            temp_files = TemporaryFile.objects.filter(id__in=temporary_file_ids)
+            attachments = []
+            
+            for temp_file in temp_files:
                 old_key = temp_file.file.name
                 new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
+                
+                # Assuming move_file_s3 is optimized or made asynchronous
                 move_file_s3(old_key, new_key)
-                AppointmentAttachment.objects.create(
+                
+                attachments.append(AppointmentAttachment(
                     appointment=appointment,
-                    file=f"{settings.MEDIA_URL}{new_key}",  
+                    file=f"{settings.MEDIA_URL}{new_key}",
                     name=temp_file.file.name.split('/')[-1]
-                )
+                ))
+                
                 temp_file.delete()
 
+            # Bulk create attachments
+            AppointmentAttachment.objects.bulk_create(attachments)
+            
             return appointment
+
     def update(self, instance, validated_data):
         with transaction.atomic():
             temporary_file_ids = validated_data.pop('temporary_file_ids', [])
@@ -95,6 +114,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
             # Delete specified attachments
             if attachment_ids_to_delete:
+                print("here")
                 AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
 
             return instance

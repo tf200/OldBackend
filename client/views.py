@@ -108,6 +108,7 @@ class ClientEmergencyContactListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ClientEmergencyContactSerializer
     ordering = ['-created']
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         client_id = self.kwargs['client']
@@ -138,6 +139,7 @@ class ClientDocumentsListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ClientDocumentsSerializers
     ordering = ['-created']
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         client_id = self.kwargs['client']
