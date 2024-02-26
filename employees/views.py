@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from django.shortcuts import render
 from .serializers import *
 from .models import *
+from.filters import EmployeeProfileFilter
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
 from adminmodif.permissions import IsMemberOfAuthorizedGroup
@@ -305,7 +306,8 @@ class EmployeeProfileCreateView(APIView):
 class EmployeeProfileListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = EmployeeCRUDSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]  # Add SearchFilter here
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = EmployeeProfileFilter  # Add SearchFilter here
     ordering_fields = ['-created']  # If you want to keep sorting functionality
     pagination_class = CustomPagination
     queryset = EmployeeProfile.objects.all()
