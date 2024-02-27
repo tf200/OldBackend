@@ -19,9 +19,11 @@ class GroupMembership(models.Model):
         end_condition = (self.end_date is None or self.end_date >= now)
         return start_condition and end_condition
     
-    
+
     
 
+
+    
 
     
 
