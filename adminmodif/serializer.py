@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group
+from .models import GroupMembership
 from authentication.models import CustomUser
 
 class AssignGroupSerializer(serializers.Serializer):
@@ -34,6 +35,13 @@ class AssignGroupSerializer(serializers.Serializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
+    user_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Group
-        fields = ['id', 'name']  
+        fields = ['id', 'name', 'user_count']
+
+    def get_user_count(self, obj):
+        # Count the number of users in this group
+        count = GroupMembership.objects.filter(group=obj).count()
+        return count
