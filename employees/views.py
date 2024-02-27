@@ -14,6 +14,7 @@ from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
 from adminmodif.permissions import IsMemberOfAuthorizedGroup
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 
 
@@ -241,6 +242,11 @@ class EmployeeProfileRUDView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = EmployeeCRUDSerializer
     queryset = EmployeeProfile.objects.all()
+    def get_serializer_context(self):
+        context = super(EmployeeProfileRUDView, self).get_serializer_context()
+        # Always include group details in the context for this view
+        context['include_groups'] = True
+        return context
 
 
 class ProfilePictureAPIView(APIView):
@@ -327,7 +333,14 @@ class EmployeeProfileListView(generics.ListAPIView):
         'home_telephone_number', 
         'gender'
     ]
- 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        group_name = self.request.query_params.get('groups')
+        if group_name:
+            # Correctly filter EmployeeProfile based on the group name through CustomUser
+            queryset = queryset.filter(user__groupmembership__group__name=group_name
+                                    ).distinct()
+        return queryset
 #================================================================
 
 class CertificationRUDView(generics.RetrieveUpdateDestroyAPIView):

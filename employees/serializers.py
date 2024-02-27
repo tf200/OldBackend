@@ -2,7 +2,9 @@ from authentication.models import CustomUser
 from rest_framework import serializers
 from .models import *
 from django.shortcuts import get_object_or_404
-
+from django.utils import timezone
+from adminmodif.models import GroupMembership
+from django.db.models import Q
 
 class UserEmployeeProfileSerializer(serializers.ModelSerializer):
     profile = serializers.SerializerMethodField()
@@ -112,7 +114,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
 class EmployeeCRUDSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
-    groups = serializers.SerializerMethodField() 
+    groups  = serializers.SerializerMethodField() 
 
     class Meta:
         model = EmployeeProfile
@@ -127,10 +129,20 @@ class EmployeeCRUDSerializer(serializers.ModelSerializer):
         return None
 
     def get_groups(self, obj):
-        if obj and obj.user:
-            return [group.name for group in obj.user.groups.all()]  # Return list of group names
-        return []
-    
+        # Check if we should include group details
+        if self.context.get('include_groups', False):
+            memberships = GroupMembership.objects.filter(
+                user=obj.user,
+            ).select_related('group')
+            
+            return [{
+                'group_name': membership.group.name,
+                'start_date': membership.start_date,
+                'end_date': membership.end_date
+            } for membership in memberships]
+        else:
+            # Do not include group details if the flag is not set
+            return None
 
 
 
