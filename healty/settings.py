@@ -49,7 +49,10 @@ INSTALLED_APPS = [
     'client',
     'employees',
     'adminmodif',
-    'planning'
+    'planning',
+    'channels',
+    'chat',
+    
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -101,6 +104,14 @@ TEMPLATES = [
 
 # WSGI_APPLICATION = 'healty.wsgi.application'
 ASGI_APPLICATION = 'healty.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
