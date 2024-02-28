@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vrw!mq7f#wac=db+jgzumdn-slvi@ce7*@-!ks3!6)1*#dx!&=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com', '127.0.0.1' , 'api.aichatkings.com' ,'maicare.devteam.cc' ]
+ALLOWED_HOSTS = ['3.142.18.151' , 'ec2-3-142-18-151.us-east-2.compute.amazonaws.com', '127.0.0.1' , 'localhost' ,'maicare.devteam.cc' ]
 
 
 # Application definition
@@ -104,14 +104,7 @@ TEMPLATES = [
 
 # WSGI_APPLICATION = 'healty.wsgi.application'
 ASGI_APPLICATION = 'healty.asgi.application'
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -204,6 +197,18 @@ CACHES = {
         }
     }
 }
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL],
+        },
+    },
+}
+
+
+
+
 
 CELERY_BROKER_URL = REDIS_URL  
 CELERY_RESULT_BACKEND = 'django-db'
