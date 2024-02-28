@@ -25,8 +25,16 @@ class WsConnection(AsyncWebsocketConsumer):
         user = await self.get_user_from_token(token)
 
         if user:
-            # Store the user ID in the cache
+            # Add the user's connection to their unique group
+            self.room_group_name = f'user_{user.id}'
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+
+            # Store the user ID in the cache (your existing code)
             await self.store_user_id_in_cache(user.id)
+
             await self.accept()
         else:
             await self.close()
@@ -44,11 +52,10 @@ class WsConnection(AsyncWebsocketConsumer):
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, CustomUser.DoesNotExist) as e:
             return None
 
-
     @database_sync_to_async
     def store_user_id_in_cache(self, user_id):
         # Use the user ID as the key to store in the cache
-        cache.set("websocket_session_token", user_id, timeout=3600)  # Cache timeout of 1 hour
+        cache.set(f"websocket_user_{user_id}", user_id, timeout=3600)  # Cache timeout of 1 hour
 
     async def disconnect(self, close_code):
         # You can add cleanup logic here if needed
@@ -64,7 +71,7 @@ class WsConnection(AsyncWebsocketConsumer):
             sender_id = cache.get("websocket_session_token")
             
             
-            
+
             if not conversation_id:  # If conv_id is empty, create a new conversation
                 conversation = await self.create_or_get_conversation(sender_id, recipient_id)
                 
