@@ -7,18 +7,35 @@ from adminmodif.models import GroupMembership
 from django.db.models import Q
 
 class UserEmployeeProfileSerializer(serializers.ModelSerializer):
-    profile = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField()
 
     class Meta:
         model = EmployeeProfile
-        fields = ( 'first_name', 'last_name','profile' , 'user')
+        fields = ( 'first_name', 'last_name','profile_picture' , 'user' , 'position' , 'department' , 'email_address' , 'phone_number' ,'username' )
 
-    def get_profile(self, obj):
+    def get_profile_picture(self, obj):
         if obj:
             user = obj.user  # Access the associated CustomUser instance
             if user.profile_picture:  # Check if profile_picture exists
                 return user.profile_picture.url
         return None
+
+    def get_username(self, obj):
+        if obj:
+            user = obj.user  
+            if user.username:  
+                return user.username
+        return None
+    
+    def get_phone_number(self, obj):
+        if obj:
+            if obj.work_phone_number:  
+                return obj.work_phone_number
+        return None
+    
+
 
 class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
