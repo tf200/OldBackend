@@ -22,10 +22,15 @@ from django.db.models import Q
 
 class CurrentUserProfileView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = UserEmployeeProfileSerializer
+    def get_object(self):
+        # Assuming the EmployeeProfile model has a 'user' field that relates to the User model.
+        queryset = EmployeeProfile.objects.all()  # Get the queryset of EmployeeProfile
+        obj = get_object_or_404(queryset, user=self.request.user)  # Find the profile for the current user
+        self.check_object_permissions(self.request, obj)  # Manually enforce permission checks
+        return obj
 
-    def get(self, request):
-        serializer = UserEmployeeProfileSerializer(request.user)
-        return Response(serializer.data)
+
 #=============================================================================
 
 

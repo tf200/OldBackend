@@ -25,6 +25,8 @@ urlpatterns = [
     path('client/', include('client.urls') ),
     path('employee/' , include('employees.urls')),
     path('ad/' , include('adminmodif.urls')),
-    path('appointments/', include('planning.urls'))
+    path('appointments/', include('planning.urls')),
+    path('chat/', include('chat.urls'))
+
 
 ]

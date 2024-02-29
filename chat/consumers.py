@@ -8,11 +8,14 @@ from .models import Message , Conversation
 from urllib.parse import parse_qs
 import json
 import jwt
+import uuid
+
 
 
 
 class WsConnection(AsyncWebsocketConsumer):
     async def connect(self):
+        self.session_id = str(uuid.uuid4())
         # Extract token from the query string
         query_string = parse_qs(self.scope['query_string'].decode('utf8'))
         token = query_string.get('token', [None])[0]
@@ -26,6 +29,7 @@ class WsConnection(AsyncWebsocketConsumer):
 
         if user:
             # Add the user's connection to their unique group
+            self.user_id = user.id 
             self.room_group_name = f'user_{user.id}'
             await self.channel_layer.group_add(
                 self.room_group_name,
@@ -33,7 +37,7 @@ class WsConnection(AsyncWebsocketConsumer):
             )
 
             # Store the user ID in the cache (your existing code)
-            await self.store_user_id_in_cache(user.id)
+
 
             await self.accept()
         else:
@@ -54,8 +58,9 @@ class WsConnection(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def store_user_id_in_cache(self, user_id):
-        # Use the user ID as the key to store in the cache
-        cache.set(f"websocket_user_{user_id}", user_id, timeout=3600)  # Cache timeout of 1 hour
+        # Use both the user ID and the session ID to create a unique cache key
+        cache_key = f"websocket_user_{user_id}_{self.session_id}"
+        cache.set(cache_key, user_id, timeout=3600)# Cache timeout of 1 hour
 
     async def disconnect(self, close_code):
         # You can add cleanup logic here if needed
@@ -67,8 +72,8 @@ class WsConnection(AsyncWebsocketConsumer):
             message_content = text_data_json.get('message')
             recipient_id = text_data_json.get('recipient_id')
             conversation_id = text_data_json.get('conv_id', None)
-            
-            sender_id = cache.get("websocket_session_token")
+            sender_id = self.user_id
+
             
             
 

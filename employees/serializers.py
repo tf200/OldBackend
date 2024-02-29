@@ -10,19 +10,15 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
     profile = serializers.SerializerMethodField()
 
     class Meta:
-        model = CustomUser
-        fields = ('username', 'email', 'first_name', 'last_name',
-                  'profile_picture', 'phone_number', 'profile')
+        model = EmployeeProfile
+        fields = ( 'first_name', 'last_name','profile' , 'user')
 
     def get_profile(self, obj):
-        try:
-            profile = EmployeeProfile.objects.get(user=obj)
-            return {
-                "position": profile.position,
-                "department": profile.department,
-            }
-        except EmployeeProfile.DoesNotExist:
-            return None
+        if obj:
+            user = obj.user  # Access the associated CustomUser instance
+            if user.profile_picture:  # Check if profile_picture exists
+                return user.profile_picture.url
+        return None
 
 class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
