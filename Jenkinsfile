@@ -13,11 +13,13 @@ pipeline {
     }
     stage('Prune Docker data') {
       steps {
+        sh 'sudo docker compose down'
         sh 'sudo docker system prune -a --volumes -f'
       }
     }
     stage('Start container') {
       steps {
+
         sh 'sudo docker compose build'
         sh 'sudo docker compose up -d'
         sh 'sudo docker compose ps'
