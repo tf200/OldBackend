@@ -5,7 +5,7 @@ class ConversationSerializer(serializers.ModelSerializer):
     involved_details = serializers.SerializerMethodField()
     class Meta:
         model = Conversation
-        fields = ['involved_details']
+        fields = ['involved_details' , 'id']
     def get_involved_details(self, obj):
         # Initialize an empty list to hold the user details
         details_list = []
