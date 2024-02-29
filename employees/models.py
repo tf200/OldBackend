@@ -18,10 +18,8 @@ class EmployeeProfile(models.Model):
     private_email_address = models.EmailField( null = True , blank = True)
     email_address = models.EmailField( null = True , blank = True)
     # Education
-
     authentication_phone_number = models.CharField(max_length=100, null=True, blank=True)
     private_phone_number = models.CharField(max_length=100, null=True, blank=True)
-
     work_phone_number = models.CharField(max_length=100, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     home_telephone_number = models.CharField(max_length=100, null=True, blank=True)

@@ -44,9 +44,16 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
 
 
 class ClientprogressSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = ProgressReport
         fields = '__all__'
+    def get_full_name(self, obj):
+        if obj.author:
+            return f"{obj.author.first_name} {obj.author.last_name}"
+        else:
+            return None
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
