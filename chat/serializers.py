@@ -19,7 +19,7 @@ class ConversationSerializer(serializers.ModelSerializer):
                 'id': user.id,
                 'first_name': employee_profile.first_name,
                 'last_name': employee_profile.last_name,
-                'profile_picture' : employee_profile.user.profile_picture
+                'profile_picture' : user.profile_picture.url
             }
             # Append the user details dict to the list
             details_list.append(user_details)
