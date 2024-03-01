@@ -80,12 +80,13 @@ class WsConnection(AsyncWebsocketConsumer):
 
             if conversation:
                 # Save the message and get its UUID
-                saved_message_id = await self.save_message(message_id, sender_id, conversation.id, message_content)
-                # Forward the message
-                await self.forward_message(recipient_id, message_content, conversation.id, sender_id)
+                saved_message_id , conv_id , timestamp= await self.save_message(message_id, sender_id, conversation.id, message_content)
+
+                await self.forward_message(recipient_id, message_content, conversation.id, sender_id , timestamp)
                 # Send confirmation back to the sender
                 await self.send(text_data=json.dumps({
-                    'status': 'message_delivery',
+                    'conversation' : conv_id , 
+                    'type': 'message_delivery',
                     'status': 'success',
                     'message_id': str(saved_message_id),  # Send back the UUID of the saved message
                     'info': 'Message successfully sent and stored'
@@ -111,10 +112,11 @@ class WsConnection(AsyncWebsocketConsumer):
         conversation = Conversation.objects.get(id=conversation_id)
         # Use the provided UUID from the frontend as the message ID
         message = Message.objects.create(id=message_id, sender=sender, conversation=conversation, content=content)
-        return message.id
+
+        return message.id , conversation.id , message.timestamp
 
 
-    async def forward_message(self, recipient_id, message, conversation_id, sender_id):
+    async def forward_message(self, recipient_id, message, conversation_id, sender_id , timestamp):
         # Construct the group name based on recipient ID
         group_name = f'user_{recipient_id}'
 
@@ -123,9 +125,10 @@ class WsConnection(AsyncWebsocketConsumer):
             group_name,
             {
                 'type': 'chat_message',
-                'message': message,
+                'content': message,
                 'conversation_id': conversation_id,
-                'sender_id': sender_id,  # Include sender_id in the event message
+                'sender': sender_id,
+                'timestamp': timestamp # Include sender_id in the event message
             }
         )
 
