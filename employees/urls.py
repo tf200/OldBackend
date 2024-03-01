@@ -4,6 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('profile/', CurrentUserProfileView.as_view(), name='current-user-profile'),
+    path('profile/<int:pk>/', UserProfileView.as_view(), name='user-profile'),
 
     path('progress_report/create/', ProgressReportCreateView.as_view(), name='progress_report_create'),
     path('progress_report/retrieve/<int:pk>/', ProgressReportRetrieveView.as_view(), name='progress_report_retrieve'),

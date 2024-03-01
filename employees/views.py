@@ -30,6 +30,10 @@ class CurrentUserProfileView(generics.RetrieveAPIView):
         self.check_object_permissions(self.request, obj)  # Manually enforce permission checks
         return obj
 
+class UserProfileView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = UserEmployeeProfileSerializer
+    queryset = EmployeeProfile.objects.all()
 
 #=============================================================================
 
