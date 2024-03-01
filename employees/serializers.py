@@ -67,7 +67,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ['client', 'client_name', 'date', 'measurement_type', 'value']
+        fields = ['client', 'client_name', 'date', 'measurement_type', 'value' , 'id']
 
 
 class ObservationsSerializer(serializers.ModelSerializer):
