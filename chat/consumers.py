@@ -56,11 +56,6 @@ class WsConnection(AsyncWebsocketConsumer):
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, CustomUser.DoesNotExist) as e:
             return None
 
-    @database_sync_to_async
-    def store_user_id_in_cache(self, user_id):
-        # Use both the user ID and the session ID to create a unique cache key
-        cache_key = f"websocket_user_{user_id}_{self.session_id}"
-        cache.set(cache_key, user_id, timeout=3600)# Cache timeout of 1 hour
 
     async def disconnect(self, close_code):
         # You can add cleanup logic here if needed
@@ -70,27 +65,31 @@ class WsConnection(AsyncWebsocketConsumer):
         if text_data:
             text_data_json = json.loads(text_data)
             message_content = text_data_json.get('message')
+            message_id = text_data_json.get('message_id')  # UUID sent from the frontend
             recipient_id = text_data_json.get('recipient_id')
             conversation_id = text_data_json.get('conv_id', None)
             sender_id = self.user_id
 
-            
-            
-
-            if not conversation_id:  # If conv_id is empty, create a new conversation
+            if not conversation_id:  # If conv_id is empty, create or get conversation
                 conversation = await self.create_or_get_conversation(sender_id, recipient_id)
-                
             else:  # Existing conversation
                 conversation = await self.get_conversation_by_id(conversation_id)
                 if not conversation or not await self.is_sender_part_of_conversation(sender_id, conversation.id):
                     # Handle error: conversation does not exist or sender is not part of it
                     return
-            
+
             if conversation:
-                # Save the message
-                await self.save_message(sender_id, conversation.id, message_content)
+                # Save the message and get its UUID
+                saved_message_id = await self.save_message(message_id, sender_id, conversation.id, message_content)
                 # Forward the message
-                await self.forward_message(recipient_id, message_content, conversation.id , sender_id )
+                await self.forward_message(recipient_id, message_content, conversation.id, sender_id)
+                # Send confirmation back to the sender
+                await self.send(text_data=json.dumps({
+                    'status': 'message_delivery',
+                    'status': 'success',
+                    'message_id': str(saved_message_id),  # Send back the UUID of the saved message
+                    'info': 'Message successfully sent and stored'
+            }))
 
     @database_sync_to_async
     def create_or_get_conversation(self, sender_id, recipient_id):
@@ -107,11 +106,12 @@ class WsConnection(AsyncWebsocketConsumer):
             return None
 
     @database_sync_to_async
-    def save_message(self, sender_id, conversation_id, content):
+    def save_message(self, message_id, sender_id, conversation_id, content):
         sender = CustomUser.objects.get(id=sender_id)
         conversation = Conversation.objects.get(id=conversation_id)
-        message = Message.objects.create(sender=sender, conversation=conversation, content=content)
-        return message
+        # Use the provided UUID from the frontend as the message ID
+        message = Message.objects.create(id=message_id, sender=sender, conversation=conversation, content=content)
+        return message.id
 
 
     async def forward_message(self, recipient_id, message, conversation_id, sender_id):

@@ -1,6 +1,6 @@
 from django.db import models
 from authentication.models import CustomUser
-
+import uuid
 # Create your models here.
 
 
@@ -25,6 +25,7 @@ class Conversation(models.Model):
 
 
 class Message(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False)
     sender = models.ForeignKey(CustomUser, related_name='sent_messages', on_delete=models.CASCADE)
     conversation = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
     content = models.TextField()
