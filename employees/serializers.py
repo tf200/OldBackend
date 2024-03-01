@@ -114,7 +114,7 @@ class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = ClientEmployeeAssignment
-        fields = ['client', 'employee', 'employee_name', 'start_date', 'role']
+        fields = ['client', 'employee', 'employee_name', 'start_date', 'role' , 'id']
 
 
 class EmployeeProfileSerializer(serializers.ModelSerializer):

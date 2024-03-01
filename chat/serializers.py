@@ -19,6 +19,7 @@ class ConversationSerializer(serializers.ModelSerializer):
                 'id': user.id,
                 'first_name': employee_profile.first_name,
                 'last_name': employee_profile.last_name,
+                'profile_picture' : employee_profile.profile_picture
             }
             # Append the user details dict to the list
             details_list.append(user_details)
@@ -26,6 +27,11 @@ class ConversationSerializer(serializers.ModelSerializer):
         return details_list
 
 class MessageSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = Message
         fields = ['id', 'sender', 'conversation', 'content', 'timestamp', 'read_status']
+
+
+
