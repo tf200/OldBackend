@@ -332,3 +332,9 @@ class ClientTypeListView(generics.ListAPIView):
     serializer_class = ClientTypeSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['name', 'address', 'phone_number']
+
+
+
+class ClientSenderListCreate(generics.CreateAPIView):
+    queryset = ClientSender.objects.all()
+    serializer_class = ClientSenderSerializer

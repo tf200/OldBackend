@@ -58,6 +58,8 @@ urlpatterns = [
     path('senders/', ClientTypeListView.as_view(), name='clienttype-list'),
 
 
+    path('client-senders/', ClientSenderListCreate.as_view(), name='client-sender-list-create'),
+
 
 
 ]

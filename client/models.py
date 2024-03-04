@@ -201,3 +201,7 @@ class ClientType (models.Model):
 class ClientTypeContactRelation(models.Model):
     client_type = models.ForeignKey(ClientType, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+
+class ClientSender (models.Model) :
+    client = models.ForeignKey(ClientDetails , on_delete=models.CASCADE  , related_name = 'clientsentby')
+    sender = models.ForeignKey(ClientType , on_delete = models.CASCADE , related_name = 'clientsender')

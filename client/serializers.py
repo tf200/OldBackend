@@ -92,3 +92,10 @@ class ClientTypeSerializer(serializers.ModelSerializer):
         return ContactSerializer(contacts, many=True).data
 
 
+
+class ClientSenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientSender
+        fields = '__all__'
+
+
