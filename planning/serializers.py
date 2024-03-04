@@ -65,7 +65,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 old_key = temp_file.file.name
                 new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
                 
-                # Assuming move_file_s3 is optimized or made asynchronous
+                
                 move_file_s3(old_key, new_key)
                 
                 attachments.append(AppointmentAttachment(
