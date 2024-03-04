@@ -76,7 +76,7 @@ class ClientTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClientType
-        fields = ['types', 'name', 'address', 'postal_code', 'place', 'land', 'KVKnumber', 'BTWnumber', 'phone_number', 'client_number', 'contacts']
+        fields = ['id','types', 'name', 'address', 'postal_code', 'place', 'land', 'KVKnumber', 'BTWnumber', 'phone_number', 'client_number', 'contacts']
 
     def create(self, validated_data):
         contacts_data = validated_data.pop('contacts', [])  # Safely remove contacts with a default empty list
