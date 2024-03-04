@@ -8,9 +8,11 @@ from rest_framework import generics
 from employees.models import ClientMedication
 from django.shortcuts import render
 from .models import ClientDetails
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from client.filters import *
 from .serializers import *
-from rest_framework import filters
+from rest_framework import filters , status
 # Create your views here.
 
 
@@ -312,3 +314,13 @@ class ContractDeleteView(generics.DestroyAPIView):
 
 
 # ======================================================
+
+
+
+class ClientTypeCreateAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ClientTypeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -64,3 +64,26 @@ class ContractSerializer(serializers.ModelSerializer) :
     class Meta :
         model = Contract
         fields = '__all__'
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['name', 'phone_number', 'email']
+
+class ClientTypeSerializer(serializers.ModelSerializer):
+    contacts = ContactSerializer(many=True, required=False)  # Set `required=False` if contacts are optional
+
+    class Meta:
+        model = ClientType
+        fields = ['types', 'name', 'address', 'postal_code', 'place', 'land', 'KVKnumber', 'BTWnumber', 'phone_number', 'client_number', 'contacts']
+
+    def create(self, validated_data):
+        contacts_data = validated_data.pop('contacts', [])  # Safely remove contacts with a default empty list
+        client_type = ClientType.objects.create(**validated_data)
+        for contact_data in contacts_data:
+            contact, created = Contact.objects.get_or_create(**contact_data)
+            ClientTypeContactRelation.objects.create(client_type=client_type, contact=contact)
+        return client_type
+
+
