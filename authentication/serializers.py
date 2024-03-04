@@ -15,15 +15,7 @@ class MyCustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
-    def validate(self, attrs):
-       
-        data = super().validate(attrs)
 
-        
-        user_data = UserEmployeeProfileSerializer(self.user).data  
-        data.update({'user': user_data})
-
-        return data
 
 
 
