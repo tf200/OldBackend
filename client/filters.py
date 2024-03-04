@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
-from .models import ClientDetails, ClientDiagnosis , ClientMedication , ClientAllergy
+from .models import ClientDetails, ClientDiagnosis , ClientAllergy
 from django_filters.filters import DateFilter , DateFromToRangeFilter
+from employees.models import ClientMedication
 
 
 

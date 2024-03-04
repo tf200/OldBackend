@@ -5,6 +5,7 @@ from rest_framework.filters import OrderingFilter
 from .tasks import send_progress_report_email
 from .pagination import CustomPagination
 from rest_framework import generics
+from employees.models import ClientMedication
 from django.shortcuts import render
 from .models import ClientDetails
 from client.filters import *

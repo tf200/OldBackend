@@ -66,16 +66,7 @@ class Treatments(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
-class ClientMedication(models.Model):
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='medications')
-    name = models.CharField(max_length=100)
-    dosage = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=100)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-    notes = models.TextField(blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.name} for {self.client.name}"
