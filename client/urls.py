@@ -54,7 +54,9 @@ urlpatterns = [
     path('contract_delete/<int:pk>/', ContractDeleteView.as_view(), name='contract_delete'),
 
 
-    path('sender_create/', ClientTypeCreateAPIView.as_view(), name='clienttype-create')
+    path('sender_create/', ClientTypeCreateAPIView.as_view(), name='clienttype-create'),
+    path('senders/', ClientTypeListView.as_view(), name='clienttype-list'),
+
 
 
 

@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from adminmodif.permissions import IsMemberOfAuthorizedGroup
 from rest_framework.filters import OrderingFilter
+from rest_framework.filters import SearchFilter
 from .tasks import send_progress_report_email
 from .pagination import CustomPagination
 from rest_framework import generics
@@ -324,3 +325,10 @@ class ClientTypeCreateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClientTypeListView(generics.ListAPIView):
+    queryset = ClientType.objects.all()
+    serializer_class = ClientTypeSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['name', 'address', 'phone_number']

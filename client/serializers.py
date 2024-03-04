@@ -86,4 +86,9 @@ class ClientTypeSerializer(serializers.ModelSerializer):
             ClientTypeContactRelation.objects.create(client_type=client_type, contact=contact)
         return client_type
 
+    def get_contacts(self, obj):
+        # Assuming 'contact_relations' is the related_name for the ForeignKey in ClientTypeContactRelation
+        contacts = [relation.contact for relation in obj.contact_relations.all()]
+        return ContactSerializer(contacts, many=True).data
+
 
