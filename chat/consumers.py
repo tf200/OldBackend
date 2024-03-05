@@ -79,9 +79,10 @@ class WsConnection(AsyncWebsocketConsumer):
                     return
 
             if conversation:
+                print('hello1')
                 # Save the message and get its UUID
                 saved_message_id , conv_id , timestamp= await self.save_message(message_id, sender_id, conversation.id, message_content)
-
+                print('hello2')
                 await self.forward_message(recipient_id, message_content, conversation.id, sender_id , timestamp)
                 # Send confirmation back to the sender
                 await self.send(text_data=json.dumps({
