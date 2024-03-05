@@ -56,9 +56,10 @@ urlpatterns = [
 
     path('sender_create/', ClientTypeCreateAPIView.as_view(), name='clienttype-create'),
     path('senders/', ClientTypeListView.as_view(), name='clienttype-list'),
+    path('senders/<int:client_id>/', SenderRetrieveAPIView.as_view(), name='retrieve-sender'),
 
 
-    path('client-senders/', ClientSenderListCreate.as_view(), name='client-sender-list-create'),
+    
 
 
 

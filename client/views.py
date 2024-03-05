@@ -335,6 +335,15 @@ class ClientTypeListView(generics.ListAPIView):
 
 
 
-class ClientSenderListCreate(generics.CreateAPIView):
-    queryset = ClientSender.objects.all()
-    serializer_class = ClientSenderSerializer
+class SenderRetrieveAPIView(APIView):
+    def get(self, request, client_id):
+        try:
+            # Retrieve the client by ID
+            client = ClientDetails.objects.get(pk=client_id)
+            # Use the sender associated with the client
+            sender = client.sender
+            # Serialize the sender data
+            serializer = ClientTypeSerializer(sender)
+            return Response(serializer.data)
+        except ClientDetails.DoesNotExist:
+            return Response({'error': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)

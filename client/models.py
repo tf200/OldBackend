@@ -1,6 +1,26 @@
 from django.db import models
 from django.conf import settings
 
+
+class ClientType (models.Model):
+    TYPE_CHOICES = [
+        ('main_provider', 'Main Provider'),
+        ('local_authority', 'Local Authority'),
+        ('particular_party', 'Particular Party'),
+        ('healthcare_institution', 'Healthcare Institution'),
+    ]
+    types = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    name = models.CharField (max_length=20)
+    address  = models.CharField (max_length=200 , null = True , blank = True)
+    postal_code = models.CharField (max_length=20 , null = True , blank = True)
+    place = models.CharField (max_length=20 , null = True , blank = True)
+    land = models.CharField (max_length=20 , null = True , blank = True)
+    KVKnumber = models.CharField (max_length=20 , null = True , blank = True)
+    BTWnumber = models.CharField (max_length=20 , null = True , blank = True)
+    phone_number = models.CharField (max_length=20 , null = True , blank = True)
+    client_number =models.CharField (max_length=20 , null = True , blank = True)
+
+
 class ClientDetails(models.Model):
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Client-Profile')
     first_name = models.CharField(max_length=100, blank=True, null=True)
@@ -27,7 +47,7 @@ class ClientDetails(models.Model):
     streetname = models.CharField(max_length=100, blank=True, null=True)
     street_number = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-
+    sender = models.ForeignKey(ClientType, on_delete=models.CASCADE, related_name='clientsender')
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -178,30 +198,10 @@ class Contact(models.Model):
     def __str__(self):
         return self.name
 
-class ClientType (models.Model):
-    TYPE_CHOICES = [
-        ('main_provider', 'Main Provider'),
-        ('local_authority', 'Local Authority'),
-        ('particular_party', 'Particular Party'),
-        ('healthcare_institution', 'Healthcare Institution'),
-    ]
-    types = models.CharField(max_length=50, choices=TYPE_CHOICES)
-    name = models.CharField (max_length=20)
-    address  = models.CharField (max_length=200 , null = True , blank = True)
-    postal_code = models.CharField (max_length=20 , null = True , blank = True)
-    place = models.CharField (max_length=20 , null = True , blank = True)
-    land = models.CharField (max_length=20 , null = True , blank = True)
-    KVKnumber = models.CharField (max_length=20 , null = True , blank = True)
-    BTWnumber = models.CharField (max_length=20 , null = True , blank = True)
-    phone_number = models.CharField (max_length=20 , null = True , blank = True)
-    client_number =models.CharField (max_length=20 , null = True , blank = True)
 
-    
+
 
 class ClientTypeContactRelation(models.Model):
     client_type = models.ForeignKey(ClientType, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
-class ClientSender (models.Model) :
-    client = models.ForeignKey(ClientDetails , on_delete=models.CASCADE  , related_name = 'clientsentby')
-    sender = models.ForeignKey(ClientType , on_delete = models.CASCADE , related_name = 'clientsender')

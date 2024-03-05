@@ -218,6 +218,24 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'clear_temporary_files_daily': {
+        'task': 'myapp.tasks.clear_temporary_files',
+        'schedule': crontab(hour=0, minute=0),  # Runs daily at midnight
+    },
+}
+
+
+
+
+
+
+
+
+
+
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'farjiataha@gmail.com'
 EMAIL_HOST_PASSWORD = 'silqjqcevnoymqmu'

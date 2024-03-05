@@ -93,9 +93,6 @@ class ClientTypeSerializer(serializers.ModelSerializer):
 
 
 
-class ClientSenderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClientSender
-        fields = '__all__'
+
 
 
