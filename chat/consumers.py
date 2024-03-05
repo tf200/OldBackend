@@ -79,10 +79,10 @@ class WsConnection(AsyncWebsocketConsumer):
                     return
 
             if conversation:
-                print('hello1')
+                
                 # Save the message and get its UUID
                 saved_message_id , conv_id , timestamp= await self.save_message(message_id, sender_id, conversation.id, message_content)
-                print('hello2')
+                
                 await self.forward_message(recipient_id, message_content, conversation.id, sender_id , timestamp)
                 # Send confirmation back to the sender
                 await self.send(text_data=json.dumps({
@@ -92,7 +92,7 @@ class WsConnection(AsyncWebsocketConsumer):
                     'message_id': str(saved_message_id),  # Send back the UUID of the saved message
                     'info': 'Message successfully sent and stored'
             }))
-                print('hello9')
+                
 
     @database_sync_to_async
     def create_or_get_conversation(self, sender_id, recipient_id):
@@ -110,21 +110,21 @@ class WsConnection(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_message(self, message_id, sender_id, conversation_id, content):
-        print('hello3')
+        
         sender = CustomUser.objects.get(id=sender_id)
-        print('hello4')
+        
         conversation = Conversation.objects.get(id=conversation_id)
         # Use the provided UUID from the frontend as the message ID
         message = Message.objects.create(id=message_id, sender=sender, conversation=conversation, content=content)
-        print('hello5')
+        print(message.timestamp)
         return message.id , conversation.id , message.timestamp
 
 
     async def forward_message(self, recipient_id, message, conversation_id, sender_id , timestamp):
         # Construct the group name based on recipient ID
-        print('hello6')
+        
         group_name = f'user_{recipient_id}'
-        print('hello7')
+        
         # Sending the message to the recipient's group with sender_id included
         await self.channel_layer.group_send(
             group_name,
@@ -136,7 +136,7 @@ class WsConnection(AsyncWebsocketConsumer):
                 # 'timestamp': timestamp 
             }
         )
-        print('hello8')
+        
 
     # Handler for sending chat messages
     async def chat_message(self, event):
