@@ -104,7 +104,7 @@ class ProgressReport(models.Model):
     title = models.CharField(max_length=50 , blank= True , null = True)
     report_text = models.TextField() 
     author  = models.ForeignKey(EmployeeProfile , on_delete=models.CASCADE, related_name='author', blank= True , null = True)
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    created = models.DateTimeField( blank=True, null=True)
 
 
 
