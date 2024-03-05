@@ -90,7 +90,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
     def get_author_name(self, obj):
         if obj.author:
-            return f"{obj.author.user.first_name}  {obj.author.user.last_name}"
+            return f"{obj.author.first_name} {obj.author.last_name}"
         else:
             return None
 

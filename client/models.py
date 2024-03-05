@@ -47,7 +47,7 @@ class ClientDetails(models.Model):
     streetname = models.CharField(max_length=100, blank=True, null=True)
     street_number = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    sender = models.ForeignKey(ClientType, on_delete=models.CASCADE, related_name='clientsender')
+    sender = models.ForeignKey(ClientType, on_delete=models.CASCADE, related_name='clientsender' , null = True)
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
