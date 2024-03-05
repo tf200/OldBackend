@@ -133,7 +133,7 @@ class WsConnection(AsyncWebsocketConsumer):
                 'content': message,
                 'conversation_id': conversation_id,
                 'sender': sender_id,
-                'timestamp': timestamp # Include sender_id in the event message
+                # 'timestamp': timestamp 
             }
         )
         print('hello8')
