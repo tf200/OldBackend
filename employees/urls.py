@@ -59,6 +59,7 @@ urlpatterns = [
     # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
     # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
     # path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),
+    path('convfilter/<int:user__id>/', EmployeeProfileRetrieveAPIView.as_view(), name='employee-profile-retrieve'),
 
 
 

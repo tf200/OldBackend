@@ -444,4 +444,15 @@ class EducationListView(generics.ListAPIView):
 
     
 
+class EmployeeProfileRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = EmployeeProfile.objects.all()
+    serializer_class = EmployeegetConv
+    lookup_field = 'user__id'
 
+    def get_object(self):
+        """
+        Overrides the standard `get_object` method to return the profile
+        based on the user's id passed in the URL.
+        """
+        user_id = self.kwargs.get('user__id')
+        return get_object_or_404(EmployeeProfile, user__id=user_id)

@@ -191,3 +191,10 @@ class EducationSerializer (serializers.ModelSerializer):
     class Meta:
         model = Education
         fields = '__all__'
+    
+
+
+class EmployeegetConv (serializers.ModelSerializer) :
+    class Meta: 
+        model = EmployeeProfile
+        fields = '__all__'
