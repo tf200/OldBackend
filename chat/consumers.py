@@ -133,7 +133,7 @@ class WsConnection(AsyncWebsocketConsumer):
                 'content': message,
                 'conversation_id': conversation_id,
                 'sender': sender_id,
-                # 'timestamp': timestamp 
+                'timestamp': f'{timestamp}'
             }
         )
         
