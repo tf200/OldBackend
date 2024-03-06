@@ -142,6 +142,7 @@ class WsConnection(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         # Send the actual message along with sender_id
         await self.send(text_data=json.dumps({
+            'type' : 'sent_message',
             'message': event['content'],  # Use 'content' instead of 'message'
             'conversation_id': event['conversation_id'],
             'sender_id': event['sender'],  # Use 'sender' instead of 'sender_id'

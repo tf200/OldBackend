@@ -47,7 +47,7 @@ def get_conversation_messages(request, conv_id):
     
     involved_users = [serialize_user(user) for user in conversation.involved.all()]
 
-    messages_qs = Message.objects.filter(conversation=conversation).order_by('timestamp')
+    messages_qs = Message.objects.filter(conversation=conversation).order_by('-timestamp')
     
     # Pagination setup
     page_number = request.GET.get('page', 1)
