@@ -3,13 +3,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from urllib.parse import urlencode
 from django.urls import reverse
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 from rest_framework.generics import ListAPIView
 from .models import Conversation , Message
-from .serializers import ConversationSerializer , MessageSerializer
+from .serializers import ConversationSerializer , MessageSerializer , ConversationLookupSerializer
 
 class UserConversationsAPIView(ListAPIView):
     serializer_class = ConversationSerializer
@@ -51,7 +52,7 @@ def get_conversation_messages(request, conv_id):
     
     # Pagination setup
     page_number = request.GET.get('page', 1)
-    limit = request.GET.get('limit', 10)  # Default to 10 items per page
+    limit = request.GET.get('limit', 20)  # Default to 10 items per page
     paginator = Paginator(messages_qs, limit)
     
     try:
@@ -95,3 +96,15 @@ def get_conversation_messages(request, conv_id):
     }
 
     return JsonResponse(response_data)
+
+
+
+class ConversationLookupView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ConversationLookupSerializer(data=request.data)
+        if serializer.is_valid():
+            conversation = serializer.save()
+            if conversation:
+                return Response({'conversation_id': conversation.id})
+            return Response({'error': 'Invalid user IDs or users do not exist'}, status=400)
+        return Response(serializer.errors, status=400)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Conversation, Message
-
+from authentication.models import CustomUser
 class ConversationSerializer(serializers.ModelSerializer):
     involved_details = serializers.SerializerMethodField()
     class Meta:
@@ -35,3 +35,19 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 
+class ConversationLookupSerializer(serializers.Serializer):
+    involved = serializers.ListField(
+        child=serializers.IntegerField(),
+        min_length=2,  # Assuming a conversation needs at least two users
+        max_length=2,  # Adjust based on your maximum number of participants per conversation
+    )
+
+    def create(self, validated_data):
+        user_ids = validated_data['involved']
+        users = CustomUser.objects.filter(id__in=user_ids)
+        if users.count() == len(user_ids):  # Check if all users exist
+            conversation, created = Conversation.get_or_create_conversation(*users)
+            return conversation
+        else:
+            # Not all user IDs correspond to a valid user
+            return None
