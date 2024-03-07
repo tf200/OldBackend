@@ -62,6 +62,11 @@ urlpatterns = [
     path('convfilter/<int:user__id>/', EmployeeProfileRetrieveAPIView.as_view(), name='employee-profile-retrieve'),
 
 
+    path('goal_create/' ,ClientGoalsCreateView.as_view() , name='goal_create'  ),
+    path('goals_list/<int:client_id>/', ClientGoalsListView.as_view(), name='client-goals-list'),
+    path('goals/<int:pk>/', ClientGoalDetail.as_view(), name='client-goal-detail'),
+
+
 
 
 ]

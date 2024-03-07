@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.core.exceptions import ValidationError
 
 class ClientType (models.Model):
     TYPE_CHOICES = [
@@ -125,18 +125,72 @@ class ClientDocuments(models.Model):
 
 
 class Contract(models.Model):
+    sender = models.ForeignKey(
+        ClientType, on_delete=models.CASCADE, related_name='sender_contracts')
+    RATE_TYPE_CHOICES = (
+        ('day', 'Per Day'),
+        ('week', 'Per Week'),  # Added per week rate type
+        ('hour', 'Per Hour'),
+        ('minute', 'Per Minute'),
+    )
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='contracts')
     start_date = models.DateField(verbose_name="Date of Care Commencement")
     end_date = models.DateField(verbose_name="Date of Care Termination")
     care_type = models.CharField(max_length=100, verbose_name="Type of Care")
-    rate_per_day = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Daily Rate")
-    rate_per_minute = models.DecimalField(
-        max_digits=10, decimal_places=4, null=True, blank=True, verbose_name="Rate per Minute")
-    rate_per_hour = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Rate per Hour")
+    rate_type = models.CharField(
+        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type" , null = True)
+    rate_value = models.DecimalField(
+        max_digits=10, decimal_places=4, null=True, blank=True, verbose_name="Rate Value" )
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    @property
+    def total_cost(self):
+        # Ensure the end_date is after the start_date
+        if self.end_date < self.start_date:
+            raise ValidationError("End date must be after start date.")
+
+        # Calculate the total duration in days
+        duration_in_days = (self.end_date - self.start_date).days + 1
+
+        if self.rate_type == 'day':
+            return duration_in_days * self.rate_value
+        elif self.rate_type == 'week':
+            # Calculate the number of weeks (assuming 7 days in a week)
+            weeks = duration_in_days / 7
+            return weeks * self.rate_value
+        elif self.rate_type == 'hour':
+            # Assuming 24 hours in a day for calculation
+            return duration_in_days * 24 * self.rate_value
+        elif self.rate_type == 'minute':
+            # Assuming 24 hours in a day and 60 minutes in an hour for calculation
+            return duration_in_days * 24 * 60 * self.rate_value
+        else:
+            return 0
+
+    def clean(self):
+        super().clean()
+        # Custom validation to ensure end_date is not before start_date
+        if self.end_date < self.start_date:
+            raise ValidationError("End date cannot be before start date.")
+
+    def __str__(self):
+        return f"Contract for {self.client} from {self.start_date} to {self.end_date}"
+
+class ContractAttachment(models.Model):
+    contract = models.ForeignKey(
+        Contract,
+        on_delete=models.CASCADE,
+        related_name='attachments',
+        verbose_name="Contract"
+    )
+    name = models.CharField(max_length=255, verbose_name="Attachment Name")
+    attachment = models.FileField(upload_to='contract_attachments/', verbose_name="File")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def __str__(self):
+        return f"{self.name} for {self.contract}"
+
 
 
 class ClientAgreement(models.Model):
@@ -204,4 +258,9 @@ class Contact(models.Model):
 class ClientTypeContactRelation(models.Model):
     client_type = models.ForeignKey(ClientType, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    
+
+
+
+
 

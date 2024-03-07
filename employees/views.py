@@ -456,3 +456,29 @@ class EmployeeProfileRetrieveAPIView(generics.RetrieveAPIView):
         """
         user_id = self.kwargs.get('user__id')
         return get_object_or_404(EmployeeProfile, user__id=user_id)
+
+
+
+class ClientGoalsCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = ClientGoalsSerializer
+    def perform_create(self, serializer):
+        user = self.request.user
+        employee_profile = EmployeeProfile.objects.get(user=user)
+        serializer.save(administered_by=employee_profile)
+
+
+
+class ClientGoalsListView(APIView):
+
+    def get(self, request, client_id):
+        goals = ClientGoals.objects.filter(client=client_id)
+        serializer = ClientGoalsSerializer(goals, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+class ClientGoalDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ClientGoals.objects.all()
+    serializer_class = ClientGoalsSerializer
+    lookup_field = 'pk' 

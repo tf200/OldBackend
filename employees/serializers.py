@@ -198,3 +198,9 @@ class EmployeegetConv (serializers.ModelSerializer) :
     class Meta: 
         model = EmployeeProfile
         fields = '__all__'
+
+
+class ClientGoalsSerializer (serializers.ModelSerializer) :
+    class Meta: 
+        model = ClientGoals
+        fields = '__all__'
