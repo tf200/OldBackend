@@ -180,7 +180,7 @@ class ClientGoals(models.Model) :
     goal_name = models.CharField(max_length=100)
     goal_details = models.CharField(max_length=500)
     rating = models.IntegerField(null=True, blank=True)
-    report = models.TextField()
+    report = models.TextField(blank = True , null = True)
     created_at = models.DateTimeField(auto_now_add=True) 
     administered_by = models.ForeignKey(
         EmployeeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='emp_goals')
