@@ -1,11 +1,8 @@
 from django.core.exceptions import ValidationError
-from django.db import transaction
-from authentication.models import CustomUser
 from client.models import ClientDetails
 from django.conf import settings
 from django.db import models
-from .utils import generate_unique_username
-from django.contrib.auth.hashers import make_password
+from django.utils import timezone
 
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -187,4 +184,29 @@ class ClientGoals(models.Model) :
     
 
 
+class Incident(models.Model):
+    # Assuming 'Employee' and 'Child' models are defined elsewhere
+    reported_by = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='reported_incidents')
+    involved_children = models.ManyToManyField(ClientDetails, related_name='incidents')
+    date_reported = models.DateTimeField(default=timezone.now)
+    date_of_incident = models.DateField()
+    time_of_incident = models.TimeField()
+    location = models.CharField(max_length=255)
+    description = models.TextField()
+    action_taken = models.TextField(blank=True, null=True)
+    follow_up_required = models.BooleanField(default=False)
+    follow_up_date = models.DateField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=100, default='Reported', choices=(
+        ('Reported', 'Reported'),
+        ('Under Investigation', 'Under Investigation'),
+        ('Resolved', 'Resolved'),
+        ('Closed', 'Closed'),
+    ))
 
+    class Meta:
+        verbose_name = 'Incident'
+        verbose_name_plural = 'Incidents'
+
+    def __str__(self):
+        return f"Incident on {self.date_of_incident} at {self.location}"

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from dateutil.relativedelta import relativedelta
 
 class ClientType (models.Model):
     TYPE_CHOICES = [
@@ -129,29 +130,28 @@ class Contract(models.Model):
         ClientType, on_delete=models.CASCADE, related_name='sender_contracts')
     RATE_TYPE_CHOICES = (
         ('day', 'Per Day'),
-        ('week', 'Per Week'),  # Added per week rate type
+        ('week', 'Per Week'),
         ('hour', 'Per Hour'),
         ('minute', 'Per Minute'),
     )
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='contracts')
     start_date = models.DateField(verbose_name="Date of Care Commencement")
-    end_date = models.DateField(verbose_name="Date of Care Termination")
+    duration = models.IntegerField(verbose_name="Duration in Months" , null=True)  # New field for duration
     care_type = models.CharField(max_length=100, verbose_name="Type of Care")
     rate_type = models.CharField(
-        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type" , null = True)
+        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True)
     rate_value = models.DecimalField(
-        max_digits=10, decimal_places=4, null=True, blank=True, verbose_name="Rate Value" )
+        max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Rate Value")
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     @property
     def total_cost(self):
-        # Ensure the end_date is after the start_date
-        if self.end_date < self.start_date:
-            raise ValidationError("End date must be after start date.")
+        # Calculate the end_date based on start_date and duration_months
+        end_date = self.start_date + relativedelta(months=self.duration_months)
 
         # Calculate the total duration in days
-        duration_in_days = (self.end_date - self.start_date).days + 1
+        duration_in_days = (end_date - self.start_date).days + 1
 
         if self.rate_type == 'day':
             return duration_in_days * self.rate_value
