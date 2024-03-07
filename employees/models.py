@@ -3,6 +3,7 @@ from client.models import ClientDetails
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+import uuid
 
 class EmployeeProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -210,3 +211,13 @@ class Incident(models.Model):
 
     def __str__(self):
         return f"Incident on {self.date_of_incident} at {self.location}"
+    
+
+
+class TemporaryFile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file = models.FileField(upload_to='temporary_files/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Temporary file {self.id} uploaded at {self.uploaded_at}"

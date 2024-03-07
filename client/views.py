@@ -347,3 +347,16 @@ class SenderRetrieveAPIView(APIView):
             return Response(serializer.data)
         except ClientDetails.DoesNotExist:
             return Response({'error': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+
+
+class TemporaryFileUploadView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = TemporaryFileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            # Return the ID of the temporary file for later reference
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

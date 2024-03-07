@@ -204,3 +204,9 @@ class ClientGoalsSerializer (serializers.ModelSerializer) :
     class Meta: 
         model = ClientGoals
         fields = '__all__'
+
+
+class TemporaryFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemporaryFile
+        fields = ['id', 'file']

@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
+import uuid
 
 class ClientType (models.Model):
     TYPE_CHOICES = [
@@ -137,7 +138,8 @@ class Contract(models.Model):
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='contracts')
     start_date = models.DateField(verbose_name="Date of Care Commencement")
-    duration = models.IntegerField(verbose_name="Duration in Months" , null=True)  # New field for duration
+    duration_client = models.IntegerField(verbose_name="Duration in Months" , null=True) 
+    duration_sender = models.IntegerField(verbose_name="Times per Year" , null=True) # New field for duration
     care_type = models.CharField(max_length=100, verbose_name="Type of Care")
     rate_type = models.CharField(
         max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True)
@@ -260,7 +262,13 @@ class ClientTypeContactRelation(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     
 
+class TemporaryFile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file = models.FileField(upload_to='temporary_files/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Temporary file {self.id} uploaded at {self.uploaded_at}"
 
 
 

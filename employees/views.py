@@ -8,13 +8,16 @@ from rest_framework import generics , status
 from rest_framework.views import APIView
 from django.shortcuts import render
 from .serializers import *
+from .utils import generate_unique_username
+from django.contrib.auth.hashers import make_password
 from .models import *
 from.filters import EmployeeProfileFilter
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
 from adminmodif.permissions import IsMemberOfAuthorizedGroup
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q 
+from django.db import transaction
 
 
 
@@ -489,3 +492,11 @@ class ClientGoalDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ClientGoals.objects.all()
     serializer_class = ClientGoalsSerializer
     lookup_field = 'pk' 
+
+
+
+
+    
+
+
+

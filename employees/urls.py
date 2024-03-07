@@ -67,6 +67,9 @@ urlpatterns = [
     path('goals/<int:pk>/', ClientGoalDetail.as_view(), name='client-goal-detail'),
 
 
+   
+
+
 
 
 ]

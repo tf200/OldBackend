@@ -60,7 +60,7 @@ urlpatterns = [
 
 
     
-
+    path('temporary-files/', TemporaryFileUploadView.as_view(), name='temporary_file_upload')
 
 
 ]
