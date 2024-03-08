@@ -495,6 +495,14 @@ class ClientGoalDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 
+class GoalsReportCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = GoalsReportSerializer
+
+class GoalsReportRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = GoalsReportSerializer
+    queryset = GoalsReport.objects.all()
 
     
 

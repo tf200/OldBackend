@@ -67,7 +67,8 @@ urlpatterns = [
     path('goals/<int:pk>/', ClientGoalDetail.as_view(), name='client-goal-detail'),
 
 
-   
+    path('goals_report/create/', GoalsReportCreateView.as_view(), name='goals-report-create'),
+    path('goals_report/<int:pk>/', GoalsReportRetrieveView.as_view(), name='goals-report-retrieve'),
 
 
 

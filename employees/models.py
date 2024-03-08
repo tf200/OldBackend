@@ -178,11 +178,15 @@ class ClientGoals(models.Model) :
     goal_name = models.CharField(max_length=100)
     goal_details = models.CharField(max_length=500)
     rating = models.IntegerField(null=True, blank=True)
-    report = models.TextField(blank = True , null = True)
     created_at = models.DateTimeField(auto_now_add=True) 
     administered_by = models.ForeignKey(
         EmployeeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='emp_goals')
     
+class GoalsReport(models.Model) :
+    goal = models.ForeignKey(ClientGoals , on_delete=models.SET_NULL , related_name='goals_report' , null = True)
+    tiltle = models.CharField(max_length=100)
+    report_text = models.TextField()
+
 
 
 class Incident(models.Model):
@@ -214,10 +218,4 @@ class Incident(models.Model):
     
 
 
-class TemporaryFile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    file = models.FileField(upload_to='temporary_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Temporary file {self.id} uploaded at {self.uploaded_at}"

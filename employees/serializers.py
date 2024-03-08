@@ -200,13 +200,17 @@ class EmployeegetConv (serializers.ModelSerializer) :
         fields = '__all__'
 
 
+class GoalsReportSerializer (serializers.ModelSerializer) :
+    class Meta: 
+        model = GoalsReport
+        fields = '__all__'
+
+
 class ClientGoalsSerializer (serializers.ModelSerializer) :
+    report = GoalsReportSerializer(read_only = True)
     class Meta: 
         model = ClientGoals
         fields = '__all__'
 
 
-class TemporaryFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TemporaryFile
-        fields = ['id', 'file']
+

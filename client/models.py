@@ -271,4 +271,37 @@ class TemporaryFile(models.Model):
         return f"Temporary file {self.id} uploaded at {self.uploaded_at}"
 
 
+# class Invoice(models.Model):
+#     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+#     client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='invoices')
+#     issue_date = models.DateField(auto_now_add=True)
+#     due_date = models.DateField()
+#     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)  # As a percentage
+#     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
+#     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
 
+#     def calculate_totals(self):
+#         self.pre_vat_total = sum(item.total for item in self.invoice_services.all())
+#         self.vat_amount = (self.pre_vat_total * self.vat_rate) / 100
+#         self.total_amount = self.pre_vat_total + self.vat_amount
+#         self.save()
+
+#     def __str__(self):
+#         return f"Invoice {self.invoice_number} - {self.client}"
+
+
+# class InvoiceService(models.Model):
+#     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_services')
+#     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+#     quantity = models.IntegerField(default=1)
+#     rate = models.DecimalField(max_digits=10, decimal_places=2)  # Pre-VAT rate
+#     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)  # As a percentage
+#     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Pre-VAT total
+
+#     def calculate_total(self):
+#         self.total = self.quantity * self.rate  # Update this if needed to include VAT calculation
+
+#     def __str__(self):
+#         return f"{self.service.name} on Invoice {self.invoice.invoice_number}"

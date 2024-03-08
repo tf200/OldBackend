@@ -8,7 +8,7 @@ from .pagination import CustomPagination
 from rest_framework import generics
 from employees.models import ClientMedication
 from django.shortcuts import render
-from .models import ClientDetails
+from .models import ClientDetails 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from client.filters import *
@@ -360,3 +360,8 @@ class TemporaryFileUploadView(APIView):
             # Return the ID of the temporary file for later reference
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+
