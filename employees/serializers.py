@@ -207,7 +207,7 @@ class GoalsReportSerializer (serializers.ModelSerializer) :
 
 
 class ClientGoalsSerializer (serializers.ModelSerializer) :
-    report = GoalsReportSerializer(read_only = True)
+    goals_report = GoalsReportSerializer(read_only = True , many=True)
     class Meta: 
         model = ClientGoals
         fields = '__all__'

@@ -472,19 +472,17 @@ class ClientGoalsCreateView(generics.CreateAPIView):
 
 
 
-class ClientGoalsListView(APIView):
-    pagination_class = CustomPagination()
+class ClientGoalsListView(generics.ListAPIView):
+    serializer_class = ClientGoalsSerializer
+    pagination_class = CustomPagination
 
-    def get(self, request, client_id):
-        goals = ClientGoals.objects.filter(client=client_id)
-        page = self.pagination_class.paginate_queryset(goals, request)
-        if page is not None:
-            serializer = ClientGoalsSerializer(page, many=True)
-            return self.pagination_class.get_paginated_response(serializer.data)
-        
-        # Fallback if pagination is not applicable, though in practice, this should always paginate.
-        serializer = ClientGoalsSerializer(goals, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        """
+        This view should return a list of all the client goals
+        for the client as determined by the client_id portion of the URL.
+        """
+        client_id = self.kwargs['client_id']
+        return ClientGoals.objects.filter(client=client_id)
     
 
 
