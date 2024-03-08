@@ -184,7 +184,7 @@ class ClientGoals(models.Model) :
     
 class GoalsReport(models.Model) :
     goal = models.ForeignKey(ClientGoals , on_delete=models.SET_NULL , related_name='goals_report' , null = True)
-    tiltle = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     report_text = models.TextField()
 
 
