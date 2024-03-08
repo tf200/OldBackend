@@ -43,11 +43,11 @@ class ClientDocumentsSerializers(serializers.ModelSerializer):
 
 
 class ClientMedicationSerializer(serializers.ModelSerializer) :
-    name = serializers.SerializerMethodField()
+    administer_name = serializers.SerializerMethodField()
     class Meta :
         model= ClientMedication
         fields = '__all__'
-    def get_name(self, obj):
+    def get_administer_name(self, obj):
         if obj:
              # Access the associated CustomUser instance
             if obj.administered_by:  # Check if profile_picture exists
