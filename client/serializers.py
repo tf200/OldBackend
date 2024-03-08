@@ -66,9 +66,18 @@ class ClientAllergySerializer(serializers.ModelSerializer) :
 #     class Meta :
 #         model = ProgressReport
 #         fields = '__all__'
+class ContractAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContractAttachment
+        fields = ['id', 'contract', 'name', 'attachment', 'created_at']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['attachment'] = instance.attachment.url if instance.attachment else None
+        return representation
 
 class ContractSerializer(serializers.ModelSerializer):
+    attachments = ContractAttachmentSerializer(many=True, required=False, read_only=True)
     temporary_file_ids = serializers.ListField(
         child=serializers.UUIDField(), write_only=True, required=False
     )
@@ -76,9 +85,11 @@ class ContractSerializer(serializers.ModelSerializer):
         child=serializers.IntegerField(), write_only=True, required=False, allow_null=True
     )
 
+
+
     class Meta:
         model = Contract
-        fields = ['sender', 'client', 'start_date', 'duration_client', 'duration_sender', 'care_type', 'rate_type', 'rate_value', 'temporary_file_ids', 'attachment_ids_to_delete']
+        fields = ['id','sender', 'client', 'start_date', 'duration_client', 'duration_sender', 'care_type', 'rate_type', 'rate_value', 'temporary_file_ids', 'attachment_ids_to_delete' , 'attachments']
         extra_kwargs = {
             'sender': {'required': True},
             'client': {'required': True}
