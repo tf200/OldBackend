@@ -9,8 +9,8 @@ WORKDIR /healthy/
 
 # Install dependencies including GObject libraries
 RUN apt-get update && \
-    apt-get install -y libpq-dev python3-dev libglib2.0-dev && \
-    rm -rf /var/lib/apt/lists/*
+    apt install python3-pip libpango-1.0-0 libpangoft2-1.0-0 \
+    
 
 COPY requirements.txt .
 RUN pip3.12 install --no-cache-dir -r requirements.txt
