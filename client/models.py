@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 import uuid
-
+from datetime import datetime
 class ClientType (models.Model):
     TYPE_CHOICES = [
         ('main_provider', 'Main Provider'),
@@ -21,6 +21,7 @@ class ClientType (models.Model):
     BTWnumber = models.CharField (max_length=20 , null = True , blank = True)
     phone_number = models.CharField (max_length=20 , null = True , blank = True)
     client_number =models.CharField (max_length=20 , null = True , blank = True)
+    email_adress = models.CharField (max_length=20 , null = True , blank = True)
 
 
 class ClientDetails(models.Model):
@@ -147,37 +148,30 @@ class Contract(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Rate Value")
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-    @property
-    def total_cost(self):
-        # Calculate the end_date based on start_date and duration_months
-        end_date = self.start_date + relativedelta(months=self.duration_months)
-
+    def calculate_cost_for_period(self, start_date_str, end_date_str):
+        print(self.id)
+        # Convert string dates to datetime objects
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+        
         # Calculate the total duration in days
-        duration_in_days = (end_date - self.start_date).days + 1
+        duration_in_days = (end_date - start_date).days + 1
 
+        # Calculate the cost based on the rate type
         if self.rate_type == 'day':
             return duration_in_days * self.rate_value
         elif self.rate_type == 'week':
-            # Calculate the number of weeks (assuming 7 days in a week)
             weeks = duration_in_days / 7
             return weeks * self.rate_value
         elif self.rate_type == 'hour':
-            # Assuming 24 hours in a day for calculation
-            return duration_in_days * 24 * self.rate_value
+            hours = duration_in_days * 24
+            return hours * self.rate_value
         elif self.rate_type == 'minute':
-            # Assuming 24 hours in a day and 60 minutes in an hour for calculation
-            return duration_in_days * 24 * 60 * self.rate_value
+            minutes = duration_in_days * 24 * 60
+            print(minutes * self.rate_value)
+            return minutes * self.rate_value
         else:
             return 0
-
-    def clean(self):
-        super().clean()
-        # Custom validation to ensure end_date is not before start_date
-        if self.end_date < self.start_date:
-            raise ValidationError("End date cannot be before start date.")
-
-    def __str__(self):
-        return f"Contract for {self.client} from {self.start_date} to {self.end_date}"
 
 class ContractAttachment(models.Model):
     contract = models.ForeignKey(
@@ -271,25 +265,27 @@ class TemporaryFile(models.Model):
         return f"Temporary file {self.id} uploaded at {self.uploaded_at}"
 
 
-# class Invoice(models.Model):
-#     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-#     client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='invoices')
-#     issue_date = models.DateField(auto_now_add=True)
-#     due_date = models.DateField()
-#     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)  # As a percentage
-#     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
-#     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
+class Invoice(models.Model):
+    invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    client = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='invoices')
+    issue_date = models.DateField(auto_now_add=True)
+    due_date = models.DateField()
+    pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
+    status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
 
-#     def calculate_totals(self):
-#         self.pre_vat_total = sum(item.total for item in self.invoice_services.all())
-#         self.vat_amount = (self.pre_vat_total * self.vat_rate) / 100
-#         self.total_amount = self.pre_vat_total + self.vat_amount
-#         self.save()
+    def calculate_totals(self):
+        # Assuming the total cost calculation is based on the contract's details
+     # Use the total_cost property from the Contract model
+        
+        # Calculate VAT and total amount
+        self.vat_amount = (self.pre_vat_total * self.vat_rate) / 100
 
-#     def __str__(self):
-#         return f"Invoice {self.invoice_number} - {self.client}"
+        self.total_amount = self.pre_vat_total + self.vat_amount
+
+        self.save()
 
 
 # class InvoiceService(models.Model):
@@ -305,3 +301,4 @@ class TemporaryFile(models.Model):
 
 #     def __str__(self):
 #         return f"{self.service.name} on Invoice {self.invoice.invoice_number}"
+

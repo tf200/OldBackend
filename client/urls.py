@@ -60,7 +60,8 @@ urlpatterns = [
 
 
     
-    path('temporary-files/', TemporaryFileUploadView.as_view(), name='temporary_file_upload')
+    path('temporary-files/', TemporaryFileUploadView.as_view(), name='temporary_file_upload'),
+    path('generate-invoice/', GenerateInvoiceAPI.as_view(), name='generate-invoice'),
 
 
 ]
