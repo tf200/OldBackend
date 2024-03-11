@@ -9,7 +9,10 @@ WORKDIR /healthy/
 
 # Install dependencies including GObject libraries
 RUN apt-get update && \
-    apt install python3-pip libpango-1.0-0 libpangoft2-1.0-0 \
+    apt-get install -y \
+    python3-pip \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0
     
 
 COPY requirements.txt .
