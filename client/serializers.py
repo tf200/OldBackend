@@ -204,5 +204,5 @@ class TemporaryFileSerializer(serializers.ModelSerializer):
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
-        fields = ['id', 'invoice_number', 'issue_date', 'due_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount', 'status']
+        fields = ['id', 'invoice_number', 'issue_date', 'due_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount', 'status' , 'url']
         read_only_fields = ['invoice_number', 'issue_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount']

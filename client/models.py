@@ -275,6 +275,8 @@ class Invoice(models.Model):
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
+    url = models.URLField(max_length=200, blank=True, null=True)
+
 
     def calculate_totals(self):
         # Assuming the total cost calculation is based on the contract's details

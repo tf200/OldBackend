@@ -376,8 +376,6 @@ class GenerateInvoiceAPI(APIView):
         end_date = request.data.get('end_date')
         
         contract = get_object_or_404(Contract, id=contract_id)
-        client_type = contract.sender
-
         cost = contract.calculate_cost_for_period(start_date, end_date)
 
         invoice = Invoice.objects.create(
@@ -386,33 +384,56 @@ class GenerateInvoiceAPI(APIView):
             pre_vat_total=cost,
         )
 
-        # Prepare context for rendering
-        context = {
-            'company_name': client_type.name,
-            'email': client_type.email_adress,
-            'address': client_type.address,
-            # Add other necessary fields
-        }
+        invoice.calculate_totals()
 
-        # Render HTML template with context
+        # Generate PDF
+        context = self.get_context_data(invoice, contract)
         html_string = render_to_string('invoice_template.html', context)
         html = HTML(string=html_string)
-        
         pdf_content = html.write_pdf()
-        
-        # Generate a unique filename for the PDF
         invoice_filename = f'invoice_{invoice.invoice_number}.pdf'
-        
-        # Save the PDF content to S3
+
+        # Save the PDF content
         if default_storage.exists(invoice_filename):
             default_storage.delete(invoice_filename)
         default_storage.save(invoice_filename, ContentFile(pdf_content))
-        
-        # Create a URL to access the PDF
+
+        # Update the Invoice instance with the PDF URL
         invoice_pdf_url = default_storage.url(invoice_filename)
+        invoice.url = invoice_pdf_url
+        invoice.save(update_fields=['url'])
+
+        # Serialize and return the updated invoice
         invoice_serializer = InvoiceSerializer(invoice)
-        # You can now return this URL in your response, or save it to your model
         response_data = invoice_serializer.data
-        response_data['pdf_url'] = invoice_pdf_url  # Add PDF URL to the response
-        
+        response_data['pdf_url'] = invoice_pdf_url  # Ensure the response includes the PDF URL
+
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+    def get_context_data(self, invoice, contract):
+        """Prepare context data for rendering the invoice PDF."""
+        client_type = contract.sender
+        return {
+            'company_name': client_type.name,
+            'email': client_type.email_adress,
+            'address': client_type.address,
+            'client': f'{contract.client.first_name} {contract.client.last_name}',
+            'vat_rate': invoice.vat_rate,
+            'vat_amount': invoice.vat_amount,
+            'total_amount': invoice.total_amount,
+            'pre_vat_total': invoice.pre_vat_total,
+            'issue_date': invoice.issue_date,
+            'invoice_number': invoice.invoice_number,
+            # Add other necessary fields as needed
+        }
+    
+
+
+class InvoiceListView(generics.ListAPIView):
+    serializer_class = InvoiceSerializer
+
+    def get_queryset(self):
+
+        client_id = self.kwargs['client_id']     
+        client = get_object_or_404(Contract, id=client_id)  # Ensures the client exists
+        return Invoice.objects.filter(client=client).order_by('-issue_date')
