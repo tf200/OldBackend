@@ -5,13 +5,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from .serializer import AssignGroupSerializer , GroupSerializer
-from django.contrib.auth.models import  Group
 from authentication.models import CustomUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .models import GroupMembership
+from .models import GroupMembership , Group
 from django.utils import timezone
 from employees.models import EmployeeProfile
 from django.http import JsonResponse , Http404

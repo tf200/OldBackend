@@ -1,20 +1,22 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import serializers
 from .models import *
-from employees.serializers import UserEmployeeProfileSerializer
+from adminmodif.models import GroupMembership
+
+
+
 class MyCustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
-        
         token = super().get_token(user)
 
-        # Add custom claims
-        groups = user.groups.values_list('name', flat=True)
-        token['groups'] = list(groups)  
+        # Fetch groups for the user
+        # Since the background worker manages the active status, 
+        # we can directly fetch the groups without filtering on dates.
+        groups = GroupMembership.objects.filter(user=user).values_list('group__group_name', flat=True)
+        token['groups'] = list(groups)
 
         return token
-
 
 
 

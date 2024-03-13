@@ -9,13 +9,58 @@ class IsMemberOfAuthorizedGroup(BasePermission):
         if request.user.is_superuser:
             return True
 
-        authorized_group = 'AuthorizedGroupName'
-        today = timezone.now().date()
+        
+
+
+
+
+class IsMemberOfDirectie(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        authorized_group = 'Directie'
        
         return GroupMembership.objects.filter(
             user=request.user,
             group__name=authorized_group,
-            start_date__lte=today,  
-        ).filter(
-            models.Q(end_date__gte=today) | models.Q(end_date__isnull=True) 
+        ).exists()
+    
+class IsMemberOfKantoorMedewerkers(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        authorized_group = 'Kantoor Medewerkers'
+       
+        return GroupMembership.objects.filter(
+            user=request.user,
+            group__name=authorized_group,
+        ).exists()
+
+
+class IsMemberOfPedagogishMedewerkers(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        authorized_group = 'Pedagogish Medewerkers'
+       
+        return GroupMembership.objects.filter(
+            user=request.user,
+            group__name=authorized_group,
+        ).exists()
+    
+
+
+class IsMemberOfAmbulanteMedewerkers(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        authorized_group = 'Ambulante Medewerkers'
+       
+        return GroupMembership.objects.filter(
+            user=request.user,
+            group__name=authorized_group,
         ).exists()

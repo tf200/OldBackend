@@ -2,9 +2,18 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
-from django.contrib.auth.models import Group
 from authentication.models import CustomUser
 from django.utils import timezone
+
+
+
+class Group (models.Model) :
+    name = models.CharField(max_length=255, unique=True)
+
+
+
+
+
 
 
 class GroupMembership(models.Model):

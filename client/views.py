@@ -14,17 +14,58 @@ from employees.models import ClientMedication
 from django.shortcuts import render
 from .models import ClientDetails 
 from rest_framework.views import APIView
+from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from adminmodif.models import Group
+from employees.utils import generate_unique_username
+from django.contrib.auth.hashers import make_password
 from client.filters import *
 from .serializers import *
 from rest_framework import filters , status
+from authentication.models import CustomUser
+from adminmodif.models import GroupMembership
 # Create your views here.
 
 
 class ClientCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
-    serializer_class = ClientDetailsSerializer
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            client_data = request.data
+            first_name = client_data.get('first_name', '')
+            last_name = client_data.get('last_name', '')
+            username = generate_unique_username(first_name, last_name)
+            password = make_password(None)
+            user, user_created = CustomUser.objects.get_or_create(username=username)
+            if user_created:
+                user.set_password(password)
+                user.save()
+                client_group, group_created = Group.objects.get_or_create(name='Client')
+
+                # Create a new GroupMembership for the user, linking them to the 'Client' group
+                # Since you want the membership to be permanent and effective immediately,
+                # you leave the start_date and end_date as None
+                GroupMembership.objects.create(
+                    user=user,
+                    group=client_group,
+                    start_date=None,  # Immediate effect
+                    end_date=None     # Permanence
+    )
+            else:
+                if hasattr(user, 'profile'):
+                    return Response({"error": "This user already has an associated EmployeeProfile."},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            try:
+                client_profile = ClientDetails.objects.create(user=user, **client_data)
+                serializer = ClientDetailsSerializer(client_profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)            
+
+
+
+
 
 
 class ClientDetailsView(generics.RetrieveAPIView):
