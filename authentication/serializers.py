@@ -13,7 +13,7 @@ class MyCustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Fetch groups for the user
         # Since the background worker manages the active status, 
         # we can directly fetch the groups without filtering on dates.
-        groups = GroupMembership.objects.filter(user=user).values_list('group__group_name', flat=True)
+        groups = GroupMembership.objects.filter(user=user).values_list('group__name', flat=True)
         token['groups'] = list(groups)
 
         return token
