@@ -348,6 +348,17 @@ class ContractListView(generics.ListAPIView):
         return Contract.objects.all()
 
 
+class ContractListViewGeneral(generics.ListAPIView):
+    # permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = ContractSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    # filterset_class = ContractFilter
+    ordering_fields = ['start_date', 'end_date',
+                       'rate_per_day', 'rate_per_minute', 'rate_per_hour']
+    ordering = ['-created']
+    queryset = Contract.objects.all()
+
 class ContractUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ContractSerializer
