@@ -64,3 +64,16 @@ class IsMemberOfAmbulanteMedewerkers(BasePermission):
             user=request.user,
             group__name=authorized_group,
         ).exists()
+
+
+class IsMemberOfManagement(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        authorized_group = 'Management'
+       
+        return GroupMembership.objects.filter(
+            user=request.user,
+            group__name=authorized_group,
+        ).exists()

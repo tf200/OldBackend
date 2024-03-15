@@ -2,6 +2,7 @@ from django_filters import rest_framework as filters
 from .models import ClientDetails, ClientDiagnosis , ClientAllergy
 from django_filters.filters import DateFilter , DateFromToRangeFilter
 from employees.models import ClientMedication
+from .models import Invoice
 
 
 
@@ -81,3 +82,21 @@ class ClientDetailsFilter(filters.FilterSet):
             'streetname': ['exact', 'icontains'],
             'street_number': ['exact', 'icontains'],
         }
+
+
+class InvoiceFilter(filters.FilterSet):
+    invoice_number = filters.UUIDFilter(lookup_expr='icontains')
+    client = filters.NumberFilter(field_name='client__id')
+    issue_date = filters.DateFilter()
+    due_date = filters.DateFilter()
+    pre_vat_total = filters.NumberFilter()
+    vat_rate = filters.NumberFilter()
+    vat_amount = filters.NumberFilter()
+    total_amount = filters.NumberFilter()
+    status = filters.ChoiceFilter(choices=Invoice.STATUS_CHOICES)
+    payment_type = filters.ChoiceFilter(choices=Invoice.PAYMENT_TYPE_CHOICES, null_label='Not Applicable/Not Paid')  # New filter
+    url = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Invoice
+        fields = ['invoice_number', 'client', 'issue_date', 'due_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount', 'status', 'payment_type', 'url']

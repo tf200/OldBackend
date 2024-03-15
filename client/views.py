@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from rest_framework.permissions import IsAuthenticated
-from adminmodif.permissions import IsMemberOfAuthorizedGroup
+from adminmodif.permissions import IsMemberOfAuthorizedGroup , IsMemberOfManagement
 from rest_framework.filters import OrderingFilter
 from rest_framework.filters import SearchFilter
 from .tasks import send_progress_report_email
@@ -29,7 +29,7 @@ from adminmodif.models import GroupMembership
 
 
 class ClientCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         with transaction.atomic():
             client_data = request.data
@@ -69,13 +69,13 @@ class ClientCreateView(generics.CreateAPIView):
 
 
 class ClientDetailsView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
 
 
 class ClientListView (generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -90,13 +90,13 @@ class ClientListView (generics.ListAPIView):
 
 
 class ClientUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
 
 
 class ClientDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
 
@@ -104,18 +104,18 @@ class ClientDeleteView(generics.DestroyAPIView):
 
 
 class DiagnosisCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientDiagnosisSerializer
 
 
 class DiagnosisRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDiagnosisSerializer
     queryset = ClientDiagnosis.objects.all()
 
 
 class DiagnosisListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDiagnosisSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ClientDiagnosisFilter
@@ -130,13 +130,13 @@ class DiagnosisListView(generics.ListAPIView):
 
 
 class DiagnosisUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientDiagnosisSerializer
     queryset = ClientDiagnosis.objects.all()
 
 
 class DiagnosisDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDiagnosisSerializer
     queryset = ClientDiagnosis.objects.all()
 
@@ -144,18 +144,18 @@ class DiagnosisDeleteView(generics.DestroyAPIView):
 
 
 class ClientEmergencyContactCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientEmergencyContactSerializer
 
 
 class ClientEmergencyContactRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientEmergencyContactSerializer
     queryset = ClientEmergencyContact.objects.all()
 
 
 class ClientEmergencyContactListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientEmergencyContactSerializer
     ordering = ['-created']
     pagination_class = CustomPagination
@@ -166,13 +166,13 @@ class ClientEmergencyContactListView(generics.ListAPIView):
 
 
 class ClientEmergencyContactUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientEmergencyContactSerializer
     queryset = ClientEmergencyContact.objects.all()
 
 
 class ClientEmergencyContactDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientEmergencyContactSerializer
     queryset = ClientEmergencyContact.objects.all()
 
@@ -181,12 +181,12 @@ class ClientEmergencyContactDeleteView(generics.DestroyAPIView):
 
 
 class ClientDocumentsUploadView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientDocumentsSerializers
 
 
 class ClientDocumentsListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDocumentsSerializers
     ordering = ['-created']
     pagination_class = CustomPagination
@@ -197,7 +197,7 @@ class ClientDocumentsListView(generics.ListAPIView):
 
 
 class ClientDocumentsDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientDocumentsSerializers
     queryset = ClientDocuments.objects.all()
 
@@ -206,18 +206,18 @@ class ClientDocumentsDeleteView(generics.DestroyAPIView):
 
 
 class ClientMedicationCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
 
 
 class ClientMedicationRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientMedicationSerializer
     queryset = ClientMedication.objects.all()
 
 
 class ClientMedicationListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientMedicationSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -231,13 +231,13 @@ class ClientMedicationListView(generics.ListAPIView):
 
 
 class ClientMedicationUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
     queryset = ClientMedication.objects.all()
 
 
 class ClientMedicationDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientMedicationSerializer
     queryset = ClientMedication.objects.all()
 
@@ -245,18 +245,18 @@ class ClientMedicationDeleteView(generics.DestroyAPIView):
 # ================================================================
 
 class ClientAllergyCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientAllergySerializer
 
 
 class ClientAllergyRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientAllergySerializer
     queryset = ClientAllergy.objects.all()
 
 
 class ClientAllergyListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientAllergySerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -270,13 +270,13 @@ class ClientAllergyListView(generics.ListAPIView):
 
 
 class ClientAllergyUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientAllergySerializer
     queryset = ClientAllergy.objects.all()
 
 
 class ClientAllergyDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientAllergySerializer
     queryset = ClientAllergy.objects.all()
 
@@ -376,6 +376,7 @@ class ContractDeleteView(generics.DestroyAPIView):
 
 
 class ClientTypeCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     def post(self, request, *args, **kwargs):
         serializer = ClientTypeSerializer(data=request.data)
         if serializer.is_valid():
@@ -385,6 +386,7 @@ class ClientTypeCreateAPIView(APIView):
 
 
 class ClientTypeListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     queryset = ClientType.objects.all()
     serializer_class = ClientTypeSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -393,6 +395,7 @@ class ClientTypeListView(generics.ListAPIView):
 
 
 class SenderRetrieveAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     def get(self, request, client_id):
         try:
             # Retrieve the client by ID
@@ -410,6 +413,7 @@ class SenderRetrieveAPIView(APIView):
 
 
 class TemporaryFileUploadView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         serializer = TemporaryFileSerializer(data=request.data)
         if serializer.is_valid():
@@ -422,6 +426,7 @@ class TemporaryFileUploadView(APIView):
 
 
 class GenerateInvoiceAPI(APIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     def post(self, request, *args, **kwargs):
         contract_id = request.data.get('contract_id')
         start_date = request.data.get('start_date')
@@ -482,6 +487,7 @@ class GenerateInvoiceAPI(APIView):
 
 
 class InvoiceListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = InvoiceSerializer
 
     def get_queryset(self):
@@ -489,3 +495,17 @@ class InvoiceListView(generics.ListAPIView):
         client_id = self.kwargs['client_id']     
         client = get_object_or_404(Contract, id=client_id)  # Ensures the client exists
         return Invoice.objects.filter(client=client).order_by('-issue_date')
+
+
+class InvoiceListViewAll(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = InvoiceSerializer
+    queryset = Invoice.objects.all()
+    filter_backend=[DjangoFilterBackend, SearchFilter]
+    filterset_class = InvoiceFilter
+
+
+class InvoiceRU(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = InvoiceSerializer
+    queryset = Invoice.objects.all()

@@ -14,7 +14,7 @@ from .models import *
 from.filters import EmployeeProfileFilter
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import Group
-from adminmodif.permissions import IsMemberOfAuthorizedGroup
+from adminmodif.permissions import IsMemberOfAuthorizedGroup , IsMemberOfManagement
 from django.shortcuts import get_object_or_404
 from django.db.models import Q 
 from django.db import transaction
@@ -24,7 +24,7 @@ from django.db import transaction
 
 
 class CurrentUserProfileView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserEmployeeProfileSerializer
     def get_object(self):
         # Assuming the EmployeeProfile model has a 'user' field that relates to the User model.
@@ -34,7 +34,7 @@ class CurrentUserProfileView(generics.RetrieveAPIView):
         return obj
 
 class UserProfileView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserEmployeeProfileSerializer
     queryset = EmployeeProfile.objects.all()
 
@@ -43,7 +43,7 @@ class UserProfileView(generics.RetrieveAPIView):
 
 #=============================================================================
 class ProgressReportCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     def perform_create(self, serializer):
         user = self.request.user
@@ -52,12 +52,12 @@ class ProgressReportCreateView(generics.CreateAPIView):
         # send_progress_report_email.delay(instance.id , instance.report_text) 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
 
 class ProgressReportListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientprogressSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     # filterset_class = ProgressReportFilter  
@@ -70,30 +70,40 @@ class ProgressReportListView(generics.ListAPIView):
         return ProgressReport.objects.filter(client=client_id)
 
 class ProgressReportUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
 
 class ProgressReportDeleteView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
 
 
 
 #=====================================================
-class ClientMeasurmentRUDView (generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+class ClientMeasurmentRUDView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MeasurementSerializer
     queryset = Measurement.objects.all()
 
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
+
 
 class ClientMeasurmentCLView (generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = MeasurementSerializer
 
 class ClientMeasurmentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = MeasurementSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     # filterset_class = ProgressReportFilter  
@@ -109,16 +119,25 @@ class ClientMeasurmentListView(generics.ListAPIView):
 
 #=====================================================
 class ClientObservationsRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ObservationsSerializer
     queryset = Observations.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ClientObservationsCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ObservationsSerializer
 
 class ClientObservationsListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ObservationsSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
@@ -133,16 +152,25 @@ class ClientObservationsListView(generics.ListAPIView):
 
 #=====================================================
 class ClientFeedbackRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = FeedbackSerializer
     queryset = Feedback.objects.all()
     def perform_create(self, serializer):
         user = self.request.user
         employee_profile = EmployeeProfile.objects.get(user=user)
         serializer.save(author=employee_profile)
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ClientFeedbackCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = FeedbackSerializer
     def perform_create(self, serializer):
         user = self.request.user
@@ -150,7 +178,7 @@ class ClientFeedbackCreateView(generics.CreateAPIView):
         serializer.save(author=employee_profile)
 
 class ClientFeedbackListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = FeedbackSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
@@ -165,16 +193,25 @@ class ClientFeedbackListView(generics.ListAPIView):
 
 #=====================================================
 class ClientEmotionalStateRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = EmotionalStateSerializer
     queryset = EmotionalState.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ClientEmotionalStateCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = EmotionalStateSerializer
 
 class ClientEmotionalStateListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = EmotionalStateSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
@@ -189,16 +226,25 @@ class ClientEmotionalStateListView(generics.ListAPIView):
 
 #=====================================================
 class ClientPhysicalStateRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = PhysicalStateSerializer
     queryset = PhysicalState.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ClientPhysicalStateCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = PhysicalStateSerializer
 
 class ClientPhysicalStateListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = PhysicalStateSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'date']
@@ -213,16 +259,25 @@ class ClientPhysicalStateListView(generics.ListAPIView):
 
 #=====================================================
 class ClientEmployeeAssignmentRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ClientEmployeeAssignmentSerializer
     queryset = ClientEmployeeAssignment.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ClientEmployeeAssignmentCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientEmployeeAssignmentSerializer
 
 class ClientEmployeeAssignmentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientEmployeeAssignmentSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['client', 'start_date']
@@ -251,7 +306,6 @@ class ClientEmployeeAssignmentListView(generics.ListAPIView):
 
 
 class EmployeeProfileRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = EmployeeCRUDSerializer
     queryset = EmployeeProfile.objects.all()
     def get_serializer_context(self):
@@ -259,9 +313,20 @@ class EmployeeProfileRUDView(generics.RetrieveUpdateDestroyAPIView):
         # Always include group details in the context for this view
         context['include_groups'] = True
         return context
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 
 class ProfilePictureAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, employee_id):
         employee_profile = get_object_or_404(EmployeeProfile, pk=employee_id)
         user = employee_profile.user
@@ -288,7 +353,7 @@ class ProfilePictureAPIView(APIView):
 
 
 class EmployeeProfileCreateView(APIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated ]
     def post(self, request, *args, **kwargs):
         with transaction.atomic():
             employee_data = request.data
@@ -322,7 +387,7 @@ class EmployeeProfileCreateView(APIView):
 
         
 class EmployeeProfileListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = EmployeeCRUDSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = EmployeeProfileFilter  # Add SearchFilter here
@@ -356,18 +421,27 @@ class EmployeeProfileListView(generics.ListAPIView):
 #================================================================
 
 class CertificationRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = CertificationSerializer
     queryset = Certification.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 
 class CertificationCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = CertificationSerializer
 
 
 class CertificationListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = CertificationSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering = ['-created']
@@ -379,16 +453,25 @@ class CertificationListView(generics.ListAPIView):
 #================================================================
 
 class ExperienceRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ExperienceSerializer
     queryset = Experience.objects.all()
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 class ExperienceCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ExperienceSerializer
 
 class ExperienceListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ExperienceSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering = ['-created']
@@ -402,16 +485,24 @@ class ExperienceListView(generics.ListAPIView):
 #========================================================================
 
 class ExperienceRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = ExperienceSerializer
     queryset = Experience.objects.all()
-
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 class ExperienceCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ExperienceSerializer
 
 class ExperienceListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ExperienceSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering = ['-created']
@@ -424,17 +515,25 @@ class ExperienceListView(generics.ListAPIView):
 
 
 class EducationRUDView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = EducationSerializer
     queryset = Education.objects.all()
-
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 class EducationCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = EducationSerializer
 
 
 class EducationListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = EducationSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     ordering = ['-end_date']  
@@ -448,6 +547,8 @@ class EducationListView(generics.ListAPIView):
     
 
 class EmployeeProfileRetrieveAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+
     queryset = EmployeeProfile.objects.all()
     serializer_class = EmployeegetConv
     lookup_field = 'user__id'
@@ -463,7 +564,7 @@ class EmployeeProfileRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class ClientGoalsCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = ClientGoalsSerializer
     def perform_create(self, serializer):
         user = self.request.user
@@ -473,6 +574,7 @@ class ClientGoalsCreateView(generics.CreateAPIView):
 
 
 class ClientGoalsListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientGoalsSerializer
     pagination_class = CustomPagination
 
@@ -490,18 +592,35 @@ class ClientGoalDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ClientGoals.objects.all()
     serializer_class = ClientGoalsSerializer
     lookup_field = 'pk' 
-
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
 
 
 class GoalsReportCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    permission_classes = [IsAuthenticated]
     serializer_class = GoalsReportSerializer
 
 class GoalsReportRetrieveView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = GoalsReportSerializer
     queryset = GoalsReport.objects.all()
-
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [IsAuthenticated , IsMemberOfManagement]
+        elif self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [IsAuthenticated]
+        elif self.request.method in ['DELETE']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Default permission class(es)
+        return [permission() for permission in permission_classes]
     
 
 

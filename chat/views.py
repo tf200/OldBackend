@@ -6,6 +6,7 @@ from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 from rest_framework.generics import ListAPIView
@@ -13,6 +14,7 @@ from .models import Conversation , Message
 from .serializers import ConversationSerializer , MessageSerializer , ConversationLookupSerializer
 
 class UserConversationsAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
 
     def get_queryset(self):
@@ -23,6 +25,7 @@ class UserConversationsAPIView(ListAPIView):
 
 
 class ConversationMessagesAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = MessageSerializer
 
     def get_queryset(self):
@@ -100,6 +103,7 @@ def get_conversation_messages(request, conv_id):
 
 
 class ConversationLookupView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         serializer = ConversationLookupSerializer(data=request.data)
         if serializer.is_valid():

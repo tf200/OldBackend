@@ -266,6 +266,23 @@ class TemporaryFile(models.Model):
 
 
 class Invoice(models.Model):
+    STATUS_CHOICES = (
+        ('outstanding', 'Outstanding'),
+        ('partially_paid', 'Partially Paid'),
+        ('paid', 'Paid'),
+        ('douabtfull_uncollectible', 'Douabtfull or Uncollectible'),
+        ('expired', 'Expired'),
+        ('overpaid', 'Overpaid'),
+        ('imported', 'Imported'),
+        ('concept', 'Concept')
+
+    )
+    PAYMENT_TYPE_CHOICES = (
+        ('bank_transfer', 'Bank Transfer'),
+        ('credit_card', 'Credit Card'),
+        ('check', 'Check'),
+        ('cash', 'Cash'),
+    )
     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     client = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='invoices')
     issue_date = models.DateField(auto_now_add=True)
@@ -276,6 +293,8 @@ class Invoice(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
     url = models.URLField(max_length=200, blank=True, null=True)
+    payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
+    
 
 
     def calculate_totals(self):

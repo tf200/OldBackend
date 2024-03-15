@@ -64,6 +64,8 @@ urlpatterns = [
     path('generate-invoice/', GenerateInvoiceAPI.as_view(), name='generate-invoice'),
     path('invoices/<int:client_id>/', InvoiceListView.as_view(), name='invoice-list'),
 
-    path('contract_all/', ContractListViewGeneral.as_view(), name='invoice-list')
+    path('contract_all/', ContractListViewGeneral.as_view(), name='Contract-list'),
+    path('invoice_all/', InvoiceListViewAll.as_view(), name='invoice-list-all'),
+    path('invoice_RU/<int:pk>/', InvoiceRU.as_view(), name='invoice-list-all'),
 
 ]
