@@ -66,6 +66,6 @@ urlpatterns = [
 
     path('contract_all/', ContractListViewGeneral.as_view(), name='Contract-list'),
     path('invoice_all/', InvoiceListViewAll.as_view(), name='invoice-list-all'),
-    path('invoice_RU/<int:pk>/', InvoiceRU.as_view(), name='invoice-list-all'),
+    path('invoice_ru/<int:pk>/', InvoiceRU.as_view(), name='invoice-list-all'),
 
 ]

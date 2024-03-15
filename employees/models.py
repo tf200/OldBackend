@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from client.models import ClientDetails
 from django.conf import settings
 from django.db import models
+from authentication.models import Location
 from django.utils import timezone
 import uuid
 
@@ -25,6 +26,7 @@ class EmployeeProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     is_subcontractor = models.BooleanField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
+    location = models.ForeignKey(Location , on_delete = models.SET_NULL , null = True, related_name = 'employee_location')
 
 class Certification(models.Model):
     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='certifications')

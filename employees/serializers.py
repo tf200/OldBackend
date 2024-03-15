@@ -128,17 +128,23 @@ class ClientEmployeeAssignmentSerializer(serializers.ModelSerializer):
 
 class EmployeeProfileSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
     def get_user_name(self, obj):
         if obj.user:
             return f"{obj.user.first_name} {obj.user.last_name} {obj.user.profile_picture}"
         else:
             return None
+    def get_location(self, obj):
+        if obj.location:
+            return obj.location.name
+        else:
+            return None
 
     class Meta:
         model = EmployeeProfile
         fields = ['user', 'user_name', 'position', 'department', 'highest_education',
-                  'university', 'graduation_year', 'certifications', 'experience']
+                  'university', 'graduation_year', 'certifications', 'experience', 'location']
 
 
 class EmployeeCRUDSerializer(serializers.ModelSerializer):

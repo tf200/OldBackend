@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from authentication.models import Location
 from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 import uuid
@@ -38,7 +39,6 @@ class ClientDetails(models.Model):
     email = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     organisation = models.CharField(max_length=100, blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
     departement = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=100, blank=True, null=True)
     filenumber = models.IntegerField(blank=True, null=True)
@@ -51,6 +51,7 @@ class ClientDetails(models.Model):
     street_number = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     sender = models.ForeignKey(ClientType, on_delete=models.CASCADE, related_name='clientsender' , null = True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name='client_location' , null = True)
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -294,6 +295,7 @@ class Invoice(models.Model):
     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
     url = models.URLField(max_length=200, blank=True, null=True)
     payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
+
     
 
 

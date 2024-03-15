@@ -72,7 +72,7 @@ class ClientDetailsFilter(filters.FilterSet):
             'email': ['exact', 'icontains'],
             'phone_number': ['exact', 'icontains'],
             'organisation': ['exact', 'icontains'],
-            'location': ['exact', 'icontains'],
+            # 'location': ['exact', 'icontains'],
             'departement': ['exact', 'icontains'],
             'gender': ['exact', 'icontains'],
             'filenumber': ['exact', 'gt', 'lt'],
@@ -96,6 +96,7 @@ class InvoiceFilter(filters.FilterSet):
     status = filters.ChoiceFilter(choices=Invoice.STATUS_CHOICES)
     payment_type = filters.ChoiceFilter(choices=Invoice.PAYMENT_TYPE_CHOICES, null_label='Not Applicable/Not Paid')  # New filter
     url = filters.CharFilter(lookup_expr='icontains')
+    sender = filters.CharFilter(field_name= 'contract__sneder__name' , lookup_expr='icontains')
 
     class Meta:
         model = Invoice

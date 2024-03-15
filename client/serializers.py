@@ -6,10 +6,25 @@ from django.db import transaction
 from planning.serializers import move_file_s3
 
 
-class ClientDetailsSerializer (serializers.ModelSerializer) :
-    class Meta :
+class ClientDetailsSerializer(serializers.ModelSerializer):
+    location = serializers.SerializerMethodField()
+    class Meta:
         model = ClientDetails
-        fields = '__all__'
+        fields = [
+            'user', 'first_name', 'last_name', 'date_of_birth', 'identity', 'status', 'bsn', 'source',
+            'birthplace', 'email', 'phone_number', 'organisation', 'departement', 'gender', 'filenumber',
+            'profile_picture', 'city', 'Zipcode', 'infix', 'streetname', 'street_number', 'created',
+            'sender', 'location',
+        ]
+        extra_kwargs = {
+            'user': {'read_only': True},
+            'profile_picture': {'required': False},
+        }
+    def get_location(self, obj) :
+        if obj.location :
+            return obj.location.name
+        return None
+
 
 class ClientDetailsNestedSerializer (serializers.ModelSerializer) :
     class Meta :
