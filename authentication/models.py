@@ -15,7 +15,7 @@ from django.contrib.auth.models import AbstractUser
 
 class Location(models.Model):
     name = models.CharField(max_length = 100)
-    adress = models.CharField(max_length = 100)
+    address = models.CharField(max_length = 100)
 
 
 
