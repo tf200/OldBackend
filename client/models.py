@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 import uuid
 from datetime import datetime
+from decimal import Decimal
+from django.db.models import Sum
 class ClientType (models.Model):
     TYPE_CHOICES = [
         ('main_provider', 'Main Provider'),
@@ -150,29 +152,30 @@ class Contract(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def calculate_cost_for_period(self, start_date_str, end_date_str):
-        print(self.id)
         # Convert string dates to datetime objects
         start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
         end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
-        
+
         # Calculate the total duration in days
         duration_in_days = (end_date - start_date).days + 1
 
+        # Ensure duration_in_days is a Decimal for arithmetic operations
+        duration_in_days_decimal = Decimal(duration_in_days)
+
         # Calculate the cost based on the rate type
         if self.rate_type == 'day':
-            return duration_in_days * self.rate_value
+            return duration_in_days_decimal * self.rate_value
         elif self.rate_type == 'week':
-            weeks = duration_in_days / 7
+            weeks = duration_in_days_decimal / Decimal(7)
             return weeks * self.rate_value
         elif self.rate_type == 'hour':
-            hours = duration_in_days * 24
+            hours = duration_in_days_decimal * Decimal(24)
             return hours * self.rate_value
         elif self.rate_type == 'minute':
-            minutes = duration_in_days * 24 * 60
-            print(minutes * self.rate_value)
+            minutes = duration_in_days_decimal * Decimal(24) * Decimal(60)
             return minutes * self.rate_value
         else:
-            return 0
+            return Decimal(0)
 
 class ContractAttachment(models.Model):
     contract = models.ForeignKey(
@@ -299,15 +302,18 @@ class Invoice(models.Model):
     
 
 
-    def calculate_totals(self):
-        # Assuming the total cost calculation is based on the contract's details
-     # Use the total_cost property from the Contract model
+    def update_totals(self):
+        # Aggregate pre VAT totals from related InvoiceContract instances using the custom related_name
+        totals = self.invoice_contract.aggregate(
+            pre_vat_total_sum=Sum('pre_vat_total'),
+            total_amount_sum=Sum('total_amount')
+        )
         
-        # Calculate VAT and total amount
-        self.vat_amount = (self.pre_vat_total * self.vat_rate) / 100
-
-        self.total_amount = self.pre_vat_total + self.vat_amount
-
+        self.pre_vat_total = totals.get('pre_vat_total_sum', Decimal('0.00'))
+        self.vat_amount = self.pre_vat_total * (self.vat_rate / Decimal('100.00'))
+        self.total_amount = totals.get('total_amount_sum', Decimal('0.00'))
+        
+        # Save the updated totals
         self.save()
 
 

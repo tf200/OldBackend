@@ -25,7 +25,8 @@ from .serializers import *
 from rest_framework import filters , status
 from authentication.models import CustomUser
 from adminmodif.models import GroupMembership
-from django.db.models import Sum
+
+from decimal import Decimal
 
 # Create your views here.
 
@@ -437,7 +438,7 @@ class TemporaryFileUploadView(APIView):
 
 
 class GenerateInvoiceAPI(APIView):
-    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    # permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
 
     def post(self, request, *args, **kwargs):
         client_id = request.data.get('client_id')
@@ -448,33 +449,51 @@ class GenerateInvoiceAPI(APIView):
 
             client = ClientDetails.objects.get(id=client_id)
             contracts = Contract.objects.filter(client=client)
+            if contracts.exists():
+                client_type = contracts.first().sender
+            else:
+    # Handle the case where there are no contracts, perhaps set client_type to None or default
+                client_type = None
 
             # Create an invoice instance
             invoice = Invoice(client=client, due_date=end_date)
             invoice.save()
 
             for contract in contracts:
-                cost = contract.calculate_cost_for_period(start_date, end_date)
-                
-                # Create InvoiceContract instance
+                cost = Decimal(contract.calculate_cost_for_period(start_date, end_date))
+                vat_rate = Decimal(invoice.vat_rate)
+
+                vat_amount = cost * (vat_rate / 100)
+
+                total_amount = cost + vat_amount
+
+
+                # Now you can safely create the InvoiceContract instance with Decimal values
                 InvoiceContract.objects.create(
                     invoice=invoice,
                     contract=contract,
                     pre_vat_total=cost,
-                    vat_rate=invoice.vat_rate,
-                    vat_amount=cost * (invoice.vat_rate / 100),
-                    total_amount=cost + cost * (invoice.vat_rate / 100),
+                    vat_rate=vat_rate,
+                    vat_amount=vat_amount,
+                    total_amount=total_amount,
                 )
 
             # Calculate and update invoice totals based on the created InvoiceContract instances
             invoice.update_totals()
             invoice.save()
-
             # Prepare the context and generate the PDF
             context = {
                 'invoice_contracts': InvoiceContract.objects.filter(invoice=invoice),
                 'invoice': invoice,
-            }
+                'company_name': client_type.name,
+                'email': client_type.email_adress,
+                'address': client_type.address,
+                'vat_rate': invoice.vat_rate,
+                'vat_amount': invoice.vat_amount,
+                'total_amount': invoice.total_amount,
+                'pre_vat_total': invoice.pre_vat_total,
+                'issue_date': invoice.issue_date,
+                'invoice_number': invoice.invoice_number            }
             html_string = render_to_string('invoice_template.html', context)
             html = HTML(string=html_string)
             pdf_content = html.write_pdf()
@@ -493,7 +512,9 @@ class GenerateInvoiceAPI(APIView):
             response_data = {
                 'message': 'Invoice generated successfully',
                 'invoice_id': invoice.id,
-                'invoice_url': invoice.url,
+                'invoice_url': invoice.url
+
+
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
         except ClientDetails.DoesNotExist:
