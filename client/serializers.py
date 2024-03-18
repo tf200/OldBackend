@@ -11,7 +11,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientDetails
         fields = [
-            'user', 'first_name', 'last_name', 'date_of_birth', 'identity', 'status', 'bsn', 'source',
+            'id','user', 'first_name', 'last_name', 'date_of_birth', 'identity', 'status', 'bsn', 'source',
             'birthplace', 'email', 'phone_number', 'organisation', 'departement', 'gender', 'filenumber',
             'profile_picture', 'city', 'Zipcode', 'infix', 'streetname', 'street_number', 'created',
             'sender', 'location',
