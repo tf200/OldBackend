@@ -556,6 +556,7 @@ class InvoiceListView(generics.ListAPIView):
 class InvoiceListViewAll(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = InvoiceSerializer
+    pagination_class = CustomPagination
     queryset = Invoice.objects.all()
     filter_backend=[DjangoFilterBackend, SearchFilter]
     filterset_class = InvoiceFilter
