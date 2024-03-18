@@ -285,7 +285,6 @@ class Invoice(models.Model):
         ('cash', 'Cash'),
     )
     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    client = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='invoices')
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -295,7 +294,8 @@ class Invoice(models.Model):
     status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
     url = models.URLField(max_length=200, blank=True, null=True)
     payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
-
+    client = models.ForeignKey(
+        ClientDetails, on_delete=models.CASCADE, related_name='client_invoice')
     
 
 
@@ -309,6 +309,16 @@ class Invoice(models.Model):
         self.total_amount = self.pre_vat_total + self.vat_amount
 
         self.save()
+
+
+class InvoiceContract (models.Model):
+    invoice = models.ForeignKey(Invoice , on_delete =models.SET_NULL , null = True , related_name = 'invoice_contract')
+    contract = models.ForeignKey(Contract , on_delete =models.SET_NULL , null = True , related_name = 'contract_invoice')
+    pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
+
 
 
 # class InvoiceService(models.Model):

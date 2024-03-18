@@ -25,6 +25,8 @@ from .serializers import *
 from rest_framework import filters , status
 from authentication.models import CustomUser
 from adminmodif.models import GroupMembership
+from django.db.models import Sum
+
 # Create your views here.
 
 
@@ -90,7 +92,7 @@ class ClientListView (generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {'status': ['exact', 'in']}
     search_fields = ['first_name', 'last_name', 'status', 'date_of_birth', 'identity', 'email', 'phone_number', 'organisation',
-                     'location', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
+                     'location__name', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
     # filterset_class = ClientDetailsFilter
     ordering_fields = ['first_name', 'last_name',
                        'date_of_birth', 'city', 'streetname']
@@ -436,46 +438,70 @@ class TemporaryFileUploadView(APIView):
 
 class GenerateInvoiceAPI(APIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+
     def post(self, request, *args, **kwargs):
-        contract_id = request.data.get('contract_id')
+        client_id = request.data.get('client_id')
         start_date = request.data.get('start_date')
         end_date = request.data.get('end_date')
-        
-        contract = get_object_or_404(Contract, id=contract_id)
-        cost = contract.calculate_cost_for_period(start_date, end_date)
 
-        invoice = Invoice.objects.create(
-            client=contract,
-            due_date=end_date,
-            pre_vat_total=cost,
-        )
+        try:
 
-        invoice.calculate_totals()
+            client = ClientDetails.objects.get(id=client_id)
+            contracts = Contract.objects.filter(client=client)
 
-        # Generate PDF
-        context = self.get_context_data(invoice, contract)
-        html_string = render_to_string('invoice_template.html', context)
-        html = HTML(string=html_string)
-        pdf_content = html.write_pdf()
-        invoice_filename = f'invoice_{invoice.invoice_number}.pdf'
+            # Create an invoice instance
+            invoice = Invoice(client=client, due_date=end_date)
+            invoice.save()
 
-        # Save the PDF content
-        if default_storage.exists(invoice_filename):
-            default_storage.delete(invoice_filename)
-        default_storage.save(invoice_filename, ContentFile(pdf_content))
+            for contract in contracts:
+                cost = contract.calculate_cost_for_period(start_date, end_date)
+                
+                # Create InvoiceContract instance
+                InvoiceContract.objects.create(
+                    invoice=invoice,
+                    contract=contract,
+                    pre_vat_total=cost,
+                    vat_rate=invoice.vat_rate,
+                    vat_amount=cost * (invoice.vat_rate / 100),
+                    total_amount=cost + cost * (invoice.vat_rate / 100),
+                )
 
-        # Update the Invoice instance with the PDF URL
-        invoice_pdf_url = default_storage.url(invoice_filename)
-        invoice.url = invoice_pdf_url
-        invoice.save(update_fields=['url'])
+            # Calculate and update invoice totals based on the created InvoiceContract instances
+            invoice.update_totals()
+            invoice.save()
 
-        # Serialize and return the updated invoice
-        invoice_serializer = InvoiceSerializer(invoice)
-        response_data = invoice_serializer.data
-        response_data['pdf_url'] = invoice_pdf_url  # Ensure the response includes the PDF URL
+            # Prepare the context and generate the PDF
+            context = {
+                'invoice_contracts': InvoiceContract.objects.filter(invoice=invoice),
+                'invoice': invoice,
+            }
+            html_string = render_to_string('invoice_template.html', context)
+            html = HTML(string=html_string)
+            pdf_content = html.write_pdf()
+            invoice_filename = f'invoice_{invoice.invoice_number}.pdf'
 
-        return Response(response_data, status=status.HTTP_201_CREATED)
+            # Save the PDF content
+            if default_storage.exists(invoice_filename):
+                default_storage.delete(invoice_filename)
+            default_storage.save(invoice_filename, ContentFile(pdf_content))
 
+            # Update the Invoice instance with the PDF URL
+            invoice_pdf_url = default_storage.url(invoice_filename)
+            invoice.url = invoice_pdf_url
+            invoice.save()
+
+            response_data = {
+                'message': 'Invoice generated successfully',
+                'invoice_id': invoice.id,
+                'invoice_url': invoice.url,
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except ClientDetails.DoesNotExist:
+            return Response({'error': 'Client not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
     def get_context_data(self, invoice, contract):
         """Prepare context data for rendering the invoice PDF."""
         client_type = contract.sender
