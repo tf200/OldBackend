@@ -30,11 +30,13 @@ from adminmodif.models import GroupMembership
 
 class ClientCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         with transaction.atomic():
             client_data = request.data
             first_name = client_data.get('first_name', '')
             last_name = client_data.get('last_name', '')
+            # Assuming generate_unique_username is a utility function you've defined
             username = generate_unique_username(first_name, last_name)
             password = make_password(None)
             user, user_created = CustomUser.objects.get_or_create(username=username)
@@ -42,20 +44,27 @@ class ClientCreateView(generics.CreateAPIView):
                 user.set_password(password)
                 user.save()
                 client_group, group_created = Group.objects.get_or_create(name='Client')
-
-                # Create a new GroupMembership for the user, linking them to the 'Client' group
-                # Since you want the membership to be permanent and effective immediately,
-                # you leave the start_date and end_date as None
+                # Assuming GroupMembership is a model you've defined for group membership
                 GroupMembership.objects.create(
                     user=user,
                     group=client_group,
-                    start_date=None,  # Immediate effect
-                    end_date=None     # Permanence
-    )
+                    start_date=None,
+                    end_date=None
+                )
             else:
                 if hasattr(user, 'profile'):
                     return Response({"error": "This user already has an associated EmployeeProfile."},
                                     status=status.HTTP_400_BAD_REQUEST)
+            
+            # Fetch the Location instance using the ID provided in client_data
+            location_id = client_data.get('location')
+            if location_id is not None:
+                try:
+                    location = Location.objects.get(id=location_id)
+                except Location.DoesNotExist:
+                    return Response({"error": "Location not found."}, status=status.HTTP_404_NOT_FOUND)
+                client_data['location'] = location  # Assign the Location instance
+                
             try:
                 client_profile = ClientDetails.objects.create(user=user, **client_data)
                 serializer = ClientDetailsSerializer(client_profile)
