@@ -27,6 +27,8 @@ class EmployeeProfile(models.Model):
     is_subcontractor = models.BooleanField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
     location = models.ForeignKey(Location , on_delete = models.SET_NULL , null = True, related_name = 'employee_location')
+    has_borrowed = models.BooleanField(default=False)   
+
 
 class Certification(models.Model):
     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name='certifications')

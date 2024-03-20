@@ -144,7 +144,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeProfile
         fields = ['user', 'user_name', 'position', 'department', 'highest_education',
-                  'university', 'graduation_year', 'certifications', 'experience', 'location']
+                  'university', 'graduation_year', 'certifications', 'experience', 'location', 'has_borrowed']
 
 
 class EmployeeCRUDSerializer(serializers.ModelSerializer):
