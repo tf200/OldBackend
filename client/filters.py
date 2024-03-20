@@ -96,7 +96,7 @@ class InvoiceFilter(filters.FilterSet):
     status = filters.ChoiceFilter(choices=Invoice.STATUS_CHOICES)
     payment_type = filters.ChoiceFilter(choices=Invoice.PAYMENT_TYPE_CHOICES, null_label='Not Applicable/Not Paid')  # New filter
     url = filters.CharFilter(lookup_expr='icontains')
-    sender = filters.CharFilter(field_name= 'client__sender__name' , lookup_expr='icontains')
+    sender = filters.NumberFilter(field_name='client__sender')
 
     class Meta:
         model = Invoice
