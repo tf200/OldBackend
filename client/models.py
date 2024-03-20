@@ -294,7 +294,7 @@ class Invoice(models.Model):
     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
-    status = models.CharField(max_length=50, choices=(('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid')))
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default = 'concept')
     url = models.URLField(max_length=200, blank=True, null=True)
     payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
     client = models.ForeignKey(

@@ -13,7 +13,7 @@ class UserEmployeeProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmployeeProfile
-        fields = ( 'first_name', 'last_name','profile_picture' , 'user' , 'position' , 'department' , 'email_address' , 'phone_number' ,'username' )
+        fields = ( 'id','first_name', 'last_name','profile_picture' , 'user' , 'position' , 'department' , 'email_address' , 'phone_number' ,'username' )
 
     def get_profile_picture(self, obj):
         if obj:
