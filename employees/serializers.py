@@ -220,3 +220,7 @@ class ClientGoalsSerializer (serializers.ModelSerializer) :
 
 
 
+class IncidentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Incident
+        fields = '__all__'

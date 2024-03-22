@@ -70,6 +70,11 @@ urlpatterns = [
     path('goals_report/create/', GoalsReportCreateView.as_view(), name='goals-report-create'),
     path('goals_report/<int:pk>/', GoalsReportRetrieveView.as_view(), name='goals-report-retrieve'),
 
+    path('incidents/', IncidentListCreateAPIView.as_view(), name='incident-list-create'),
+    path('incidents/<int:id>/', IncidentRUDAPIView.as_view(), name='incident-detail'),
+
+
+
 
 
 

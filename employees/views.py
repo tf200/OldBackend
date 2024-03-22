@@ -624,4 +624,26 @@ class GoalsReportRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     
 
 
+class IncidentListCreateAPIView(generics.ListCreateAPIView):
+    
+    serializer_class = IncidentSerializer
 
+
+class IncidentByChildAPIView(generics.ListAPIView):  # Using ListAPIView for listing
+    serializer_class = IncidentSerializer
+
+    def get_queryset(self):
+        """
+        This view returns a list of all incidents for a specific child
+        by filtering against a `child_id` in the URL.
+        """
+        child_id = self.kwargs.get('child_id')
+        return Incident.objects.filter(involved_children__id=child_id)
+
+
+
+
+class IncidentRUDAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Incident.objects.all()
+    serializer_class = IncidentSerializer
+    lookup_field = 'id'

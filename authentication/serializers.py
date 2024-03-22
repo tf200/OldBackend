@@ -2,7 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from .models import *
 from adminmodif.models import GroupMembership
-
+from django.contrib.auth import  password_validation
 
 
 class MyCustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -28,3 +28,24 @@ class CustomUserSerializer (serializers.ModelSerializer) :
     class Meta:
         model = CustomUser
         fields = ['username' , 'email' , 'first_name' , 'groups' , 'last_name']
+
+
+    
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Current password is not correct.")
+        return value
+
+    def validate_new_password(self, value):
+        password_validation.validate_password(value, self.context['request'].user)
+        return value
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])
+        instance.save()
+        return instance

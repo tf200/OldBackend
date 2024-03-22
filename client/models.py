@@ -299,6 +299,7 @@ class Invoice(models.Model):
     payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='client_invoice')
+    invoice_details = models.JSONField(null= True , blank = True)
     
 
 

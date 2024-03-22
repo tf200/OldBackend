@@ -459,13 +459,25 @@ class GenerateInvoiceAPI(APIView):
             invoice = Invoice(client=client, due_date=end_date)
             invoice.save()
 
+            json_array = []
             for contract in contracts:
+                care_type = contract.care_type
                 cost = Decimal(contract.calculate_cost_for_period(start_date, end_date))
                 vat_rate = Decimal(invoice.vat_rate)
-
                 vat_amount = cost * (vat_rate / 100)
-
                 total_amount = cost + vat_amount
+
+                # Creating a dictionary for the current contract
+                contract_json = {
+                    "care_type": care_type,
+                    "cost": float(cost),  # JSON doesn't support Decimal, so we convert it to float
+                    "vat_rate": float(vat_rate),
+                    "vat_amount": float(vat_amount),
+                    "total_amount": float(total_amount)
+                }
+
+                # Adding the dictionary to our array
+                json_array.append(contract_json)
 
 
                 # Now you can safely create the InvoiceContract instance with Decimal values
@@ -477,6 +489,9 @@ class GenerateInvoiceAPI(APIView):
                     vat_amount=vat_amount,
                     total_amount=total_amount,
                 )
+            invoice.invoice_details = json_array
+
+# Saving the changes to the database
 
             # Calculate and update invoice totals based on the created InvoiceContract instances
             invoice.update_totals()
