@@ -93,7 +93,7 @@ class ClientListView (generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {'status': ['exact', 'in']}
     search_fields = ['first_name', 'last_name', 'status', 'date_of_birth', 'identity', 'email', 'phone_number', 'organisation',
-                     'location__name', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
+                     'location', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
     # filterset_class = ClientDetailsFilter
     ordering_fields = ['first_name', 'last_name',
                        'date_of_birth', 'city', 'streetname']
