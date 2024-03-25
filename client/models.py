@@ -7,6 +7,10 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 from django.db.models import Sum
+import numpy as np
+
+
+
 class ClientType (models.Model):
     TYPE_CHOICES = [
         ('main_provider', 'Main Provider'),
@@ -299,22 +303,28 @@ class Invoice(models.Model):
     payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name='client_invoice')
+    invoice_details = models.JSONField(null= True , blank = True)
     
 
 
     def update_totals(self):
-        # Aggregate pre VAT totals from related InvoiceContract instances using the custom related_name
-        totals = self.invoice_contract.aggregate(
-            pre_vat_total_sum=Sum('pre_vat_total'),
-            total_amount_sum=Sum('total_amount')
-        )
+        # Assuming invoice_details is a list of dictionaries
+        # Extract the pre_vat_total and total_amount values into NumPy arrays
+        pre_vat_totals = np.array([item['pre_vat_total'] for item in self.invoice_details])
+        total_amounts = np.array([item['total_amount'] for item in self.invoice_details])
         
-        self.pre_vat_total = totals.get('pre_vat_total_sum', Decimal('0.00'))
+
+        # Compute the sums using NumPy and convert them back to Decimal for precision
+        pre_vat_total_sum = Decimal(np.sum(pre_vat_totals).item())
+        total_amount_sum = Decimal(np.sum(total_amounts).item())
+        print(total_amount_sum)
+        self.pre_vat_total = pre_vat_total_sum
         self.vat_amount = self.pre_vat_total * (self.vat_rate / Decimal('100.00'))
-        self.total_amount = totals.get('total_amount_sum', Decimal('0.00'))
+        self.total_amount = total_amount_sum
         
         # Save the updated totals
         self.save()
+
 
 
 class InvoiceContract (models.Model):

@@ -25,7 +25,7 @@ from .serializers import *
 from rest_framework import filters , status
 from authentication.models import CustomUser
 from adminmodif.models import GroupMembership
-
+import json
 from decimal import Decimal
 
 # Create your views here.
@@ -458,9 +458,10 @@ class GenerateInvoiceAPI(APIView):
             # Create an invoice instance
             invoice = Invoice(client=client, due_date=end_date)
             invoice.save()
-
+            
             json_array = []
             for contract in contracts:
+                contract_id = contract.id
                 care_type = contract.care_type
                 cost = Decimal(contract.calculate_cost_for_period(start_date, end_date))
                 vat_rate = Decimal(invoice.vat_rate)
@@ -469,8 +470,9 @@ class GenerateInvoiceAPI(APIView):
 
                 # Creating a dictionary for the current contract
                 contract_json = {
+                    "contract" : contract_id , 
                     "care_type": care_type,
-                    "cost": float(cost),  # JSON doesn't support Decimal, so we convert it to float
+                    "pre_vat_total": float(cost),  # JSON doesn't support Decimal, so we convert it to float
                     "vat_rate": float(vat_rate),
                     "vat_amount": float(vat_amount),
                     "total_amount": float(total_amount)
@@ -478,28 +480,22 @@ class GenerateInvoiceAPI(APIView):
 
                 # Adding the dictionary to our array
                 json_array.append(contract_json)
+            
+
 
 
                 # Now you can safely create the InvoiceContract instance with Decimal values
-                InvoiceContract.objects.create(
-                    invoice=invoice,
-                    contract=contract,
-                    pre_vat_total=cost,
-                    vat_rate=vat_rate,
-                    vat_amount=vat_amount,
-                    total_amount=total_amount,
-                )
-            print (json_array)
             invoice.invoice_details = json_array
-
+           
 # Saving the changes to the database
 
             # Calculate and update invoice totals based on the created InvoiceContract instances
             invoice.update_totals()
             invoice.save()
+
             # Prepare the context and generate the PDF
             context = {
-                'invoice_contracts': InvoiceContract.objects.filter(invoice=invoice),
+                'invoice_contracts': json_array,
                 'invoice': invoice,
                 'company_name': client_type.name,
                 'email': client_type.email_adress,
@@ -539,22 +535,74 @@ class GenerateInvoiceAPI(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
     
-    def get_context_data(self, invoice, contract):
-        """Prepare context data for rendering the invoice PDF."""
-        client_type = contract.sender
-        return {
-            'company_name': client_type.name,
-            'email': client_type.email_adress,
-            'address': client_type.address,
-            'client': f'{contract.client.first_name} {contract.client.last_name}',
-            'vat_rate': invoice.vat_rate,
-            'vat_amount': invoice.vat_amount,
-            'total_amount': invoice.total_amount,
-            'pre_vat_total': invoice.pre_vat_total,
-            'issue_date': invoice.issue_date,
-            'invoice_number': invoice.invoice_number,
-            # Add other necessary fields as needed
-        }
+class UpdateInvoiceView(APIView) :
+    def put(self, request, *args, **kwargs):
+        
+        invoice_id = kwargs.get('invoice_id')
+        try:
+            invoice = Invoice.objects.get(id=invoice_id)
+            updated_details = json.loads(request.body)
+
+            for updated_contract in updated_details:
+                for contract in invoice.invoice_details:
+                    if contract["contract"] == updated_contract["contract"]:
+                        contract["pre_vat_total"] = updated_contract.get("pre_vat_total", contract["pre_vat_total"])
+
+                        contract["vat_rate"] = updated_contract.get("vat_rate", contract["vat_rate"])
+                        # Recalculate vat_amount and total_amount based on the updated values
+                        cost = Decimal(contract["pre_vat_total"])
+                        vat_rate = Decimal(contract["vat_rate"])
+                        vat_amount = cost * (vat_rate / 100)
+                        total_amount = cost + vat_amount
+                        contract["vat_amount"] = float(vat_amount)
+                        contract["total_amount"] = float(total_amount)
+                    
+
+        # Recalculate and update invoice totals
+            invoice.update_totals()
+            invoice.save()
+            client_type= invoice.client.sender
+
+            context = {
+                'invoice_contracts': invoice.invoice_details,
+                'invoice': invoice,
+                'company_name': client_type.name,
+                'email': client_type.email_adress,
+                'address': client_type.address,
+                'vat_rate': invoice.vat_rate,
+                'vat_amount': invoice.vat_amount,
+                'total_amount': invoice.total_amount,
+                'pre_vat_total': invoice.pre_vat_total,
+                'issue_date': invoice.issue_date,
+                'invoice_number': invoice.invoice_number            }
+            html_string = render_to_string('invoice_template.html', context)
+            html = HTML(string=html_string)
+            pdf_content = html.write_pdf()
+            invoice_filename = f'invoice_{invoice.invoice_number}.pdf'
+
+            # Save the PDF content
+            if default_storage.exists(invoice_filename):
+                default_storage.delete(invoice_filename)
+            default_storage.save(invoice_filename, ContentFile(pdf_content))
+
+            # Update the Invoice instance with the PDF URL
+            invoice_pdf_url = default_storage.url(invoice_filename)
+            invoice.url = invoice_pdf_url
+            invoice.save()
+
+            response_data = {
+                'message': 'Invoice generated successfully',
+                'invoice_id': invoice.id,
+                'invoice_url': invoice.url
+
+
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except Invoice.DoesNotExist:
+            return Response({'error': 'Client not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 

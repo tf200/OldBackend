@@ -64,8 +64,8 @@
                 <tbody>
                     {% for ic in invoice_contracts %}
                     <tr>
-                        <td>{{ ic.contract.id }}</td>
-                        <td>{{ ic.contract.care_type }}</td>
+                        <td>{{ ic.contract }}</td>
+                        <td>{{ ic.care_type }}</td>
                         <td>${{ ic.pre_vat_total }}</td>
                         <td>{{ ic.vat_rate }}%</td>
                         <td>${{ ic.total_amount }}</td>

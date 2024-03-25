@@ -222,7 +222,7 @@ class InvoiceContractSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    invoice_contract = serializers.SerializerMethodField()
+
     full_name = serializers.SerializerMethodField()
     sender = serializers.SerializerMethodField()
     class Meta:
@@ -235,10 +235,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             return f'{obj.client.first_name} {obj.client.last_name}'
         else :
             return None
-    def get_invoice_contract(self, obj):
-        # Assuming an invoice can have multiple contracts, we fetch them all
-        contracts = InvoiceContract.objects.filter(invoice=obj)
-        return InvoiceContractSerializer(contracts, many=True).data
 
     def get_sender (self ,obj) :
         if obj.client:
