@@ -37,6 +37,7 @@ incremental==22.10.0
 jmespath==1.0.1
 kombu==5.3.5
 msgpack==1.0.7
+numpy==1.26.4
 pillow==10.2.0
 prompt-toolkit==3.0.43
 psycopg2-binary==2.9.9
