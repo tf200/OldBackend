@@ -72,6 +72,8 @@ urlpatterns = [
 
     path('incidents/', IncidentListCreateAPIView.as_view(), name='incident-list-create'),
     path('incidents/<int:id>/', IncidentRUDAPIView.as_view(), name='incident-detail'),
+    path('incidents/by-child/<int:child_id>/', IncidentByChildAPIView.as_view(), name='incidents-by-child'),
+   
 
 
 

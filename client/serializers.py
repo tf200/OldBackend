@@ -215,23 +215,36 @@ class TemporaryFileSerializer(serializers.ModelSerializer):
         fields = ['id', 'file']
 
 
+class InvoiceContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InvoiceContract
+        fields = '__all__'
+
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    invoice_contract = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
     sender = serializers.SerializerMethodField()
     class Meta:
         model = Invoice
         fields = '__all__'
-        read_only_fields = ['invoice_number', 'issue_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount']
+        read_only_fields = ['invoice_number', 'issue_date', 'pre_vat_total', 'vat_rate', 'vat_amount', 'total_amount' ]
     
     def get_full_name (self ,obj):
         if obj.client :
             return f'{obj.client.first_name} {obj.client.last_name}'
         else :
             return None
+    def get_invoice_contract(self, obj):
+        # Assuming an invoice can have multiple contracts, we fetch them all
+        contracts = InvoiceContract.objects.filter(invoice=obj)
+        return InvoiceContractSerializer(contracts, many=True).data
 
     def get_sender (self ,obj) :
         if obj.client:
             return obj.client.sender.name
         else :
             return None
+    
+
+

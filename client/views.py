@@ -15,7 +15,7 @@ from django.shortcuts import render
 from .models import ClientDetails 
 from rest_framework.views import APIView
 from django.db.utils import IntegrityError
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404 , get_list_or_404
 from rest_framework.response import Response
 from adminmodif.models import Group
 from employees.utils import generate_unique_username
@@ -93,7 +93,7 @@ class ClientListView (generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {'status': ['exact', 'in']}
     search_fields = ['first_name', 'last_name', 'status', 'date_of_birth', 'identity', 'email', 'phone_number', 'organisation',
-                     'location', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
+                     'location__name', 'departement', 'gender', 'filenumber', 'city', 'Zipcode', 'infix', 'streetname', 'street_number']
     # filterset_class = ClientDetailsFilter
     ordering_fields = ['first_name', 'last_name',
                        'date_of_birth', 'city', 'streetname']
@@ -489,6 +489,7 @@ class GenerateInvoiceAPI(APIView):
                     vat_amount=vat_amount,
                     total_amount=total_amount,
                 )
+            print (json_array)
             invoice.invoice_details = json_array
 
 # Saving the changes to the database
@@ -564,8 +565,8 @@ class InvoiceListView(generics.ListAPIView):
     def get_queryset(self):
 
         client_id = self.kwargs['client_id']     
-        client = get_object_or_404(Contract, id=client_id)  # Ensures the client exists
-        return Invoice.objects.filter(client=client).order_by('-issue_date')
+ # Ensures the client exists
+        return Invoice.objects.filter(client=client_id).order_by('-issue_date')
 
 
 class InvoiceListViewAll(generics.ListAPIView):
@@ -581,3 +582,15 @@ class InvoiceRU(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
+
+
+class InvoiceContractListView(generics.ListAPIView):
+    serializer_class = InvoiceContractSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the InvoiceContracts
+        for the invoice as determined by the invoice portion of the URL.
+        """
+        invoice_id = self.kwargs['invoice_id']
+        return get_list_or_404(InvoiceContract, invoice_id=invoice_id)
