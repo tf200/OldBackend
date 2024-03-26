@@ -227,7 +227,6 @@ class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incident
         fields = '__all__'
-        exclude = ['reported_by' , 'involved_children']
     
     def get_involved_children_name(self , obj) :
         if obj.involved_children :
