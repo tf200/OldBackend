@@ -57,22 +57,17 @@ class ClientAllergyFilter(filters.FilterSet):
 
 
 class ClientDetailsFilter(filters.FilterSet):
-    date_of_birth = DateFilter()
-    date_of_birth_range = DateFromToRangeFilter()
-    date_of_birth_year = DateFilter(field_name='date_of_birth', lookup_expr='year')
-    date_of_birth_month = DateFilter(field_name='date_of_birth', lookup_expr='month')
-    date_of_birth_day = DateFilter(field_name='date_of_birth', lookup_expr='day')
-
+    date_of_birth_range = DateFromToRangeFilter(field_name='date_of_birth')
+    
     class Meta:
         model = ClientDetails
         fields = {
             'first_name': ['exact', 'icontains'],
             'last_name': ['exact', 'icontains'],
-            'date_of_birth': ['year__gt', 'year__lt'],
             'email': ['exact', 'icontains'],
             'phone_number': ['exact', 'icontains'],
             'organisation': ['exact', 'icontains'],
-            # 'location': ['exact', 'icontains'],
+            'location': ['exact'],
             'departement': ['exact', 'icontains'],
             'gender': ['exact', 'icontains'],
             'filenumber': ['exact', 'gt', 'lt'],
@@ -81,6 +76,7 @@ class ClientDetailsFilter(filters.FilterSet):
             'infix': ['exact', 'icontains'],
             'streetname': ['exact', 'icontains'],
             'street_number': ['exact', 'icontains'],
+            # 'date_of_birth': ['exact', 'year', 'month', 'day'] - Consider using range or custom filters if needed
         }
 
 
