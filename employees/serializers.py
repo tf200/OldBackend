@@ -236,3 +236,4 @@ class IncidentSerializer(serializers.ModelSerializer):
     def get_reported_by (self , obj) :
         if obj.reported_by :
             return f'{obj.reported_by.first_name} {obj.reported_by.last_name}'
+        return None
