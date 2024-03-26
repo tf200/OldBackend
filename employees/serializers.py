@@ -221,6 +221,18 @@ class ClientGoalsSerializer (serializers.ModelSerializer) :
 
 
 class IncidentSerializer(serializers.ModelSerializer):
+    involved_children = serializers.SerializerMethodField()
+    reported_by = serializers.SerializerMethodField()
+
     class Meta:
         model = Incident
         fields = '__all__'
+    
+    def get_involved_children(self , obj) :
+        if obj.involved_children :
+            return [[f'{child.first_name} {child.last_name} ' for child in obj.involved_children.all()]]
+        return []
+
+    def get_reported_by (self , obj) :
+        if obj.reported_by :
+            return f'{obj.reported_by.first_name} {obj.reported_by.last_name}'
