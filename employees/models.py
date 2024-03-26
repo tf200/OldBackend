@@ -181,8 +181,8 @@ class ClientGoals(models.Model) :
         ClientDetails, on_delete=models.CASCADE, related_name='client_goals')
     goal_name = models.CharField(max_length=100)
     goal_details = models.CharField(max_length=500)
-    rating = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True) 
+    
+    created_at = models.DateTimeField(auto_now_add=True , null = True) 
     administered_by = models.ForeignKey(
         EmployeeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='emp_goals')
     
@@ -190,6 +190,17 @@ class GoalsReport(models.Model) :
     goal = models.ForeignKey(ClientGoals , on_delete=models.SET_NULL , related_name='goals_report' , null = True)
     title = models.CharField(max_length=100)
     report_text = models.TextField()
+    rating = models.IntegerField(null=True, blank=True)
+    created_at_sys = models.DateTimeField(auto_now_add=True , null = True)
+    created_at = models.DateTimeField(null= True)
+    
+class AiGeneratedWeeklyReports (models.Model) :
+    report_text = models.TextField()
+    goal = models.ForeignKey(ClientGoals ,on_delete=models.SET_NULL , null = True )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+
 
 
 
