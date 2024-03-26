@@ -16,6 +16,7 @@ from django.contrib.auth.models import AbstractUser
 class Location(models.Model):
     name = models.CharField(max_length = 100)
     address = models.CharField(max_length = 100)
+    capacity = models.IntegerField(null = True)
 
 
 

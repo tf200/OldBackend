@@ -28,3 +28,7 @@ def send_progress_report_email(progress_report_id , report_text):
         print('task finnished')
     except ProgressReport.DoesNotExist:
         pass 
+
+
+
+
