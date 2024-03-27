@@ -641,3 +641,28 @@ class InvoiceContractListView(generics.ListAPIView):
         """
         invoice_id = self.kwargs['invoice_id']
         return get_list_or_404(InvoiceContract, invoice_id=invoice_id)
+
+
+
+class CareplanCreate(generics.CreateAPIView) :
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = CarePlanSerializer
+
+
+class CareplanList (generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = CarePlanSerializer
+    def get_queryset(self):
+
+        client_id = self.kwargs['client_id']
+        return get_list_or_404(CarePlan, invoice_id=client_id)
+
+
+class CareplanRUD(generics.RetrieveUpdateDestroyAPIView) :
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = CarePlanSerializer
+    queryset = CarePlan.objects.all()
+
+
+
+

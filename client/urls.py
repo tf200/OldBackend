@@ -69,5 +69,10 @@ urlpatterns = [
     path('invoice_ru/<int:pk>/', InvoiceRU.as_view(), name='invoice-list-all'),
     path('invoice_contracts/<int:invoice_id>/', InvoiceContractListView.as_view(), name='invoice-contract-list'),
 
-    path ('invoice_update/<int:invoice_id>/' , UpdateInvoiceView.as_view() , name = 'invoice_update')
+    path ('invoice_update/<int:invoice_id>/' , UpdateInvoiceView.as_view() , name = 'invoice_update'),
+
+    path ('careplan_create/' , CareplanCreate.as_view() , name='careplan-create'),
+    path ('careplan_list/<int:client_id>/' , CareplanList.as_view() , name='careplan-list'),
+    path ('careplan_rud/<int:pk>/' , CareplanRUD.as_view() , name='careplan-rud'),
+
 ]

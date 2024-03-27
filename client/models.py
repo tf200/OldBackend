@@ -82,10 +82,12 @@ class ClientEmergencyContact(models.Model):
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     relationship = models.CharField(max_length=100, blank=True, null=True)
-    auto_reports = models.BooleanField(default=False)
     relation_status = models.CharField(max_length=50,  choices=[(
         'Primary Relationship', 'Primary Relationship'), ('Secondary Relationship', 'Secondary Relationship')], null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    medical_reports = models.BooleanField(default = False)
+    incidents_reports = models.BooleanField(default = False)
+    goals_reports = models.BooleanField(default = False)
 
 
 class Treatments(models.Model):
@@ -351,3 +353,17 @@ class InvoiceContract (models.Model):
 #     def __str__(self):
 #         return f"{self.service.name} on Invoice {self.invoice.invoice_number}"
 
+class CarePlan (models.Model) :
+    client = models.ForeignKey(ClientDetails , on_delete = models.SET_NULL , null = True)
+    description = models.TextField()
+    start_date = models.DateField()
+    end_date = models.DateField ()
+    status = models.CharField(max_length= 100)
+    created_at = models.DateTimeField (auto_now_add = True)
+
+
+class CareplanAtachements (models.Model):
+    careplan = models.ForeignKey(CarePlan ,  on_delete = models.SET_NULL , null = True )
+    attachement = models.FileField(upload_to='clients_pics/')
+    created_at = models.DateTimeField (auto_now_add = True)
+    name = models.CharField(null =True , max_length= 100)
