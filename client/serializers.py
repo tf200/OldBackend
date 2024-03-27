@@ -243,7 +243,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             return None
     
 
-class CareplanAtachementsSerializer (serializers.Serializer):
+class CareplanAtachementsSerializer (serializers.ModelSerializer):
     class Meta:
         model = CareplanAtachements
         fields = '__all__'
@@ -286,7 +286,7 @@ class CarePlanSerializer(serializers.ModelSerializer):
             for temp_file in temp_files:
                 # Assuming you have a similar file moving function as in your Appointment example
                 old_key = temp_file.file.name
-                new_key = f"contract_attachments/{old_key.split('/')[-1]}"
+                new_key = f"clients_pics/{old_key.split('/')[-1]}"
                 
                 # Implement your file moving logic here
                 move_file_s3(old_key, new_key)
@@ -324,7 +324,7 @@ class CarePlanSerializer(serializers.ModelSerializer):
                 for temp_file in temp_files:
                     # Assuming you have a similar file moving function as in your Appointment example
                     old_key = temp_file.file.name
-                    new_key = f"contract_attachments/{old_key.split('/')[-1]}"
+                    new_key = f"clients_pics/{old_key.split('/')[-1]}"
                     
                     # Implement your file moving logic here
                     move_file_s3(old_key, new_key)

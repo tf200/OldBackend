@@ -666,3 +666,10 @@ class CareplanRUD(generics.RetrieveUpdateDestroyAPIView) :
 
 
 
+
+
+class CareplanListALL (generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = CarePlanSerializer
+    queryset = CarePlan.objects.all()
+

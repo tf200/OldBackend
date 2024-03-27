@@ -75,4 +75,6 @@ urlpatterns = [
     path ('careplan_list/<int:client_id>/' , CareplanList.as_view() , name='careplan-list'),
     path ('careplan_rud/<int:pk>/' , CareplanRUD.as_view() , name='careplan-rud'),
 
+    path('careplan_list/all/' , CareplanList.as_view() , name='careplan-list-all'),
+
 ]
