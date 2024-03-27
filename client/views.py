@@ -15,7 +15,7 @@ from django.shortcuts import render
 from .models import ClientDetails 
 from rest_framework.views import APIView
 from django.db.utils import IntegrityError
-from django.shortcuts import get_object_or_404 , get_list_or_404
+from django.shortcuts import get_object_or_404 , get_list_or_404 
 from rest_framework.response import Response
 from adminmodif.models import Group
 from employees.utils import generate_unique_username
@@ -649,13 +649,13 @@ class CareplanCreate(generics.CreateAPIView) :
     serializer_class = CarePlanSerializer
 
 
-class CareplanList (generics.ListAPIView):
+class CareplanList(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = CarePlanSerializer
+    
     def get_queryset(self):
-
         client_id = self.kwargs['client_id']
-        return get_list_or_404(CarePlan, client=client_id)
+        return CarePlan.objects.filter(client=client_id)
 
 
 class CareplanRUD(generics.RetrieveUpdateDestroyAPIView) :
