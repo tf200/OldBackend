@@ -56,6 +56,7 @@ class ClientAllergyFilter(filters.FilterSet):
 
 
 
+
 class ClientDetailsFilter(filters.FilterSet):
     date_of_birth_range = DateFromToRangeFilter(field_name='date_of_birth')
     
@@ -76,7 +77,8 @@ class ClientDetailsFilter(filters.FilterSet):
             'infix': ['exact', 'icontains'],
             'streetname': ['exact', 'icontains'],
             'street_number': ['exact', 'icontains'],
-            # 'date_of_birth': ['exact', 'year', 'month', 'day'] - Consider using range or custom filters if needed
+            # 'date_of_birth': ['exact', 'year', 'month', 'day']
+            'status': ['exact'],  # Add this line to include the status field
         }
 
 
