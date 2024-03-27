@@ -363,7 +363,7 @@ class CarePlan (models.Model) :
 
 
 class CareplanAtachements (models.Model):
-    careplan = models.ForeignKey(CarePlan ,  on_delete = models.SET_NULL , null = True )
+    careplan = models.ForeignKey(CarePlan ,  on_delete = models.SET_NULL , null = True , related_name = 'care_attachement' )
     attachement = models.FileField(upload_to='clients_pics/')
     created_at = models.DateTimeField (auto_now_add = True)
     name = models.CharField(null =True , max_length= 100)

@@ -655,7 +655,7 @@ class CareplanList (generics.ListAPIView):
     def get_queryset(self):
 
         client_id = self.kwargs['client_id']
-        return get_list_or_404(CarePlan, invoice_id=client_id)
+        return get_list_or_404(CarePlan, client=client_id)
 
 
 class CareplanRUD(generics.RetrieveUpdateDestroyAPIView) :

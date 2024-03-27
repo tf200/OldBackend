@@ -252,7 +252,7 @@ class CareplanAtachementsSerializer (serializers.Serializer):
 
 
 class CarePlanSerializer(serializers.ModelSerializer):
-    attachments = CareplanAtachementsSerializer(many=True, required=False, read_only=True)
+    attachments = CareplanAtachementsSerializer(many=True, required=False, read_only=True , source ='care_attachement' )
     temporary_file_ids = serializers.ListField(
         child=serializers.UUIDField(), write_only=True, required=False
     )
