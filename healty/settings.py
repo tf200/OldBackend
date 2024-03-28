@@ -224,8 +224,12 @@ from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     'clear_temporary_files_daily': {
-        'task': 'myapp.tasks.clear_temporary_files',
+        'task': 'planning.tasks.clear_temporary_files',
         'schedule': crontab(hour=0, minute=0),  # Runs daily at midnight
+    },
+    'summarize_weekly_reports': {
+        'task': 'employees.tasks.summarize_weekly_reports',
+        'schedule': crontab(week_day=0, hour=0, minute=0),  # Runs weekly on Sunday at midnight
     },
 }
 

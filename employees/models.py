@@ -200,7 +200,13 @@ class AiGeneratedWeeklyReports (models.Model) :
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class WeeklyReportSummary(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    summary_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_at']
 
 
 
