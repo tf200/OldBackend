@@ -230,17 +230,9 @@ CELERY_BEAT_SCHEDULE = {
         "task": "planning.tasks.clear_temporary_files",
         "schedule": crontab(hour=0, minute=0),  # Runs daily at midnight
     },
-<<<<<<< HEAD
     'summarize_weekly_reports': {
         'task': 'employees.tasks.summarize_weekly_reports',
         'schedule': crontab(day_of_week='monday', hour=0, minute=0),  # Runs weekly on Sunday at midnight
-=======
-    "summarize_weekly_reports": {
-        "task": "employees.tasks.summarize_weekly_reports",
-        "schedule": crontab(
-            day_of_week=0, hour=0, minute=0
-        ),  # Runs weekly on Sunday at midnight
->>>>>>> 4f47b79d15044579c72270fc0f6063e27ef209ff
     },
 }
 
