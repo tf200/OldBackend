@@ -1,9 +1,10 @@
 from django_filters import rest_framework as filters
 from .models import ClientDetails, ClientDiagnosis , ClientAllergy
-from django_filters.filters import DateFilter , DateFromToRangeFilter
+from django_filters.filters import DateFilter , DateFromToRangeFilter , CharFilter
 from employees.models import ClientMedication
 from .models import Invoice
-
+import django_filters
+from django.db.models import Q
 
 
 class ClientDiagnosisFilter(filters.FilterSet):
@@ -59,7 +60,16 @@ class ClientAllergyFilter(filters.FilterSet):
 
 class ClientDetailsFilter(filters.FilterSet):
     date_of_birth_range = DateFromToRangeFilter(field_name='date_of_birth')
-    
+    # status = CharFilter(method='filter_status')  # Use CharFilter with a custom method
+
+    # def filter_status(self, queryset, name, value):
+    #     if value:  # Proceed only if some value is provided
+    #         # Split the value by commas and strip whitespace
+    #         statuses = [status.strip() for status in value.split(',')]
+    #         # Filter the queryset by these statuses
+    #         queryset = queryset.filter(Q(status__in=statuses))
+    #     return queryset
+
     class Meta:
         model = ClientDetails
         fields = {
@@ -78,7 +88,7 @@ class ClientDetailsFilter(filters.FilterSet):
             'streetname': ['exact', 'icontains'],
             'street_number': ['exact', 'icontains'],
             # 'date_of_birth': ['exact', 'year', 'month', 'day']
-            'status': ['exact'],  # Add this line to include the status field
+            'status': ['in'],  # Add this line to include the status field
         }
 
 

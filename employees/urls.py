@@ -73,6 +73,11 @@ urlpatterns = [
     path('incidents/', IncidentListCreateAPIView.as_view(), name='incident-list-create'),
     path('incidents/<int:id>/', IncidentRUDAPIView.as_view(), name='incident-detail'),
     path('incidents/by-child/<int:child_id>/', IncidentByChildAPIView.as_view(), name='incidents-by-child'),
+
+
+    path('weekly-report-summaries/', WeeklyReportSummaryListAll.as_view(), name='weekly-report-summary-list'),
+    path('weekly-report-summaries/create/', WeeklyReportSummaryCreate.as_view(), name='weekly-report-summary-create'),
+    path('weekly-report-summaries/<int:pk>/', WeeklyReportSummaryRUD.as_view(), name='weekly-report-summary-detail'),
    
 
 

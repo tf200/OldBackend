@@ -229,7 +229,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'summarize_weekly_reports': {
         'task': 'employees.tasks.summarize_weekly_reports',
-        'schedule': crontab(week_day=0, hour=0, minute=0),  # Runs weekly on Sunday at midnight
+        'schedule': crontab(day_of_week='monday', hour=0, minute=0),  # Runs weekly on Sunday at midnight
     },
 }
 

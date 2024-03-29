@@ -237,3 +237,9 @@ class IncidentSerializer(serializers.ModelSerializer):
         if obj.reported_by :
             return f'{obj.reported_by.first_name} {obj.reported_by.last_name}'
         return None
+
+
+class WeeklyReportSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeeklyReportSummary
+        fields = '__all__'

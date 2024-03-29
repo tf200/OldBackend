@@ -647,3 +647,20 @@ class IncidentRUDAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     lookup_field = 'id'
+
+
+
+
+class WeeklyReportSummaryRUD(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = WeeklyReportSummarySerializer
+    queryset = WeeklyReportSummary.objects.all()
+
+class WeeklyReportSummaryCreate(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = WeeklyReportSummarySerializer
+
+class WeeklyReportSummaryListAll(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
+    serializer_class = WeeklyReportSummarySerializer
+    queryset = WeeklyReportSummary.objects.all()
