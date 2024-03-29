@@ -19,7 +19,7 @@ class EmployeeProfileFilter(filters.FilterSet):
             'private_phone_number',
             'home_telephone_number',
             'gender',
-            'location': ['exact'],
+            'location'
             # Note: 'groups' is handled separately via a method filter
         ]
 
