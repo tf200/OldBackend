@@ -18,6 +18,9 @@ from adminmodif.permissions import IsMemberOfAuthorizedGroup , IsMemberOfManagem
 from django.shortcuts import get_object_or_404
 from django.db.models import Q 
 from django.db import transaction
+from django.utils.crypto import get_random_string
+import string
+from .tasks import send_login_credentials  
 
 
 
@@ -349,7 +352,18 @@ class ProfilePictureAPIView(APIView):
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+def generate_random_password(length=12):
+            """
+            Generate a random password with the specified length.
+            Includes uppercase and lowercase letters, digits, and symbols.
+            """
+            # Define the characters to use in the password
+            characters = string.ascii_letters + string.digits + "!@#$%^&*()"
 
+            # Ensure the password is random and meets the requirements
+            password = get_random_string(length, characters)
+            
+            return password
 
 
 class EmployeeProfileCreateView(APIView):
@@ -360,16 +374,23 @@ class EmployeeProfileCreateView(APIView):
 
             first_name = employee_data.get('first_name', '')
             last_name = employee_data.get('last_name', '')
+            email = employee_data.get('private_email_address', '')
             username = generate_unique_username(first_name, last_name)
-            password = make_password(None)
+
+            # Generate a plain text password
+            plain_text_password = generate_random_password()  # Implement this function to generate a secure password
 
             user, user_created = CustomUser.objects.get_or_create(username=username)
             if user_created:
-                user.set_password(password)
+                # Hash the password after it's been used to send in email
+                user.set_password(plain_text_password)
                 user.save()
+
+                # Now, send the plain text password via email
+                send_login_credentials.delay(email, username, plain_text_password)
+                
                 default_group, group_created = Group.objects.get_or_create(name='Default')
                 default_group.user_set.add(user)
-
             else:
                 if hasattr(user, 'profile'):
                     return Response({"error": "This user already has an associated EmployeeProfile."},

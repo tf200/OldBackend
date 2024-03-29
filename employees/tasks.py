@@ -4,6 +4,7 @@ from datetime import timedelta
 from .models import GoalsReport, WeeklyReportSummary
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from django.core.mail import send_mail
 
 llm = ChatOpenAI(openai_api_key="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")
 
@@ -47,3 +48,15 @@ def summarize_and_save(client, reports):
 
 
 
+@shared_task
+def send_login_credentials(email, username, password):
+    subject = 'Your new account'
+    message = f'Hello,\n\nYour account has been created.\nUsername: {username}\nPassword: {password}\nPlease change your password upon first login.'
+    send_mail(
+                subject=subject,
+                message=message, 
+                from_email='',
+                recipient_list=[email],
+                fail_silently= False
+                
+            )
