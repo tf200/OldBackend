@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -194,7 +196,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/1")
+REDIS_URL: str = os.getenv("REDIS_URL", "redis://redis:6379/1")
 
 CACHES = {
     "default": {
@@ -205,6 +207,7 @@ CACHES = {
         },
     }
 }
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -214,7 +217,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_SERIALIZER = "json"
@@ -223,28 +225,29 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
-from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
         "task": "planning.tasks.clear_temporary_files",
         "schedule": crontab(hour=0, minute=0),  # Runs daily at midnight
     },
-    'summarize_weekly_reports': {
-        'task': 'employees.tasks.summarize_weekly_reports',
-        'schedule': crontab(day_of_week='monday', hour=0, minute=0),  # Runs weekly on Sunday at midnight
+    "summarize_weekly_reports": {
+        "task": "employees.tasks.summarize_weekly_reports",
+        "schedule": crontab(
+            day_of_week="monday", hour=0, minute=0
+        ),  # Runs weekly on Sunday at midnight
+        # "schedule": crontab(minute=5),
     },
 }
 
+EMAIL_FROM: str = ""
+EMAIL_HOST: str = "smtp.gmail.com"
+EMAIL_HOST_USER: str = ""
+EMAIL_HOST_PASSWORD: str = ""
+EMAIL_PORT: int = 587
+EMAIL_USE_TLS: bool = True
+EMAIL_BACKEND: str = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_USER = ""
-EMAIL_HOST_PASSWORD = ""
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-# {
-#     "username" : "abde",
-#     "password" : "n27VW:4L-:sdWwv"
-# }
+# OpenAI API settings
+OPENAI_KEY: str = "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"
+OPENAI_MODEL: str = "gpt-4"

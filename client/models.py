@@ -1,44 +1,57 @@
-from django.db import models
-from django.conf import settings
-from authentication.models import Location
-from django.core.exceptions import ValidationError
-from dateutil.relativedelta import relativedelta
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from django.db.models import Sum
+
 import numpy as np
+from authentication.models import Location
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models import Sum
 
 
-
-class ClientType (models.Model):
+class ClientType(models.Model):
     TYPE_CHOICES = [
-        ('main_provider', 'Main Provider'),
-        ('local_authority', 'Local Authority'),
-        ('particular_party', 'Particular Party'),
-        ('healthcare_institution', 'Healthcare Institution'),
+        ("main_provider", "Main Provider"),
+        ("local_authority", "Local Authority"),
+        ("particular_party", "Particular Party"),
+        ("healthcare_institution", "Healthcare Institution"),
     ]
     types = models.CharField(max_length=50, choices=TYPE_CHOICES)
-    name = models.CharField (max_length=20)
-    address  = models.CharField (max_length=200 , null = True , blank = True)
-    postal_code = models.CharField (max_length=20 , null = True , blank = True)
-    place = models.CharField (max_length=20 , null = True , blank = True)
-    land = models.CharField (max_length=20 , null = True , blank = True)
-    KVKnumber = models.CharField (max_length=20 , null = True , blank = True)
-    BTWnumber = models.CharField (max_length=20 , null = True , blank = True)
-    phone_number = models.CharField (max_length=20 , null = True , blank = True)
-    client_number =models.CharField (max_length=20 , null = True , blank = True)
-    email_adress = models.CharField (max_length=20 , null = True , blank = True)
+    name = models.CharField(max_length=20)
+    address = models.CharField(max_length=200, null=True, blank=True)
+    postal_code = models.CharField(max_length=20, null=True, blank=True)
+    place = models.CharField(max_length=20, null=True, blank=True)
+    land = models.CharField(max_length=20, null=True, blank=True)
+    KVKnumber = models.CharField(max_length=20, null=True, blank=True)
+    BTWnumber = models.CharField(max_length=20, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
+    client_number = models.CharField(max_length=20, null=True, blank=True)
+    email_adress = models.CharField(max_length=20, null=True, blank=True)
 
 
 class ClientDetails(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Client_Profile')
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="Client_Profile",
+    )
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     identity = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, choices=(('In Care', 'In Care'), ('On Waiting List',
-                              'On Waiting List'), ('Out Of Concern', 'Out Of Concern')), default='On Waiting List', blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=(
+            ("In Care", "In Care"),
+            ("On Waiting List", "On Waiting List"),
+            ("Out Of Concern", "Out Of Concern"),
+        ),
+        default="On Waiting List",
+        blank=True,
+        null=True,
+    )
     bsn = models.CharField(max_length=100, blank=True, null=True)
     source = models.CharField(max_length=100, blank=True, null=True)
     birthplace = models.CharField(max_length=100, blank=True, null=True)
@@ -49,20 +62,27 @@ class ClientDetails(models.Model):
     gender = models.CharField(max_length=100, blank=True, null=True)
     filenumber = models.IntegerField(blank=True, null=True)
     profile_picture = models.ImageField(
-        upload_to='clients_pics/', blank=True, null=True)
+        upload_to="clients_pics/", blank=True, null=True
+    )
     city = models.CharField(max_length=100, blank=True, null=True)
     Zipcode = models.CharField(max_length=100, blank=True, null=True)
     infix = models.CharField(max_length=100, blank=True, null=True)
     streetname = models.CharField(max_length=100, blank=True, null=True)
     street_number = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    sender = models.ForeignKey(ClientType, on_delete=models.CASCADE, related_name='clientsender' , null = True)
-    location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name='client_location' , null = True)
+    sender = models.ForeignKey(
+        ClientType, on_delete=models.CASCADE, related_name="clientsender", null=True
+    )
+    location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, related_name="client_location", null=True
+    )
+
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='diagnoses')
+        ClientDetails, on_delete=models.CASCADE, related_name="diagnoses"
+    )
     diagnosis_code = models.CharField(max_length=10)
     description = models.TextField()
     date_of_diagnosis = models.DateTimeField(auto_now_add=True)
@@ -75,30 +95,36 @@ class ClientDiagnosis(models.Model):
 
 class ClientEmergencyContact(models.Model):
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='emergency_contact')
+        ClientDetails, on_delete=models.CASCADE, related_name="emergency_contact"
+    )
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     email = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     relationship = models.CharField(max_length=100, blank=True, null=True)
-    relation_status = models.CharField(max_length=50,  choices=[(
-        'Primary Relationship', 'Primary Relationship'), ('Secondary Relationship', 'Secondary Relationship')], null=True, blank=True)
+    relation_status = models.CharField(
+        max_length=50,
+        choices=[
+            ("Primary Relationship", "Primary Relationship"),
+            ("Secondary Relationship", "Secondary Relationship"),
+        ],
+        null=True,
+        blank=True,
+    )
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    medical_reports = models.BooleanField(default = False)
-    incidents_reports = models.BooleanField(default = False)
-    goals_reports = models.BooleanField(default = False)
+    medical_reports = models.BooleanField(default=False)
+    incidents_reports = models.BooleanField(default=False)
+    goals_reports = models.BooleanField(default=False)
 
 
 class Treatments(models.Model):
     user = models.ForeignKey(
-        ClientDetails, related_name='treatments', on_delete=models.CASCADE)
+        ClientDetails, related_name="treatments", on_delete=models.CASCADE
+    )
     treatment_name = models.CharField(max_length=500)
     treatment_date = models.CharField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-
-
-
 
     def __str__(self):
         return f"{self.name} for {self.client.name}"
@@ -106,7 +132,8 @@ class Treatments(models.Model):
 
 class ClientAllergy(models.Model):
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='allergies')
+        ClientDetails, on_delete=models.CASCADE, related_name="allergies"
+    )
     allergy_type = models.CharField(max_length=100)
     severity = models.CharField(max_length=100)
     reaction = models.TextField()
@@ -117,14 +144,12 @@ class ClientAllergy(models.Model):
         return f"{self.allergy_type} allergy for {self.client.name}"
 
 
-
-
 class ClientDocuments(models.Model):
     user = models.ForeignKey(
-        ClientDetails, related_name='documents', on_delete=models.CASCADE)
-    documents = models.FileField(upload_to='client_documents/')
-    uploaded_at = models.DateTimeField(
-        auto_now_add=True, blank=True, null=True)
+        ClientDetails, related_name="documents", on_delete=models.CASCADE
+    )
+    documents = models.FileField(upload_to="client_documents/")
+    uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.BigIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -138,23 +163,33 @@ class ClientDocuments(models.Model):
 
 class Contract(models.Model):
     sender = models.ForeignKey(
-        ClientType, on_delete=models.CASCADE, related_name='sender_contracts')
+        ClientType, on_delete=models.CASCADE, related_name="sender_contracts"
+    )
     RATE_TYPE_CHOICES = (
-        ('day', 'Per Day'),
-        ('week', 'Per Week'),
-        ('hour', 'Per Hour'),
-        ('minute', 'Per Minute'),
+        ("day", "Per Day"),
+        ("week", "Per Week"),
+        ("hour", "Per Hour"),
+        ("minute", "Per Minute"),
     )
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='contracts')
+        ClientDetails, on_delete=models.CASCADE, related_name="contracts"
+    )
     start_date = models.DateField(verbose_name="Date of Care Commencement")
-    duration_client = models.IntegerField(verbose_name="Duration in Months" , null=True) 
-    duration_sender = models.IntegerField(verbose_name="Times per Year" , null=True) # New field for duration
+    duration_client = models.IntegerField(verbose_name="Duration in Months", null=True)
+    duration_sender = models.IntegerField(
+        verbose_name="Times per Year", null=True
+    )  # New field for duration
     care_type = models.CharField(max_length=100, verbose_name="Type of Care")
     rate_type = models.CharField(
-        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True)
+        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True
+    )
     rate_value = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Rate Value")
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Rate Value",
+    )
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def calculate_cost_for_period(self, start_date_str, end_date_str):
@@ -169,39 +204,42 @@ class Contract(models.Model):
         duration_in_days_decimal = Decimal(duration_in_days)
 
         # Calculate the cost based on the rate type
-        if self.rate_type == 'day':
+        if self.rate_type == "day":
             return duration_in_days_decimal * self.rate_value
-        elif self.rate_type == 'week':
+        elif self.rate_type == "week":
             weeks = duration_in_days_decimal / Decimal(7)
             return weeks * self.rate_value
-        elif self.rate_type == 'hour':
+        elif self.rate_type == "hour":
             hours = duration_in_days_decimal * Decimal(24)
             return hours * self.rate_value
-        elif self.rate_type == 'minute':
+        elif self.rate_type == "minute":
             minutes = duration_in_days_decimal * Decimal(24) * Decimal(60)
             return minutes * self.rate_value
         else:
             return Decimal(0)
 
+
 class ContractAttachment(models.Model):
     contract = models.ForeignKey(
         Contract,
         on_delete=models.CASCADE,
-        related_name='attachments',
-        verbose_name="Contract"
+        related_name="attachments",
+        verbose_name="Contract",
     )
     name = models.CharField(max_length=255, verbose_name="Attachment Name")
-    attachment = models.FileField(upload_to='contract_attachments/', verbose_name="File")
+    attachment = models.FileField(
+        upload_to="contract_attachments/", verbose_name="File"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
 
     def __str__(self):
         return f"{self.name} for {self.contract}"
 
 
-
 class ClientAgreement(models.Model):
     contract = models.ForeignKey(
-        Contract, on_delete=models.CASCADE, related_name='client_agreements')
+        Contract, on_delete=models.CASCADE, related_name="client_agreements"
+    )
     agreement_details = models.TextField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
@@ -211,7 +249,8 @@ class ClientAgreement(models.Model):
 
 class Provision(models.Model):
     contract = models.ForeignKey(
-        Contract, on_delete=models.CASCADE, related_name='provisions')
+        Contract, on_delete=models.CASCADE, related_name="provisions"
+    )
     provision_details = models.TextField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
@@ -221,7 +260,8 @@ class Provision(models.Model):
 
 class FrameworkAgreement(models.Model):
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='framework_agreements')
+        ClientDetails, on_delete=models.CASCADE, related_name="framework_agreements"
+    )
     agreement_details = models.TextField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
@@ -259,16 +299,14 @@ class Contact(models.Model):
         return self.name
 
 
-
-
 class ClientTypeContactRelation(models.Model):
     client_type = models.ForeignKey(ClientType, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    
+
 
 class TemporaryFile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    file = models.FileField(upload_to='temporary_files/')
+    file = models.FileField(upload_to="temporary_files/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -277,66 +315,79 @@ class TemporaryFile(models.Model):
 
 class Invoice(models.Model):
     STATUS_CHOICES = (
-        ('outstanding', 'Outstanding'),
-        ('partially_paid', 'Partially Paid'),
-        ('paid', 'Paid'),
-        ('douabtfull_uncollectible', 'Douabtfull or Uncollectible'),
-        ('expired', 'Expired'),
-        ('overpaid', 'Overpaid'),
-        ('imported', 'Imported'),
-        ('concept', 'Concept')
-
+        ("outstanding", "Outstanding"),
+        ("partially_paid", "Partially Paid"),
+        ("paid", "Paid"),
+        ("douabtfull_uncollectible", "Douabtfull or Uncollectible"),
+        ("expired", "Expired"),
+        ("overpaid", "Overpaid"),
+        ("imported", "Imported"),
+        ("concept", "Concept"),
     )
     PAYMENT_TYPE_CHOICES = (
-        ('bank_transfer', 'Bank Transfer'),
-        ('credit_card', 'Credit Card'),
-        ('check', 'Check'),
-        ('cash', 'Cash'),
+        ("bank_transfer", "Bank Transfer"),
+        ("credit_card", "Credit Card"),
+        ("check", "Check"),
+        ("cash", "Cash"),
     )
     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
+    vat_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=20
+    )  # As a percentage
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default = 'concept')
+    total_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00
+    )  # Post-VAT total
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="concept")
     url = models.URLField(max_length=200, blank=True, null=True)
-    payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
+    payment_type = models.CharField(
+        max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True
+    )
     client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name='client_invoice')
-    invoice_details = models.JSONField(null= True , blank = True)
-    
-
+        ClientDetails, on_delete=models.CASCADE, related_name="client_invoice"
+    )
+    invoice_details = models.JSONField(null=True, blank=True)
 
     def update_totals(self):
         # Assuming invoice_details is a list of dictionaries
         # Extract the pre_vat_total and total_amount values into NumPy arrays
-        pre_vat_totals = np.array([item['pre_vat_total'] for item in self.invoice_details])
-        total_amounts = np.array([item['total_amount'] for item in self.invoice_details])
-        
+        pre_vat_totals = np.array(
+            [item["pre_vat_total"] for item in self.invoice_details]
+        )
+        total_amounts = np.array(
+            [item["total_amount"] for item in self.invoice_details]
+        )
 
         # Compute the sums using NumPy and convert them back to Decimal for precision
         pre_vat_total_sum = Decimal(np.sum(pre_vat_totals).item())
         total_amount_sum = Decimal(np.sum(total_amounts).item())
         print(total_amount_sum)
         self.pre_vat_total = pre_vat_total_sum
-        self.vat_amount = self.pre_vat_total * (self.vat_rate / Decimal('100.00'))
+        self.vat_amount = self.pre_vat_total * (self.vat_rate / Decimal("100.00"))
         self.total_amount = total_amount_sum
-        
+
         # Save the updated totals
         self.save()
 
 
-
-class InvoiceContract (models.Model):
-    invoice = models.ForeignKey(Invoice , on_delete =models.SET_NULL , null = True , related_name = 'invoice_contract')
-    contract = models.ForeignKey(Contract , on_delete =models.SET_NULL , null = True , related_name = 'contract_invoice')
+class InvoiceContract(models.Model):
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.SET_NULL, null=True, related_name="invoice_contract"
+    )
+    contract = models.ForeignKey(
+        Contract, on_delete=models.SET_NULL, null=True, related_name="contract_invoice"
+    )
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
+    vat_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=20
+    )  # As a percentage
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Post-VAT total
-
+    total_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00
+    )  # Post-VAT total
 
 
 # class InvoiceService(models.Model):
@@ -353,17 +404,20 @@ class InvoiceContract (models.Model):
 #     def __str__(self):
 #         return f"{self.service.name} on Invoice {self.invoice.invoice_number}"
 
-class CarePlan (models.Model) :
-    client = models.ForeignKey(ClientDetails , on_delete = models.SET_NULL , null = True)
+
+class CarePlan(models.Model):
+    client = models.ForeignKey(ClientDetails, on_delete=models.SET_NULL, null=True)
     description = models.TextField()
     start_date = models.DateField()
-    end_date = models.DateField ()
-    status = models.CharField(max_length= 100)
-    created_at = models.DateTimeField (auto_now_add = True)
+    end_date = models.DateField()
+    status = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
-class CareplanAtachements (models.Model):
-    careplan = models.ForeignKey(CarePlan ,  on_delete = models.SET_NULL , null = True , related_name = 'care_attachement' )
-    attachement = models.FileField(upload_to='clients_pics/')
-    created_at = models.DateTimeField (auto_now_add = True)
-    name = models.CharField(null =True , max_length= 100)
+class CareplanAtachements(models.Model):
+    careplan = models.ForeignKey(
+        CarePlan, on_delete=models.SET_NULL, null=True, related_name="care_attachement"
+    )
+    attachement = models.FileField(upload_to="clients_pics/")
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(null=True, max_length=100)
