@@ -68,10 +68,10 @@ def summarize_and_save(client, reports):
 def send_login_credentials(email, username, password):
     subject = "Your new account"
     message = f"Hello,\n\nYour account has been created.\nUsername: {username}\nPassword: {password}\n\nPlease change your password upon first login."
+
     send_mail(
         subject=subject,
         message=message,
-        from_email="",
         recipient_list=[email],
         fail_silently=False,
     )
