@@ -7,46 +7,79 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0031_alter_clientdetails_sender'),
+        ("client", "0031_alter_clientdetails_sender"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='contract',
-            name='rate_per_day',
+            model_name="contract",
+            name="rate_per_day",
         ),
         migrations.RemoveField(
-            model_name='contract',
-            name='rate_per_hour',
+            model_name="contract",
+            name="rate_per_hour",
         ),
         migrations.RemoveField(
-            model_name='contract',
-            name='rate_per_minute',
+            model_name="contract",
+            name="rate_per_minute",
         ),
         migrations.AddField(
-            model_name='contract',
-            name='rate_type',
-            field=models.CharField(choices=[('day', 'Per Day'), ('week', 'Per Week'), ('hour', 'Per Hour'), ('minute', 'Per Minute')], max_length=10, null=True, verbose_name='Rate Type'),
+            model_name="contract",
+            name="rate_type",
+            field=models.CharField(
+                choices=[
+                    ("day", "Per Day"),
+                    ("week", "Per Week"),
+                    ("hour", "Per Hour"),
+                    ("minute", "Per Minute"),
+                ],
+                max_length=10,
+                null=True,
+                verbose_name="Rate Type",
+            ),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='rate_value',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=10, null=True, verbose_name='Rate Value'),
+            model_name="contract",
+            name="rate_value",
+            field=models.DecimalField(
+                blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Rate Value"
+            ),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='sender',
-            field=models.ForeignKey(default=5, on_delete=django.db.models.deletion.CASCADE, related_name='sender_contracts', to='client.clienttype'),
+            model_name="contract",
+            name="sender",
+            field=models.ForeignKey(
+                default=5,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="sender_contracts",
+                to="client.clienttype",
+            ),
             preserve_default=False,
         ),
         migrations.CreateModel(
-            name='ContractAttachment',
+            name="ContractAttachment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, verbose_name='Attachment Name')),
-                ('attachment', models.FileField(upload_to='contract_attachments/', verbose_name='File')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
-                ('contract', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attachments', to='client.contract', verbose_name='Contract')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, verbose_name="Attachment Name")),
+                (
+                    "attachment",
+                    models.FileField(upload_to="contract_attachments/", verbose_name="File"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Created At")),
+                (
+                    "contract",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attachments",
+                        to="client.contract",
+                        verbose_name="Contract",
+                    ),
+                ),
             ],
         ),
     ]

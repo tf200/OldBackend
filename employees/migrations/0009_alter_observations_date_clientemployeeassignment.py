@@ -7,24 +7,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0016_clientdetails_date_of_birth_and_more'),
-        ('employees', '0008_alter_measurement_date'),
+        ("client", "0016_clientdetails_date_of_birth_and_more"),
+        ("employees", "0008_alter_measurement_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observations',
-            name='date',
+            model_name="observations",
+            name="date",
             field=models.DateField(auto_now_add=True),
         ),
         migrations.CreateModel(
-            name='ClientEmployeeAssignment',
+            name="ClientEmployeeAssignment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_date', models.DateField()),
-                ('role', models.CharField(max_length=100)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='client.clientdetails')),
-                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employees.employeeprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("start_date", models.DateField()),
+                ("role", models.CharField(max_length=100)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="client.clientdetails"
+                    ),
+                ),
+                (
+                    "employee",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="employees.employeeprofile"
+                    ),
+                ),
             ],
         ),
     ]

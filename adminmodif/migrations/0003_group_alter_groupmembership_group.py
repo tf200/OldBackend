@@ -7,20 +7,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('adminmodif', '0002_alter_groupmembership_end_date_and_more'),
+        ("adminmodif", "0002_alter_groupmembership_end_date_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Group',
+            name="Group",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group_name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("group_name", models.CharField(max_length=255, unique=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='groupmembership',
-            name='group',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='adminmodif.group'),
+            model_name="groupmembership",
+            name="group",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="adminmodif.group"
+            ),
         ),
     ]

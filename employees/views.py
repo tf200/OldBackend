@@ -36,9 +36,7 @@ class CurrentUserProfileView(generics.RetrieveAPIView):
         obj = get_object_or_404(
             queryset, user=self.request.user
         )  # Find the profile for the current user
-        self.check_object_permissions(
-            self.request, obj
-        )  # Manually enforce permission checks
+        self.check_object_permissions(self.request, obj)  # Manually enforce permission checks
         return obj
 
 
@@ -418,23 +416,17 @@ class EmployeeProfileCreateView(APIView):
                 # Now, send the plain text password via email
                 send_login_credentials.delay(email, username, plain_text_password)
 
-                default_group, group_created = Group.objects.get_or_create(
-                    name="Default"
-                )
+                default_group, group_created = Group.objects.get_or_create(name="Default")
                 default_group.user_set.add(user)
             else:
                 if hasattr(user, "profile"):
                     return Response(
-                        {
-                            "error": "This user already has an associated EmployeeProfile."
-                        },
+                        {"error": "This user already has an associated EmployeeProfile."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
             try:
-                employee_profile = EmployeeProfile.objects.create(
-                    user=user, **employee_data
-                )
+                employee_profile = EmployeeProfile.objects.create(user=user, **employee_data)
                 serializer = EmployeeCRUDSerializer(employee_profile)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except IntegrityError as e:
@@ -471,9 +463,7 @@ class EmployeeProfileListView(generics.ListAPIView):
         group_name = self.request.query_params.get("groups")
         if group_name:
             # Correctly filter EmployeeProfile based on the group name through CustomUser
-            queryset = queryset.filter(
-                user__groupmembership__group__name=group_name
-            ).distinct()
+            queryset = queryset.filter(user__groupmembership__group__name=group_name).distinct()
         return queryset
 
 

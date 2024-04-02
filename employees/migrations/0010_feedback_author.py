@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0009_alter_observations_date_clientemployeeassignment'),
+        ("employees", "0009_alter_observations_date_clientemployeeassignment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='feedback',
-            name='author',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='author1', to='employees.employeeprofile'),
+            model_name="feedback",
+            name="author",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="author1",
+                to="employees.employeeprofile",
+            ),
         ),
     ]

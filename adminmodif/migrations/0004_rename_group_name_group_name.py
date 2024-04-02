@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('adminmodif', '0003_group_alter_groupmembership_group'),
+        ("adminmodif", "0003_group_alter_groupmembership_group"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='group',
-            old_name='group_name',
-            new_name='name',
+            model_name="group",
+            old_name="group_name",
+            new_name="name",
         ),
     ]

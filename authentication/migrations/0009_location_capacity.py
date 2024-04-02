@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0008_rename_adress_location_address'),
+        ("authentication", "0008_rename_adress_location_address"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='location',
-            name='capacity',
+            model_name="location",
+            name="capacity",
             field=models.IntegerField(null=True),
         ),
     ]

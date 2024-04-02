@@ -7,48 +7,72 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0045_invoice_invoice_details'),
+        ("client", "0045_invoice_invoice_details"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='clientemergencycontact',
-            name='auto_reports',
+            model_name="clientemergencycontact",
+            name="auto_reports",
         ),
         migrations.AddField(
-            model_name='clientemergencycontact',
-            name='goals_reports',
+            model_name="clientemergencycontact",
+            name="goals_reports",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='clientemergencycontact',
-            name='incidents_reports',
+            model_name="clientemergencycontact",
+            name="incidents_reports",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='clientemergencycontact',
-            name='medical_reports',
+            model_name="clientemergencycontact",
+            name="medical_reports",
             field=models.BooleanField(default=False),
         ),
         migrations.CreateModel(
-            name='CarePlan',
+            name="CarePlan",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField()),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField()),
-                ('status', models.CharField(max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('client', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("description", models.TextField()),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField()),
+                ("status", models.CharField(max_length=100)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="client.clientdetails",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CareplanAtachements',
+            name="CareplanAtachements",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('attachement', models.FileField(upload_to='clients_pics/')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('careplan', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='client.careplan')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("attachement", models.FileField(upload_to="clients_pics/")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "careplan",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="client.careplan",
+                    ),
+                ),
             ],
         ),
     ]

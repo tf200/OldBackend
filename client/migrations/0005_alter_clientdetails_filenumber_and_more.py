@@ -7,31 +7,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0004_alter_clientdiagnosis_date_of_diagnosis'),
+        ("client", "0004_alter_clientdiagnosis_date_of_diagnosis"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='clientdetails',
-            name='filenumber',
+            model_name="clientdetails",
+            name="filenumber",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='clientdetails',
-            name='phone_number',
+            model_name="clientdetails",
+            name="phone_number",
             field=models.CharField(blank=True, max_length=20, null=True),
         ),
         migrations.CreateModel(
-            name='ClientEmergencyContact',
+            name="ClientEmergencyContact",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(blank=True, max_length=50, null=True)),
-                ('last_name', models.CharField(blank=True, max_length=100, null=True)),
-                ('email', models.CharField(blank=True, max_length=100, null=True)),
-                ('phone_number', models.CharField(blank=True, max_length=20, null=True)),
-                ('adress', models.CharField(blank=True, max_length=100, null=True)),
-                ('relationship', models.CharField(blank=True, max_length=100, null=True)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='emergency_contact', to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("first_name", models.CharField(blank=True, max_length=50, null=True)),
+                ("last_name", models.CharField(blank=True, max_length=100, null=True)),
+                ("email", models.CharField(blank=True, max_length=100, null=True)),
+                ("phone_number", models.CharField(blank=True, max_length=20, null=True)),
+                ("adress", models.CharField(blank=True, max_length=100, null=True)),
+                ("relationship", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="emergency_contact",
+                        to="client.clientdetails",
+                    ),
+                ),
             ],
         ),
     ]

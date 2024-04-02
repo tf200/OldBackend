@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
-from .models import GroupMembership , Group
 from authentication.models import CustomUser
+
+from .models import Group, GroupMembership
+
 
 class AssignGroupSerializer(serializers.Serializer):
     employee_id = serializers.IntegerField()
@@ -24,14 +26,12 @@ class AssignGroupSerializer(serializers.Serializer):
         return value
 
     def validate(self, data):
-        start_date = data.get('start_date')
-        end_date = data.get('end_date')
+        start_date = data.get("start_date")
+        end_date = data.get("end_date")
         if start_date is not None and end_date is not None:
             if start_date >= end_date:
                 raise serializers.ValidationError("End date must be greater than start date")
         return data
-
-
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'user_count']
+        fields = ["id", "name", "user_count"]
 
     def get_user_count(self, obj):
         # Count the number of users in this group

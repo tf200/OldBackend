@@ -6,53 +6,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0012_observations_category'),
+        ("employees", "0012_observations_category"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='assignment',
-            name='created',
+            model_name="assignment",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientemployeeassignment',
-            name='created',
+            model_name="clientemployeeassignment",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='emotionalstate',
-            name='created',
+            model_name="emotionalstate",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='created',
+            model_name="employeeprofile",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='feedback',
-            name='created',
+            model_name="feedback",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='measurement',
-            name='created',
+            model_name="measurement",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='observations',
-            name='created',
+            model_name="observations",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='physicalstate',
-            name='created',
+            model_name="physicalstate",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='progressreport',
-            name='created',
+            model_name="progressreport",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
     ]

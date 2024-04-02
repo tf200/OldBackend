@@ -1,11 +1,12 @@
 import uuid
 
-from authentication.models import Location
-from client.models import ClientDetails
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+from authentication.models import Location
+from client.models import ClientDetails
 
 
 class EmployeeProfile(models.Model):
@@ -21,9 +22,7 @@ class EmployeeProfile(models.Model):
     private_email_address = models.EmailField(null=True, blank=True)
     email_address = models.EmailField(null=True, blank=True)
     # Education
-    authentication_phone_number = models.CharField(
-        max_length=100, null=True, blank=True
-    )
+    authentication_phone_number = models.CharField(max_length=100, null=True, blank=True)
     private_phone_number = models.CharField(max_length=100, null=True, blank=True)
     work_phone_number = models.CharField(max_length=100, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -116,9 +115,7 @@ class Assignment(models.Model):
             raise ValidationError("The employee is not available at this time.")
 
         # Check if employee's skills match client's requirements
-        if not self.employee.skills.filter(
-            id__in=self.client.required_skills.all()
-        ).exists():
+        if not self.employee.skills.filter(id__in=self.client.required_skills.all()).exists():
             raise ValidationError(
                 "The employee does not have the required skills for this client."
             )
@@ -200,9 +197,7 @@ class PhysicalState(models.Model):
 
 
 class ClientMedication(models.Model):
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="medications"
-    )
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     name = models.CharField(max_length=100)
     dosage = models.CharField(max_length=100)
     frequency = models.CharField(max_length=100)

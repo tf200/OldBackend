@@ -6,18 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0042_alter_invoice_client_invoicecontract'),
+        ("client", "0042_alter_invoice_client_invoicecontract"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='invoice_details',
+            model_name="invoice",
+            name="invoice_details",
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='status',
-            field=models.CharField(choices=[('outstanding', 'Outstanding'), ('partially_paid', 'Partially Paid'), ('paid', 'Paid'), ('douabtfull_uncollectible', 'Douabtfull or Uncollectible'), ('expired', 'Expired'), ('overpaid', 'Overpaid'), ('imported', 'Imported'), ('concept', 'Concept')], default='concept', max_length=50),
+            model_name="invoice",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("outstanding", "Outstanding"),
+                    ("partially_paid", "Partially Paid"),
+                    ("paid", "Paid"),
+                    ("douabtfull_uncollectible", "Douabtfull or Uncollectible"),
+                    ("expired", "Expired"),
+                    ("overpaid", "Overpaid"),
+                    ("imported", "Imported"),
+                    ("concept", "Concept"),
+                ],
+                default="concept",
+                max_length=50,
+            ),
         ),
     ]

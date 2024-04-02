@@ -3,12 +3,13 @@ from datetime import datetime
 from decimal import Decimal
 
 import numpy as np
-from authentication.models import Location
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+
+from authentication.models import Location
 
 
 class ClientType(models.Model):
@@ -61,9 +62,7 @@ class ClientDetails(models.Model):
     departement = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=100, blank=True, null=True)
     filenumber = models.IntegerField(blank=True, null=True)
-    profile_picture = models.ImageField(
-        upload_to="clients_pics/", blank=True, null=True
-    )
+    profile_picture = models.ImageField(upload_to="clients_pics/", blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     Zipcode = models.CharField(max_length=100, blank=True, null=True)
     infix = models.CharField(max_length=100, blank=True, null=True)
@@ -80,9 +79,7 @@ class ClientDetails(models.Model):
 
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="diagnoses"
-    )
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="diagnoses")
     diagnosis_code = models.CharField(max_length=10)
     description = models.TextField()
     date_of_diagnosis = models.DateTimeField(auto_now_add=True)
@@ -119,9 +116,7 @@ class ClientEmergencyContact(models.Model):
 
 
 class Treatments(models.Model):
-    user = models.ForeignKey(
-        ClientDetails, related_name="treatments", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(ClientDetails, related_name="treatments", on_delete=models.CASCADE)
     treatment_name = models.CharField(max_length=500)
     treatment_date = models.CharField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -131,9 +126,7 @@ class Treatments(models.Model):
 
 
 class ClientAllergy(models.Model):
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="allergies"
-    )
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="allergies")
     allergy_type = models.CharField(max_length=100)
     severity = models.CharField(max_length=100)
     reaction = models.TextField()
@@ -145,9 +138,7 @@ class ClientAllergy(models.Model):
 
 
 class ClientDocuments(models.Model):
-    user = models.ForeignKey(
-        ClientDetails, related_name="documents", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(ClientDetails, related_name="documents", on_delete=models.CASCADE)
     documents = models.FileField(upload_to="client_documents/")
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
@@ -171,9 +162,7 @@ class Contract(models.Model):
         ("hour", "Per Hour"),
         ("minute", "Per Minute"),
     )
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="contracts"
-    )
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="contracts")
     start_date = models.DateField(verbose_name="Date of Care Commencement")
     duration_client = models.IntegerField(verbose_name="Duration in Months", null=True)
     duration_sender = models.IntegerField(
@@ -227,9 +216,7 @@ class ContractAttachment(models.Model):
         verbose_name="Contract",
     )
     name = models.CharField(max_length=255, verbose_name="Attachment Name")
-    attachment = models.FileField(
-        upload_to="contract_attachments/", verbose_name="File"
-    )
+    attachment = models.FileField(upload_to="contract_attachments/", verbose_name="File")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
 
     def __str__(self):
@@ -248,9 +235,7 @@ class ClientAgreement(models.Model):
 
 
 class Provision(models.Model):
-    contract = models.ForeignKey(
-        Contract, on_delete=models.CASCADE, related_name="provisions"
-    )
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name="provisions")
     provision_details = models.TextField()
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
@@ -334,9 +319,7 @@ class Invoice(models.Model):
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    vat_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, default=20
-    )  # As a percentage
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00
@@ -354,12 +337,8 @@ class Invoice(models.Model):
     def update_totals(self):
         # Assuming invoice_details is a list of dictionaries
         # Extract the pre_vat_total and total_amount values into NumPy arrays
-        pre_vat_totals = np.array(
-            [item["pre_vat_total"] for item in self.invoice_details]
-        )
-        total_amounts = np.array(
-            [item["total_amount"] for item in self.invoice_details]
-        )
+        pre_vat_totals = np.array([item["pre_vat_total"] for item in self.invoice_details])
+        total_amounts = np.array([item["total_amount"] for item in self.invoice_details])
 
         # Compute the sums using NumPy and convert them back to Decimal for precision
         pre_vat_total_sum = Decimal(np.sum(pre_vat_totals).item())
@@ -381,9 +360,7 @@ class InvoiceContract(models.Model):
         Contract, on_delete=models.SET_NULL, null=True, related_name="contract_invoice"
     )
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    vat_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, default=20
-    )  # As a percentage
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00

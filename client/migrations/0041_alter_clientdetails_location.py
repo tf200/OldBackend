@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0007_location'),
-        ('client', '0040_invoice_payment_type'),
+        ("authentication", "0007_location"),
+        ("client", "0040_invoice_payment_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='clientdetails',
-            name='location',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='client_location', to='authentication.location'),
+            model_name="clientdetails",
+            name="location",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="client_location",
+                to="authentication.location",
+            ),
         ),
     ]

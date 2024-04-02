@@ -7,40 +7,64 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0017_employeeprofile_email_address'),
+        ("employees", "0017_employeeprofile_email_address"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='employeeprofile',
-            name='certifications',
+            model_name="employeeprofile",
+            name="certifications",
         ),
         migrations.RemoveField(
-            model_name='employeeprofile',
-            name='experience',
+            model_name="employeeprofile",
+            name="experience",
         ),
         migrations.CreateModel(
-            name='Certification',
+            name="Certification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('issued_by', models.CharField(max_length=255)),
-                ('date_issued', models.DateField()),
-                ('created', models.DateTimeField(auto_now_add=True, null=True)),
-                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='certifications', to='employees.employeeprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("issued_by", models.CharField(max_length=255)),
+                ("date_issued", models.DateField()),
+                ("created", models.DateTimeField(auto_now_add=True, null=True)),
+                (
+                    "employee",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="certifications",
+                        to="employees.employeeprofile",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Experience',
+            name="Experience",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('job_title', models.CharField(max_length=255)),
-                ('company_name', models.CharField(max_length=255)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('created', models.DateTimeField(auto_now_add=True, null=True)),
-                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='experiences', to='employees.employeeprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("job_title", models.CharField(max_length=255)),
+                ("company_name", models.CharField(max_length=255)),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField(blank=True, null=True)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True, null=True)),
+                (
+                    "employee",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="experiences",
+                        to="employees.employeeprofile",
+                    ),
+                ),
             ],
         ),
     ]

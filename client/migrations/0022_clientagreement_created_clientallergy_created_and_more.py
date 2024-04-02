@@ -6,73 +6,73 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0021_clientdetails_identity_clientdetails_status'),
+        ("client", "0021_clientdetails_identity_clientdetails_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clientagreement',
-            name='created',
+            model_name="clientagreement",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientallergy',
-            name='created',
+            model_name="clientallergy",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='created',
+            model_name="clientdetails",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientdiagnosis',
-            name='created',
+            model_name="clientdiagnosis",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientdocuments',
-            name='created',
+            model_name="clientdocuments",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientemergencycontact',
-            name='created',
+            model_name="clientemergencycontact",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='clientmedication',
-            name='created',
+            model_name="clientmedication",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='created',
+            model_name="contract",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='emotionalstate',
-            name='created',
+            model_name="emotionalstate",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='frameworkagreement',
-            name='created',
+            model_name="frameworkagreement",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='physicalstate',
-            name='created',
+            model_name="physicalstate",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='provision',
-            name='created',
+            model_name="provision",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='treatments',
-            name='created',
+            model_name="treatments",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
     ]

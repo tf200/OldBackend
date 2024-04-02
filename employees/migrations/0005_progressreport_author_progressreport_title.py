@@ -7,18 +7,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0004_progressreport'),
+        ("employees", "0004_progressreport"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='progressreport',
-            name='author',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='author', to='employees.employeeprofile'),
+            model_name="progressreport",
+            name="author",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="author",
+                to="employees.employeeprofile",
+            ),
         ),
         migrations.AddField(
-            model_name='progressreport',
-            name='title',
+            model_name="progressreport",
+            name="title",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

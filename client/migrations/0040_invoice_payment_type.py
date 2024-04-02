@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0039_clientdetails_user'),
+        ("client", "0039_clientdetails_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='payment_type',
-            field=models.CharField(blank=True, choices=[('bank_transfer', 'Bank Transfer'), ('credit_card', 'Credit Card'), ('check', 'Check'), ('cash', 'Cash')], max_length=50, null=True),
+            model_name="invoice",
+            name="payment_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("bank_transfer", "Bank Transfer"),
+                    ("credit_card", "Credit Card"),
+                    ("check", "Check"),
+                    ("cash", "Cash"),
+                ],
+                max_length=50,
+                null=True,
+            ),
         ),
     ]

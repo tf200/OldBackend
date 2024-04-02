@@ -6,33 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0022_clientagreement_created_clientallergy_created_and_more'),
+        ("client", "0022_clientagreement_created_clientallergy_created_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='physicalstate',
-            name='client',
+            model_name="physicalstate",
+            name="client",
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='birthplace',
+            model_name="clientdetails",
+            name="birthplace",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='bsn',
+            model_name="clientdetails",
+            name="bsn",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='source',
+            model_name="clientdetails",
+            name="source",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.DeleteModel(
-            name='EmotionalState',
+            name="EmotionalState",
         ),
         migrations.DeleteModel(
-            name='PhysicalState',
+            name="PhysicalState",
         ),
     ]

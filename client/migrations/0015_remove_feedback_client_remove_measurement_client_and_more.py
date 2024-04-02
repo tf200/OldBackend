@@ -6,39 +6,39 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0014_delete_progressreport'),
+        ("client", "0014_delete_progressreport"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='feedback',
-            name='client',
+            model_name="feedback",
+            name="client",
         ),
         migrations.RemoveField(
-            model_name='measurement',
-            name='client',
+            model_name="measurement",
+            name="client",
         ),
         migrations.RemoveField(
-            model_name='observations',
-            name='client',
+            model_name="observations",
+            name="client",
         ),
         migrations.RemoveField(
-            model_name='physicalstate',
-            name='client',
+            model_name="physicalstate",
+            name="client",
         ),
         migrations.DeleteModel(
-            name='EmotionalState',
+            name="EmotionalState",
         ),
         migrations.DeleteModel(
-            name='Feedback',
+            name="Feedback",
         ),
         migrations.DeleteModel(
-            name='Measurement',
+            name="Measurement",
         ),
         migrations.DeleteModel(
-            name='Observations',
+            name="Observations",
         ),
         migrations.DeleteModel(
-            name='PhysicalState',
+            name="PhysicalState",
         ),
     ]

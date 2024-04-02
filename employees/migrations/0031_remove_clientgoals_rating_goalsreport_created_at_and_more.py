@@ -6,32 +6,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0030_remove_incident_time_of_incident_and_more'),
+        ("employees", "0030_remove_incident_time_of_incident_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='clientgoals',
-            name='rating',
+            model_name="clientgoals",
+            name="rating",
         ),
         migrations.AddField(
-            model_name='goalsreport',
-            name='created_at',
+            model_name="goalsreport",
+            name="created_at",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='goalsreport',
-            name='created_at_sys',
+            model_name="goalsreport",
+            name="created_at_sys",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='goalsreport',
-            name='rating',
+            model_name="goalsreport",
+            name="rating",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='clientgoals',
-            name='created_at',
+            model_name="clientgoals",
+            name="created_at",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
     ]

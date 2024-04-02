@@ -6,22 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0032_remove_contract_rate_per_day_and_more'),
+        ("client", "0032_remove_contract_rate_per_day_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='contract',
-            name='end_date',
+            model_name="contract",
+            name="end_date",
         ),
         migrations.AddField(
-            model_name='contract',
-            name='duration',
-            field=models.IntegerField(null=True, verbose_name='Duration in Months'),
+            model_name="contract",
+            name="duration",
+            field=models.IntegerField(null=True, verbose_name="Duration in Months"),
         ),
         migrations.AlterField(
-            model_name='contract',
-            name='rate_value',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='Rate Value'),
+            model_name="contract",
+            name="rate_value",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="Rate Value"
+            ),
         ),
     ]

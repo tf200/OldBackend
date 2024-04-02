@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0026_clienttype_contact_clienttypecontactrelation'),
+        ("client", "0026_clienttype_contact_clienttypecontactrelation"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clienttype',
-            name='client',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='client_contract', to='client.clientdetails'),
+            model_name="clienttype",
+            name="client",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="client_contract",
+                to="client.clientdetails",
+            ),
             preserve_default=False,
         ),
     ]

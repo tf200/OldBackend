@@ -56,9 +56,7 @@ urlpatterns = [
         ClientObservationsListView.as_view(),
         name="observations_list",
     ),
-    path(
-        "feedback_rud/<int:pk>/", ClientFeedbackRUDView.as_view(), name="feedback_rud"
-    ),
+    path("feedback_rud/<int:pk>/", ClientFeedbackRUDView.as_view(), name="feedback_rud"),
     path("feedback_cl/", ClientFeedbackCreateView.as_view(), name="feedback_cl"),
     path(
         "feedback_list/<int:client>/",
@@ -146,9 +144,7 @@ urlpatterns = [
         ExperienceListView.as_view(),
         name="experience-list",
     ),
-    path(
-        "experiences/create/", ExperienceCreateView.as_view(), name="experience-create"
-    ),
+    path("experiences/create/", ExperienceCreateView.as_view(), name="experience-create"),
     path(
         "experiencesRUD/<int:pk>/",
         ExperienceRUDView.as_view(),
@@ -160,9 +156,7 @@ urlpatterns = [
         name="education-list",
     ),
     path("educations/create/", EducationCreateView.as_view(), name="education-create"),
-    path(
-        "educationsRUD/<int:pk>/", EducationRUDView.as_view(), name="education-detail"
-    ),
+    path("educationsRUD/<int:pk>/", EducationRUDView.as_view(), name="education-detail"),
     # path('assignments/create/', ClientEmployeeAssignmentCreateView.as_view(), name='assignment-create'),
     # path('assignments/<int:pk>/', ClientEmployeeAssignmentRUDView.as_view(), name='assignment-detail'),
     # path('clients/<int:client_id>/assignments/', ClientEmployeeAssignmentListView.as_view(), name='client-assignment-list'),
@@ -188,9 +182,7 @@ urlpatterns = [
         GoalsReportRetrieveView.as_view(),
         name="goals-report-retrieve",
     ),
-    path(
-        "incidents/", IncidentListCreateAPIView.as_view(), name="incident-list-create"
-    ),
+    path("incidents/", IncidentListCreateAPIView.as_view(), name="incident-list-create"),
     path("incidents/<int:id>/", IncidentRUDAPIView.as_view(), name="incident-detail"),
     path(
         "incidents/by-child/<int:child_id>/",

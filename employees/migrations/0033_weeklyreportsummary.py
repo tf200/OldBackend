@@ -7,21 +7,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0048_alter_careplanatachements_careplan'),
-        ('employees', '0032_aigeneratedweeklyreports'),
+        ("client", "0048_alter_careplanatachements_careplan"),
+        ("employees", "0032_aigeneratedweeklyreports"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WeeklyReportSummary',
+            name="WeeklyReportSummary",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('summary_text', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("summary_text", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="client.clientdetails"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

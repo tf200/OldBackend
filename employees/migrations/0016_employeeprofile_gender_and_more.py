@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0015_rename_private_email_adress_employeeprofile_private_email_address'),
+        ("employees", "0015_rename_private_email_adress_employeeprofile_private_email_address"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employeeprofile',
-            name='gender',
+            model_name="employeeprofile",
+            name="gender",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='home_telephone_number',
+            model_name="employeeprofile",
+            name="home_telephone_number",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='is_subcontractor',
+            model_name="employeeprofile",
+            name="is_subcontractor",
             field=models.BooleanField(blank=True, null=True),
         ),
     ]

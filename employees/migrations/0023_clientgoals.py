@@ -7,22 +7,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0032_remove_contract_rate_per_day_and_more'),
-        ('employees', '0022_alter_progressreport_created'),
+        ("client", "0032_remove_contract_rate_per_day_and_more"),
+        ("employees", "0022_alter_progressreport_created"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ClientGoals',
+            name="ClientGoals",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('goal_name', models.CharField(max_length=100)),
-                ('goal_details', models.CharField(max_length=500)),
-                ('rating', models.IntegerField(blank=True, null=True)),
-                ('report', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('administered_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='emp_goals', to='employees.employeeprofile')),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='client_goals', to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("goal_name", models.CharField(max_length=100)),
+                ("goal_details", models.CharField(max_length=500)),
+                ("rating", models.IntegerField(blank=True, null=True)),
+                ("report", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "administered_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="emp_goals",
+                        to="employees.employeeprofile",
+                    ),
+                ),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="client_goals",
+                        to="client.clientdetails",
+                    ),
+                ),
             ],
         ),
     ]

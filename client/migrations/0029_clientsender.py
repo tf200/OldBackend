@@ -7,16 +7,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0028_remove_clienttype_client'),
+        ("client", "0028_remove_clienttype_client"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ClientSender',
+            name="ClientSender",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='clientsentby', to='client.clientdetails')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='clientsender', to='client.clienttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="clientsentby",
+                        to="client.clientdetails",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="clientsender",
+                        to="client.clienttype",
+                    ),
+                ),
             ],
         ),
     ]

@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0029_employeeprofile_has_borrowed'),
+        ("employees", "0029_employeeprofile_has_borrowed"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='incident',
-            name='time_of_incident',
+            model_name="incident",
+            name="time_of_incident",
         ),
         migrations.AlterField(
-            model_name='incident',
-            name='date_of_incident',
+            model_name="incident",
+            name="date_of_incident",
             field=models.DateTimeField(),
         ),
     ]

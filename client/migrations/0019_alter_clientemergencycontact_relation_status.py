@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0018_alter_clientemergencycontact_relation_status'),
+        ("client", "0018_alter_clientemergencycontact_relation_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='clientemergencycontact',
-            name='relation_status',
-            field=models.CharField(blank=True, choices=[('Primary Relationship', 'Primary Relationship'), ('Secondary Relationship', 'Secondary Relationship')], max_length=50, null=True),
+            model_name="clientemergencycontact",
+            name="relation_status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Primary Relationship", "Primary Relationship"),
+                    ("Secondary Relationship", "Secondary Relationship"),
+                ],
+                max_length=50,
+                null=True,
+            ),
         ),
     ]

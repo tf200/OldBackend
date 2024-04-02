@@ -6,53 +6,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0013_assignment_created_clientemployeeassignment_created_and_more'),
+        ("employees", "0013_assignment_created_clientemployeeassignment_created_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employeeprofile',
-            name='authentication_phone_number',
+            model_name="employeeprofile",
+            name="authentication_phone_number",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='date_of_birth',
+            model_name="employeeprofile",
+            name="date_of_birth",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='employee_number',
+            model_name="employeeprofile",
+            name="employee_number",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='employment_number',
+            model_name="employeeprofile",
+            name="employment_number",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='first_name',
+            model_name="employeeprofile",
+            name="first_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='last_name',
+            model_name="employeeprofile",
+            name="last_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='private_email_adress',
+            model_name="employeeprofile",
+            name="private_email_adress",
             field=models.EmailField(blank=True, max_length=254, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='private_phone_number',
+            model_name="employeeprofile",
+            name="private_phone_number",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='employeeprofile',
-            name='work_phone_number',
+            model_name="employeeprofile",
+            name="work_phone_number",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

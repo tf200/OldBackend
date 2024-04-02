@@ -7,24 +7,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0004_alter_customuser_phone_number'),
+        ("authentication", "0004_alter_customuser_phone_number"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('adress', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("adress", models.CharField(max_length=100)),
             ],
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='location',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='location', to='authentication.location'),
+            model_name="customuser",
+            name="location",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="location",
+                to="authentication.location",
+            ),
         ),
         migrations.DeleteModel(
-            name='adresses',
+            name="adresses",
         ),
     ]

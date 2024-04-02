@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0012_alter_progressreport_date'),
+        ("client", "0012_alter_progressreport_date"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clientemergencycontact',
-            name='auto_reports',
+            model_name="clientemergencycontact",
+            name="auto_reports",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0037_clienttype_email_adress'),
+        ("client", "0037_clienttype_email_adress"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='url',
+            model_name="invoice",
+            name="url",
             field=models.URLField(blank=True, null=True),
         ),
     ]

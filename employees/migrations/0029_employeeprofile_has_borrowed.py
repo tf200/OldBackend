@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0028_employeeprofile_location'),
+        ("employees", "0028_employeeprofile_location"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employeeprofile',
-            name='has_borrowed',
+            model_name="employeeprofile",
+            name="has_borrowed",
             field=models.BooleanField(default=False),
         ),
     ]

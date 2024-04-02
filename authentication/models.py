@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class Location(models.Model):
@@ -9,9 +9,7 @@ class Location(models.Model):
 
 
 class CustomUser(AbstractUser):
-    profile_picture = models.ImageField(
-        upload_to="profile_pics/", blank=True, null=True
-    )
+    profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
     phone_number = models.IntegerField(null=True, blank=True)
 
 

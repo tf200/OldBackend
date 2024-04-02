@@ -1,11 +1,17 @@
 from rest_framework import serializers
-from .models import Conversation, Message
+
 from authentication.models import CustomUser
+
+from .models import Conversation, Message
+
+
 class ConversationSerializer(serializers.ModelSerializer):
     involved_details = serializers.SerializerMethodField()
+
     class Meta:
         model = Conversation
-        fields = ['involved_details' , 'id']
+        fields = ["involved_details", "id"]
+
     def get_involved_details(self, obj):
         # Initialize an empty list to hold the user details
         details_list = []
@@ -16,23 +22,22 @@ class ConversationSerializer(serializers.ModelSerializer):
             employee_profile = user.profile  # Adjust this based on your actual related_name
             # Construct a dict with the desired information
             user_details = {
-                'id': user.id,
-                'first_name': employee_profile.first_name,
-                'last_name': employee_profile.last_name,
-                'profile_picture' : user.profile_picture.url if user.profile_picture else None
+                "id": user.id,
+                "first_name": employee_profile.first_name,
+                "last_name": employee_profile.last_name,
+                "profile_picture": user.profile_picture.url if user.profile_picture else None,
             }
             # Append the user details dict to the list
             details_list.append(user_details)
         # Return the list of user details
         return details_list
 
-class MessageSerializer(serializers.ModelSerializer):
 
+class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'conversation', 'content', 'timestamp', 'read_status']
-
+        fields = ["id", "sender", "conversation", "content", "timestamp", "read_status"]
 
 
 class ConversationLookupSerializer(serializers.Serializer):
@@ -43,7 +48,7 @@ class ConversationLookupSerializer(serializers.Serializer):
     )
 
     def create(self, validated_data):
-        user_ids = validated_data['involved']
+        user_ids = validated_data["involved"]
         users = CustomUser.objects.filter(id__in=user_ids)
         if users.count() == len(user_ids):  # Check if all users exist
             conversation, created = Conversation.get_or_create_conversation(*users)

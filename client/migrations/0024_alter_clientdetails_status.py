@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0023_remove_physicalstate_client_clientdetails_birthplace_and_more'),
+        ("client", "0023_remove_physicalstate_client_clientdetails_birthplace_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='clientdetails',
-            name='status',
-            field=models.CharField(blank=True, choices=[('In Care', 'In Care'), ('On Waiting List', 'On Waiting List'), ('Out Of Concern', 'Out Of Concern')], default='On Waiting List', max_length=20, null=True),
+            model_name="clientdetails",
+            name="status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("In Care", "In Care"),
+                    ("On Waiting List", "On Waiting List"),
+                    ("Out Of Concern", "Out Of Concern"),
+                ],
+                default="On Waiting List",
+                max_length=20,
+                null=True,
+            ),
         ),
     ]

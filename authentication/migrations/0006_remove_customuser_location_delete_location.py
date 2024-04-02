@@ -6,15 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0005_location_customuser_location_delete_adresses'),
+        ("authentication", "0005_location_customuser_location_delete_adresses"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='customuser',
-            name='location',
+            model_name="customuser",
+            name="location",
         ),
         migrations.DeleteModel(
-            name='Location',
+            name="Location",
         ),
     ]

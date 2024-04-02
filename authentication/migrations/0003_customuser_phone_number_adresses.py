@@ -8,22 +8,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0002_customuser_profile_picture'),
+        ("authentication", "0002_customuser_profile_picture"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='phone_number',
+            model_name="customuser",
+            name="phone_number",
             field=models.IntegerField(default=0),
             preserve_default=False,
         ),
         migrations.CreateModel(
-            name='adresses',
+            name="adresses",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('adress', models.CharField(max_length=100)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("adress", models.CharField(max_length=100)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
     ]

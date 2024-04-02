@@ -6,52 +6,52 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0001_initial'),
+        ("client", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='clientdetails',
-            name='user',
+            model_name="clientdetails",
+            name="user",
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='email',
+            model_name="clientdetails",
+            name="email",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='firt_name',
+            model_name="clientdetails",
+            name="firt_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='clientdetails',
-            name='last_name',
+            model_name="clientdetails",
+            name="last_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='clientdiagnosis',
-            name='title',
+            model_name="clientdiagnosis",
+            name="title",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AlterField(
-            model_name='clientdetails',
-            name='departement',
+            model_name="clientdetails",
+            name="departement",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='clientdetails',
-            name='gender',
+            model_name="clientdetails",
+            name="gender",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='clientdetails',
-            name='location',
+            model_name="clientdetails",
+            name="location",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='clientdetails',
-            name='organisation',
+            model_name="clientdetails",
+            name="organisation",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

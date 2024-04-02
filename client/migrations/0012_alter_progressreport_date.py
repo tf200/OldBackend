@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0011_clientdocuments_file_size'),
+        ("client", "0011_clientdocuments_file_size"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='progressreport',
-            name='date',
+            model_name="progressreport",
+            name="date",
             field=models.DateField(auto_now_add=True),
         ),
     ]

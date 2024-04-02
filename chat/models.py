@@ -1,12 +1,15 @@
-from django.db import models
-from authentication.models import CustomUser
 import uuid
+
+from django.db import models
+
+from authentication.models import CustomUser
+
 # Create your models here.
 
 
-
 class Conversation(models.Model):
-    involved = models.ManyToManyField(CustomUser, related_name='conversations')
+    involved = models.ManyToManyField(CustomUser, related_name="conversations")
+
     @classmethod
     def get_or_create_conversation(cls, user1, user2):
         # Find existing conversation between the two users
@@ -22,12 +25,12 @@ class Conversation(models.Model):
             return conversation, True
 
 
-
-
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, editable=False)
-    sender = models.ForeignKey(CustomUser, related_name='sent_messages', on_delete=models.CASCADE)
-    conversation = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(CustomUser, related_name="sent_messages", on_delete=models.CASCADE)
+    conversation = models.ForeignKey(
+        Conversation, related_name="messages", on_delete=models.CASCADE
+    )
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     read_status = models.BooleanField(default=False)

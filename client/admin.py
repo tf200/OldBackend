@@ -1,7 +1,7 @@
-
 from django.contrib import admin
 
 from .models import CareplanAtachements
+
 # class ClientDetailsAdmin(admin.ModelAdmin):
 #     # This is optional, to customize how the model appears in the admin
 #     list_display = ('user', 'organisation', 'location', 'departement', 'gender', 'filenumber')
@@ -20,9 +20,10 @@ from .models import CareplanAtachements
 
 
 class CareplanAttachmentsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'careplan', 'name', 'created_at')  # Customize columns displayed
-    list_filter = ('created_at',)  # Enable filtering by these fields
-    search_fields = ('name', 'careplan__description')  # Enable search by these fields
+    list_display = ("id", "careplan", "name", "created_at")  # Customize columns displayed
+    list_filter = ("created_at",)  # Enable filtering by these fields
+    search_fields = ("name", "careplan__description")  # Enable search by these fields
+
 
 # Register your models here.
 admin.site.register(CareplanAtachements, CareplanAttachmentsAdmin)

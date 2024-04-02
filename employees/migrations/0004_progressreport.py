@@ -7,18 +7,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0014_delete_progressreport'),
-        ('employees', '0003_remove_employeeprofile_address_and_more'),
+        ("client", "0014_delete_progressreport"),
+        ("employees", "0003_remove_employeeprofile_address_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProgressReport',
+            name="ProgressReport",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(auto_now_add=True)),
-                ('report_text', models.TextField()),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("date", models.DateField(auto_now_add=True)),
+                ("report_text", models.TextField()),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="client.clientdetails"
+                    ),
+                ),
             ],
         ),
     ]

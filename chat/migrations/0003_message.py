@@ -8,20 +8,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0002_delete_message'),
+        ("chat", "0002_delete_message"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('content', models.TextField()),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('read_status', models.BooleanField(default=False)),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='chat.conversation')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_messages', to=settings.AUTH_USER_MODEL)),
+                ("id", models.UUIDField(editable=False, primary_key=True, serialize=False)),
+                ("content", models.TextField()),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("read_status", models.BooleanField(default=False)),
+                (
+                    "conversation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="messages",
+                        to="chat.conversation",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sent_messages",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

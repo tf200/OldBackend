@@ -8,15 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0038_invoice_url'),
+        ("client", "0038_invoice_url"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clientdetails',
-            name='user',
-            field=models.OneToOneField(default=5, on_delete=django.db.models.deletion.CASCADE, related_name='Client_Profile', to=settings.AUTH_USER_MODEL),
+            model_name="clientdetails",
+            name="user",
+            field=models.OneToOneField(
+                default=5,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="Client_Profile",
+                to=settings.AUTH_USER_MODEL,
+            ),
             preserve_default=False,
         ),
     ]

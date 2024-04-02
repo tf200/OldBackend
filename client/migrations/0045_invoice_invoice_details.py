@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0044_remove_invoice_invoice_details'),
+        ("client", "0044_remove_invoice_invoice_details"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='invoice_details',
+            model_name="invoice",
+            name="invoice_details",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

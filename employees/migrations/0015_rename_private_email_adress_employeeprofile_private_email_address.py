@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0014_employeeprofile_authentication_phone_number_and_more'),
+        ("employees", "0014_employeeprofile_authentication_phone_number_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='employeeprofile',
-            old_name='private_email_adress',
-            new_name='private_email_address',
+            model_name="employeeprofile",
+            old_name="private_email_adress",
+            new_name="private_email_address",
         ),
     ]

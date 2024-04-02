@@ -7,32 +7,56 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0007_clientdetails_zipcode_clientdetails_city_and_more'),
+        ("client", "0007_clientdetails_zipcode_clientdetails_city_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ClientAllergy',
+            name="ClientAllergy",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('allergy_type', models.CharField(max_length=100)),
-                ('severity', models.CharField(max_length=100)),
-                ('reaction', models.TextField()),
-                ('notes', models.TextField(blank=True, null=True)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='allergies', to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("allergy_type", models.CharField(max_length=100)),
+                ("severity", models.CharField(max_length=100)),
+                ("reaction", models.TextField()),
+                ("notes", models.TextField(blank=True, null=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="allergies",
+                        to="client.clientdetails",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ClientMedication',
+            name="ClientMedication",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('dosage', models.CharField(max_length=100)),
-                ('frequency', models.CharField(max_length=100)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
-                ('notes', models.TextField(blank=True, null=True)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='medications', to='client.clientdetails')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("dosage", models.CharField(max_length=100)),
+                ("frequency", models.CharField(max_length=100)),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField(blank=True, null=True)),
+                ("notes", models.TextField(blank=True, null=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="medications",
+                        to="client.clientdetails",
+                    ),
+                ),
             ],
         ),
     ]

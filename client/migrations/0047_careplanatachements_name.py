@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('client', '0046_remove_clientemergencycontact_auto_reports_and_more'),
+        ("client", "0046_remove_clientemergencycontact_auto_reports_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='careplanatachements',
-            name='name',
+            model_name="careplanatachements",
+            name="name",
             field=models.CharField(max_length=100, null=True),
         ),
     ]

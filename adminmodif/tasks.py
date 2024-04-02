@@ -1,5 +1,7 @@
 from celery import shared_task
+
 from .models import GroupMembership
+
 
 @shared_task
 def update_group_memberships():
