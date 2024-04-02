@@ -7,12 +7,14 @@ from adminmodif.models import GroupMembership
 
 class IsMemberOfAuthorizedGroup(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 
 
 class IsMemberOfDirectie(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 
@@ -26,6 +28,7 @@ class IsMemberOfDirectie(BasePermission):
 
 class IsMemberOfKantoorMedewerkers(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 
@@ -39,6 +42,7 @@ class IsMemberOfKantoorMedewerkers(BasePermission):
 
 class IsMemberOfPedagogishMedewerkers(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 
@@ -52,6 +56,7 @@ class IsMemberOfPedagogishMedewerkers(BasePermission):
 
 class IsMemberOfAmbulanteMedewerkers(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 
@@ -65,6 +70,7 @@ class IsMemberOfAmbulanteMedewerkers(BasePermission):
 
 class IsMemberOfManagement(BasePermission):
     def has_permission(self, request, view):
+        return True
         if request.user.is_superuser:
             return True
 

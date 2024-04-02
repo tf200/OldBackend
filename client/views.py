@@ -86,7 +86,7 @@ class ClientListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfManagement]
     serializer_class = ClientDetailsSerializer
     queryset = ClientDetails.objects.all()
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = [
         "first_name",
         "last_name",
