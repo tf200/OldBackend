@@ -1,4 +1,6 @@
 
+.PHONY: clean format all help
+
 all: help
 
 serve:
@@ -9,7 +11,12 @@ format:
 	black .
 
 create_diagram:
-	python3 manage.py graph_models -a > diagram.dot
+	mkdir -p diagrams
+	python3 manage.py graph_models -a > diagrams/diagram.dot
+	dot -T pdf diagrams/diagram.dot -o diagrams/diagram.pdf
+
+clean:
+	rm -fr diagrams
 
 help:
 	@echo "No docs/help yet"

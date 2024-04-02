@@ -5,17 +5,19 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set work directory
-WORKDIR /healthy/
+WORKDIR /healthy
 
 # Install dependencies including GObject libraries
 RUN apt-get update && \
     apt-get install -y \
     python3-pip \
     libpango-1.0-0 \
-    libpangoft2-1.0-0
-    
+    libpangoft2-1.0-0 \
+    graphviz
+
 
 COPY requirements.txt .
+
 RUN pip3.12 install --no-cache-dir -r requirements.txt
 
 # Install Daphne with HTTP/2 and TLS support
