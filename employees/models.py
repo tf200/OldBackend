@@ -292,6 +292,10 @@ class Incident(models.Model):
 
 
 class Notification(models.Model):
+    class EVENTS(models.TextChoices):
+        NORMAL = "normal", "Normal"
+
+    event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     is_read = models.BooleanField(default=False)
@@ -304,3 +308,12 @@ class Notification(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+
+    def send_via_email(self) -> None: ...
+
+    def send_via_sms(self) -> None: ...
+
+    def notify():
+        """Notify receiver via email or SMS based on his preference,\n
+        And should be dispatched once a notofication is created
+        """
