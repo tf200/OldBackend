@@ -32,6 +32,8 @@ services:
       context: .
       dockerfile: ./celery/Dockerfile
     command: celery -A healty.celery worker -l info
+    env_file:
+      - .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379
     volumes:

@@ -289,3 +289,18 @@ class Incident(models.Model):
 
     def __str__(self):
         return f"Incident on {self.date_of_incident} at {self.location}"
+
+
+class Notification(models.Model):
+    title = models.CharField(max_length=100, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    receiver = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="notifications",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
