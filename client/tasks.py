@@ -36,7 +36,7 @@ def send_progress_report_email(progress_report_id, report_text):
 def invoice_creation_per_month(progress_report_id, report_text):
     pass
     # This function runs every month to create invoices
-    # This function should create invoices for each client/contract?!
+    # This function should create invoices for each client to pay (or for each contract to be paid)?? you know the logic here
 
 
 @shared_task
