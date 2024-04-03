@@ -27,20 +27,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-vrw!mq7f#wac=db+jgzumdn-slvi@ce7*@-!ks3!6)1*#dx!&="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv("DEBUG", 0)))
 
 ALLOWED_HOSTS = ["*"]
-# ALLOWED_HOSTS = [
-#     "3.142.18.151",
-#     "ec2-3-142-18-151.us-east-2.compute.amazonaws.com",
-#     "127.0.0.1",
-#     "localhost",
-#     "maicare.devteam.cc",
-# ]
-
 
 # Application definition
-
 INSTALLED_APPS = [
     "daphne",
     "django.contrib.admin",
@@ -121,11 +112,11 @@ ASGI_APPLICATION = "healty.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mydb",
-        "USER": "postgres",
-        "PASSWORD": "Mop3oXOy5T729eatqxMj",
-        "HOST": "micaredb.c6h0zwjoyzco.eu-central-1.rds.amazonaws.com",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME", ""),
+        "USER": os.getenv("DB_USER", ""),
+        "PASSWORD": os.getenv("DB_PASS", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -164,12 +155,12 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-AWS_ACCESS_KEY_ID = "AKIASD75TGXPAEL7HQ2Y"
-AWS_SECRET_ACCESS_KEY = "4tYt4VMzK5Q5PNLUOrMt18Rj6/u6CzT7y97JsOtb"
-AWS_STORAGE_BUCKET_NAME = "healtystorages"
-AWS_DEFAULT_ACL = None
-AWS_s3_region_NAME = "us-east-2"  # e.g., us-east-2
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
+AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL", None)
+AWS_S3_REGION_NAME: str = os.getenv("AWS_S3_REGION_NAME", "us-east-2")  # e.g., us-east-2
+AWS_S3_CUSTOM_DOMAIN: str = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
@@ -247,14 +238,14 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-DEFAULT_FROM_EMAIL: str = ""
-EMAIL_HOST: str = "smtp.gmail.com"
-EMAIL_PORT: int = 587
-EMAIL_HOST_USER: str = ""
-EMAIL_HOST_PASSWORD: str = ""
-EMAIL_USE_TLS: bool = True
+DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")
+EMAIL_HOST: str = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT: int = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_HOST_USER: str = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD: str = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS: bool = bool(int(os.getenv("EMAIL_USE_TLS", 0)))
 EMAIL_BACKEND: str = "django.core.mail.backends.smtp.EmailBackend"
 
 # OpenAI API settings
-OPENAI_KEY: str = "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"
-OPENAI_MODEL: str = "gpt-4"
+OPENAI_KEY: str = os.getenv("OPENAI_KEY", "")
+OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")

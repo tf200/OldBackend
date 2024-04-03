@@ -13,7 +13,6 @@ from .models import ClientEmergencyContact, Invoice
 @shared_task
 def send_progress_report_email(progress_report_id, report_text):
     try:
-
         progress_report = ProgressReport.objects.get(id=progress_report_id)
 
         emergency_contacts = ClientEmergencyContact.objects.filter(
