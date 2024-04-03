@@ -219,6 +219,7 @@ CHANNEL_LAYERS = {
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "")
 ACCEPT_CONTENT = ["application/json"]
 RESULT_BACKEND = "django-db"
+CELERY_RESULT_BACKEND = "django-db"
 TASK_SERIALIZER = "json"
 RESULT_SERIALIZER = "json"
 broker_connection_retry_on_startup = True
@@ -230,14 +231,19 @@ CELERY_TASK_SOFT_TIME_LIMIT = 850
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
         "task": "planning.tasks.clear_temporary_files",
-        "schedule": crontab(hour=0, minute=0),  # Runs daily at midnight
+        "schedule": crontab(minute=0, hour=0),  # Runs daily at midnight
     },
     "summarize_weekly_reports": {
         "task": "employees.tasks.summarize_weekly_reports",
-        "schedule": crontab(
-            day_of_week="monday", hour=0, minute=0
-        ),  # Runs weekly on Sunday at midnight
-        # "schedule": crontab(minute=5),
+        "schedule": crontab(minute=0, hour=0, day_of_week="6"),
+    },
+    "invoice_creation_per_month": {
+        "task": "client.tasks.invoice_creation_per_month",
+        "schedule": crontab(minute=0, hour=0, day_of_month=1),
+    },
+    "invoice_mark_as_expired": {
+        "task": "client.tasks.invoice_mark_as_expired",
+        "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
     },
 }
 

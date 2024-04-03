@@ -728,5 +728,5 @@ class WeeklyReportSummaryListAll(generics.ListAPIView):
 
 @api_view(["GET"])
 def generate_ai_reports(req):
-    summarize_weekly_reports()
+    summarize_weekly_reports.delay()
     return Response({"status": "success", "message": "finished successfully"})

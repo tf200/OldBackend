@@ -295,7 +295,7 @@ class TemporaryFile(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Temporary file {self.id} uploaded at {self.uploaded_at}"
+        return f'Temporary file "{self.id}" uploaded at "{self.uploaded_at}"'
 
 
 class Invoice(models.Model):
@@ -334,6 +334,9 @@ class Invoice(models.Model):
     )
     invoice_details = models.JSONField(null=True, blank=True)
 
+    updated = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
     def update_totals(self):
         # Assuming invoice_details is a list of dictionaries
         # Extract the pre_vat_total and total_amount values into NumPy arrays
@@ -365,6 +368,9 @@ class InvoiceContract(models.Model):
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00
     )  # Post-VAT total
+
+    updated = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
 
 
 # class InvoiceService(models.Model):

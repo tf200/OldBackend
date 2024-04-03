@@ -1,12 +1,13 @@
 from datetime import timedelta
 
-from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+
+from celery import shared_task
 
 from .models import GoalsReport, WeeklyReportSummary
 
@@ -25,7 +26,7 @@ prompt_template = ChatPromptTemplate.from_messages(
 )
 
 
-# @shared_task
+@shared_task
 def summarize_weekly_reports():
     one_week_ago = timezone.now() - timedelta(days=7)
     reports = (
