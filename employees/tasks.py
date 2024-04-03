@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 
 from celery import shared_task
 
-from .models import GoalsReport, WeeklyReportSummary
+from .models import GoalsReport, Notification, WeeklyReportSummary
 
 SYSTEM_PROMPT: str = """
 These are daily reports of our clients, I need you to write a detailed summary of these reports,
@@ -65,14 +65,17 @@ def summarize_and_save(client, reports):
     WeeklyReportSummary.objects.create(client=client, summary_text=summary_text)
 
 
-@shared_task
-def send_login_credentials(email, username, password):
+def send_login_credentials(user, username, password):
     subject = "Your new account"
     message = f"Hello,\n\nYour account has been created.\nUsername: {username}\nPassword: {password}\n\nPlease change your password upon first login."
 
-    send_mail(
-        subject=subject,
-        message=message,
-        recipient_list=[email],
-        fail_silently=False,
+    notification = Notification.objects.create(
+        title="Login credentials",
+        event=Notification.EVENTS.LOGIN_SEND_CREDENTIALS,
+        content="Login credentials are sent to your contacts (e.g email).",
+        receiver=user,
     )
+
+    notification.notify(
+        email_title=subject, email_context=message
+    )  # send email as well as SMS (in the future)

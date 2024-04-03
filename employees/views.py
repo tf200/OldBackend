@@ -414,7 +414,7 @@ class EmployeeProfileCreateView(APIView):
                 user.save()
 
                 # Now, send the plain text password via email
-                send_login_credentials.delay(email, username, plain_text_password)
+                send_login_credentials(user, username, plain_text_password)
 
                 default_group, group_created = Group.objects.get_or_create(name="Default")
                 default_group.user_set.add(user)

@@ -2,10 +2,12 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
 
 from authentication.models import Location
+from celery import shared_task
 from client.models import ClientDetails
 
 
@@ -294,6 +296,7 @@ class Incident(models.Model):
 class Notification(models.Model):
     class EVENTS(models.TextChoices):
         NORMAL = "normal", "Normal"
+        LOGIN_SEND_CREDENTIALS = "login_send_credentials", "Login - send credentials"
 
     event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)
@@ -309,11 +312,37 @@ class Notification(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    def send_via_email(self) -> None: ...
+    @shared_task
+    def send_via_email(self, title: str | None = None, content: str | None = None) -> None:
 
-    def send_via_sms(self) -> None: ...
+        if title is None:
+            content = self.title
 
-    def notify():
+        if content is None:
+            content = self.content
+
+        send_mail(
+            subject=title,
+            message=content,
+            recipient_list=[self.receiver.email],
+            fail_silently=True,
+        )
+
+    @shared_task
+    def send_via_sms(self, title: str | None = None, content: str | None = None) -> None: ...
+
+    def notify(self, email_title: str | None = None, email_content: str | None = None) -> None:
         """Notify receiver via email or SMS based on his preference,\n
         And should be dispatched once a notofication is created
         """
+        title: str = self.title
+        content: str = self.content
+
+        if email_title is not None:
+            title = email_title
+
+        if email_content is not None:
+            content = email_content
+
+        self.send_via_email.delay(title, content)
+        self.send_via_sms.delay(title, content)
