@@ -1,3 +1,4 @@
+import os
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -10,6 +11,10 @@ from django.db import models
 from django.db.models import Sum
 
 from authentication.models import Location
+
+
+def generate_invoice_id() -> str:
+    return os.urandom(4).hex().upper()
 
 
 class ClientType(models.Model):
@@ -290,7 +295,7 @@ class ClientTypeContactRelation(models.Model):
 
 
 class TemporaryFile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.CharField(primary_key=True, default=generate_invoice_id, editable=False)
     file = models.FileField(upload_to="temporary_files/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
