@@ -62,5 +62,4 @@ def invoice_mark_as_expired(progress_report_id, report_text):
                 receiver=invoice.client.email,
             )
 
-            message = f"The invoice #{invoice.id} expired."
-            notification.notify(email_title="Invoice expired", email_content=message)
+            notification.notify()
