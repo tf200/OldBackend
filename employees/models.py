@@ -300,6 +300,8 @@ class Notification(models.Model):
         APPOINTMENT_CREATED = "appointment_created", "Appointment - created"
         APPOINTMENT_UPDATED = "appointment_updated", "Appointment - updated"
         APPOINTMENT_RESCHEDULED = "appointment_rescheduled", "Appointment - rescheduled"
+        APPOINTMENT_CANCELED = "appointment_canceled", "Appointment canceled"
+        INVOICE_EXPIRED = "invoice_expired", "Invoice expired"
 
     event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)

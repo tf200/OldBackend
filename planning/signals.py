@@ -70,7 +70,7 @@ def appointment_rescheduled_or_canceled(sender, instance: Appointment, **kwargs)
                 # send a notification: appointment canceled
                 notification = Notification.objects.create(
                     title="Appointment canceled",
-                    event=Notification.EVENTS.APPOINTMENT_RESCHEDULED,
+                    event=Notification.EVENTS.APPOINTMENT_CANCELED,
                     content=f"The appointment #{instance.id} has been canceled.",
                     receiver=user,
                 )
@@ -93,7 +93,7 @@ def appointment_deleted(sender, instance: Appointment, **kwargs):
             # send a notification: appointment canceled
             notification = Notification.objects.create(
                 title="Appointment canceled",
-                event=Notification.EVENTS.APPOINTMENT_RESCHEDULED,
+                event=Notification.EVENTS.APPOINTMENT_CANCELED,
                 content=f"The appointment #{instance.id} has been canceled.",
                 receiver=user,
             )

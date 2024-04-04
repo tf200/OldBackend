@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 
 from celery import shared_task
-from employees.models import ProgressReport
+from employees.models import Notification, ProgressReport
 
 from .models import ClientEmergencyContact, Invoice
 
@@ -53,3 +53,14 @@ def invoice_mark_as_expired(progress_report_id, report_text):
         invoice.save()
 
     # send an email notification if needed to the invoice owner
+    for invoice in invoices:
+        if invoice.client.email:
+            notification = Notification.objects.create(
+                title="Invoice expired",
+                event=Notification.EVENTS.INVOICE_EXPIRED,
+                content=f"The invoice #{invoice.id} expired.",
+                receiver=invoice.client.email,
+            )
+
+            message = f"The invoice #{invoice.id} expired."
+            notification.notify(email_title="Invoice expired", email_content=message)
