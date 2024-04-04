@@ -8,3 +8,6 @@ from .models import EmployeeProfile
 # def create_employee_profile(sender, instance, created, **kwargs):
 #     if created:
 #         EmployeeProfile.objects.create(user=instance)
+
+# Send Notifications once an Appointement Creation/deletion/update
+# Inform employee and Client

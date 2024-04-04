@@ -6,4 +6,4 @@ class EmployeesConfig(AppConfig):
     name = "employees"
 
     def ready(self):
-        import employees.signals
+        from . import signals

@@ -297,6 +297,9 @@ class Notification(models.Model):
     class EVENTS(models.TextChoices):
         NORMAL = "normal", "Normal"
         LOGIN_SEND_CREDENTIALS = "login_send_credentials", "Login - send credentials"
+        APPOINTMENT_CREATED = "appointment_created", "Appointment - created"
+        APPOINTMENT_UPDATED = "appointment_updated", "Appointment - updated"
+        APPOINTMENT_RESCHEDULED = "appointment_rescheduled", "Appointment - rescheduled"
 
     event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)
@@ -313,25 +316,48 @@ class Notification(models.Model):
     )
 
     @shared_task
-    def send_via_email(self, title: str | None = None, content: str | None = None) -> None:
+    def send_via_email(
+        self, title: str | None = None, content: str | None = None, *, icon: str = "🔔"
+    ) -> None:
+        # Check if there is a receiver email first
+        receiver_email: str | None = self.get_receiver_email()
+        if receiver_email is None or receiver_email == "":
+            return None
 
         if title is None:
-            content = self.title
+            title = self.title
 
         if content is None:
             content = self.content
 
+        # Add an icon
+        if icon is not None:
+            title = f"{icon} {self.title}"
+
         send_mail(
             subject=title,
             message=content,
-            recipient_list=[self.receiver.email],
+            recipient_list=[receiver_email],
             fail_silently=True,
         )
 
-    @shared_task
-    def send_via_sms(self, title: str | None = None, content: str | None = None) -> None: ...
+    def get_receiver_email(self) -> str | None:
+        if hasattr(self.receiver, "profile"):
+            # this is an employee
+            return self.receiver.profile.email_address
 
-    def notify(self, email_title: str | None = None, email_content: str | None = None) -> None:
+        if hasattr(self.receiver, "Client_Profile"):
+            # this is a client
+            return self.receiver.Client_Profile.email
+
+    @shared_task
+    def send_via_sms(
+        self, title: str | None = None, content: str | None = None, icon: str = "🔔"
+    ) -> None: ...
+
+    def notify(
+        self, email_title: str | None = None, email_content: str | None = None, icon: str = "🔔"
+    ) -> None:
         """Notify receiver via email or SMS based on his preference,\n
         And should be dispatched once a notofication is created
         """
@@ -344,5 +370,5 @@ class Notification(models.Model):
         if email_content is not None:
             content = email_content
 
-        self.send_via_email.delay(title, content)
-        self.send_via_sms.delay(title, content)
+        self.send_via_email.delay(title, content, icon=icon)
+        self.send_via_sms.delay(title, content, icon=icon)

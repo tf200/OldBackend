@@ -14,6 +14,12 @@ class Appointment(models.Model):
         ("work", "Work with Client"),
         ("other", "Other"),
     )
+
+    class STATUS(models.TextChoices):
+        SCHEDULED = "scheduled", "Scheduled"
+        FINISHED = "finished", "Finished"
+        CANCELED = "canceled", "Canceled"
+
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     appointment_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
@@ -32,7 +38,7 @@ class Appointment(models.Model):
     modified_by = models.ForeignKey(
         EmployeeProfile, related_name="modified_appointments", on_delete=models.SET_NULL, null=True
     )
-    status = models.CharField(max_length=50, null=True, blank=True)
+    status = models.CharField(choices=STATUS.choices, default=STATUS.SCHEDULED, blank=True)
 
     def __str__(self):
         return self.title
