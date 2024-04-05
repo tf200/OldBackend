@@ -1,6 +1,5 @@
-from django.core.mail import send_mail
-
 from celery import shared_task
+from system.utils import send_mail_async
 
 from .models import ClientEmergencyContact, ProgressReport
 
@@ -14,9 +13,10 @@ def send_progress_report_email(progress_report_id):
         )
 
         for contact in emergency_contacts:
-            send_mail(
+            send_mail_async.delay(
                 subject="Progress Report Update",
                 message="Here is the progress report...",
+                from_email=None,
                 recipient_list=[contact.email],
             )
     except ProgressReport.DoesNotExist:

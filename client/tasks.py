@@ -3,10 +3,8 @@ import datetime
 import logging
 from decimal import Decimal
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
@@ -16,6 +14,7 @@ from weasyprint import HTML
 from celery import shared_task
 from employees.models import ProgressReport
 from system.models import Notification
+from system.utils import send_mail_async
 
 from .models import ClientDetails, ClientEmergencyContact, Contract, Invoice
 
@@ -29,10 +28,20 @@ def send_progress_report_email(progress_report_id, report_text):
             client=progress_report.client, auto_reports=True
         )
 
+        notification = Notification.objects.create(
+            title="Progress Report Update",
+            event=Notification.EVENTS.PROGRESS_REPORT_AVAILABLE,
+            content=f"You have a new progress report available #{progress_report.id}.",
+            receiver=progress_report.client.user,
+        )
+
+        notification.notify()
+
         for contact in emergency_contacts:
-            send_mail(
+            send_mail_async.delay(
                 subject="Progress Report Update",
                 message=f"{report_text}",
+                from_email=None,
                 recipient_list=[contact.email],
                 fail_silently=False,
             )

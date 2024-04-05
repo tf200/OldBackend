@@ -1,8 +1,7 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import models
 
-from celery import shared_task
+from system.utils import send_mail_async
 
 
 class Notification(models.Model):
@@ -15,6 +14,7 @@ class Notification(models.Model):
         APPOINTMENT_CANCELED = "appointment_canceled", "Appointment canceled"
         INVOICE_EXPIRED = "invoice_expired", "Invoice expired"
         INVOICE_CREATED = "invoice_created", "Invoice created"
+        PROGRESS_REPORT_AVAILABLE = "progress_report_available", "Progress Report Available"
 
     event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)
@@ -30,7 +30,6 @@ class Notification(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    @shared_task
     def send_via_email(
         self, title: str | None = None, content: str | None = None, *, icon: str = "🔔"
     ) -> None:
@@ -49,9 +48,10 @@ class Notification(models.Model):
         if icon is not None:
             title = f"{icon} {self.title}"
 
-        send_mail(
+        send_mail_async.delay(
             subject=title,
             message=content,
+            from_email=None,  # the default will be used
             recipient_list=[receiver_email],
             fail_silently=True,
         )
@@ -65,7 +65,6 @@ class Notification(models.Model):
             # this is a client
             return self.receiver.Client_Profile.email
 
-    @shared_task
     def send_via_sms(
         self, title: str | None = None, content: str | None = None, icon: str = "🔔"
     ) -> None: ...
@@ -85,5 +84,5 @@ class Notification(models.Model):
         if email_content is not None:
             content = email_content
 
-        self.send_via_email.delay(title, content, icon=icon)
-        self.send_via_sms.delay(title, content, icon=icon)
+        self.send_via_email(title, content, icon=icon)
+        self.send_via_sms(title, content, icon=icon)

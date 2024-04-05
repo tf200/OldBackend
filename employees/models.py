@@ -2,12 +2,10 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
 
 from authentication.models import Location
-from celery import shared_task
 from client.models import ClientDetails
 
 
