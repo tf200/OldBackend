@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "storages",
     "corsheaders",
     "django_celery_results",
+    "system",
     "authentication",
     "client",
     "employees",

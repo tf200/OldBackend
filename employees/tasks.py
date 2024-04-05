@@ -8,8 +8,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
 from celery import shared_task
+from system.models import Notification
 
-from .models import GoalsReport, Notification, WeeklyReportSummary
+from .models import GoalsReport, WeeklyReportSummary
 
 SYSTEM_PROMPT: str = """
 These are daily reports of our clients, I need you to write a detailed summary of these reports,

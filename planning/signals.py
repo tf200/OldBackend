@@ -3,7 +3,8 @@ from django.dispatch import receiver
 
 from authentication.models import CustomUser
 from client.models import ClientDetails
-from employees.models import EmployeeProfile, Notification
+from employees.models import EmployeeProfile
+from system.models import Notification
 
 from .models import Appointment
 

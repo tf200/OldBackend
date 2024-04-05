@@ -1,22 +1,23 @@
-import datetime
 import calendar
-from decimal import Decimal
+import datetime
 import logging
+from decimal import Decimal
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.mail import send_mail
-from django.core.files.base import ContentFile
-from django.utils import timezone
 from django.template.loader import render_to_string
+from django.utils import timezone
+from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import  status
 from weasyprint import HTML
 
 from celery import shared_task
-from employees.models import Notification, ProgressReport
+from employees.models import ProgressReport
+from system.models import Notification
 
-from .models import ClientEmergencyContact, Invoice, ClientDetails, Contract
+from .models import ClientDetails, ClientEmergencyContact, Contract, Invoice
 
 
 @shared_task
@@ -52,7 +53,6 @@ def invoice_creation_per_month():
     client_ids = ClientDetails.objects.all().values_list("client_id", flat=True)
     for client_id in client_ids:
         try:
-
             client = ClientDetails.objects.get(id=client_id)
             contracts = Contract.objects.filter(client=client)
             if contracts.exists():
@@ -128,14 +128,21 @@ def invoice_creation_per_month():
             invoice.save()
 
             # ADD NOTIFICATIONS HERE
+            notification = Notification.objects.create(
+                title="Invoice created",
+                event=Notification.EVENTS.INVOICE_CREATED,
+                content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
+                receiver=invoice.client.email,
+            )
+
+            notification.notify()
+
             return "Processed clients successfully."
         except ClientDetails.DoesNotExist:
             logging.error(f"Client {client_id} not found.")
         except Exception as e:
             logging.error(f"Error processing client {client_id}: {e}")
             continue
-
-
 
     # This function runs every month to create invoices
     # This function should create invoices for each client to pay (or for each contract to be paid)?? you know the logic here

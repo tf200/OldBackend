@@ -31,45 +31,56 @@ class WeeklyReportSummaryAdmin(admin.ModelAdmin):
     list_filter = ("created_at", "client")  # Enable filtering by these fields
     search_fields = ("summary_text",)  # Enable search by summary text
 
+
 @admin.register(Certification)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(AiGeneratedWeeklyReports)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(ClientDetails)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(ClientGoals)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(EmotionalState)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(GoalsReport)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(PhysicalState)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(ProgressReport)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(ClientMedication)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Feedback)
 class InvoiceAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(Observations)
 class InvoiceAdmin(admin.ModelAdmin):
