@@ -18,24 +18,28 @@ def assessments(request):
             AssessmentLevelSchema(level=assessment.level, assessments=str(assessment.content))
             for assessment in domain.assessments.all()
         ]
-        results.append(AssessmentDomainSchema(name=domain.name, levels=levels))
+        results.append(AssessmentDomainSchema(id=domain.id, name=domain.name, levels=levels))
 
     return results
 
 
-@router.post("/domain/add", response={201: EmptyResponseSchema})
+@router.post("/domains/add", response={201: AssessmentDomainSchema})
 def add_assessment_domain(request, assessment_domain: AssessmentDomainSchema):
     # Create the domain first
     domain = AssessmentDomain.objects.create(name=assessment_domain.name)
 
     # Create the assessment
-    for level in assessment_domain.levels:
-        Assessment.objects.create(level=level, domain=domain, content=assessment_domain.content)
+    for assessment_level in assessment_domain.levels:
+        Assessment.objects.create(
+            level=assessment_level.level, domain=domain, content=assessment_level.assessments
+        )
 
-    return 201
+    return 201, AssessmentDomainSchema(
+        id=domain.id, name=domain.name, levels=assessment_domain.levels
+    )
 
 
-@router.delete("/domain/{int:id}/delete", response={204: EmptyResponseSchema})
+@router.delete("/domains/{int:id}/delete", response={204: EmptyResponseSchema})
 def delete_assessment_domain(request, id: int):
     # delete a domain
     try:

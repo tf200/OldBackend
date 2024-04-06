@@ -7,5 +7,6 @@ class AssessmentLevelSchema(Schema):
 
 
 class AssessmentDomainSchema(Schema):
+    id: int | None = None
     name: str
     levels: list[AssessmentLevelSchema]
