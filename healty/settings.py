@@ -189,6 +189,8 @@ CORS_ALLOW_METHODS = (
 CORS_ALLOW_ALL_ORIGINS = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Django Ninja
+NINJA_PAGINATION_PER_PAGE = 30
 
 REDIS_URL: str = os.getenv("REDIS_URL", "redis://redis:6379/1")
 
@@ -253,3 +255,5 @@ EMAIL_BACKEND: str = "django.core.mail.backends.smtp.EmailBackend"
 # OpenAI API settings
 OPENAI_KEY: str = os.getenv("OPENAI_KEY", "")
 OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
+
+VERSION: str = "0.5.0-alpha"

@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from django.utils.text import slugify
 
