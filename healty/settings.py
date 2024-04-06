@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "system",
     "assessments",
+    "ai",
     "authentication",
     "client",
     "employees",

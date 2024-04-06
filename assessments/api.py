@@ -7,7 +7,7 @@ from system.schemas import EmptyResponseSchema
 router = Router()
 
 
-@router.get("/matrix", response=list[AssessmentDomainSchema])
+@router.get("/domains", response=list[AssessmentDomainSchema])
 def assessments(request):
     domains = AssessmentDomain.objects.all()
 
