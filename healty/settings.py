@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_celery_results",
     "system",
+    "assessments",
     "authentication",
     "client",
     "employees",
