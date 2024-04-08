@@ -158,7 +158,7 @@ def invoice_creation_per_month():
 
 
 @shared_task
-def invoice_mark_as_expired(progress_report_id, report_text):
+def invoice_mark_as_expired():
     # Get all "outstanding" invoices more than 1 month
     one_month_datetime = timezone.now() - datetime.timedelta(days=30)
     invoices: list[Invoice] = Invoice.objects.filter(
@@ -177,6 +177,27 @@ def invoice_mark_as_expired(progress_report_id, report_text):
                 title="Invoice expired",
                 event=Notification.EVENTS.INVOICE_EXPIRED,
                 content=f"The invoice #{invoice.id} expired.",
+                receiver=invoice.client.email,
+            )
+
+            notification.notify()
+
+
+@shared_task
+def invoice_send_notification_3_months_before():
+    # Get all "outstanding" invoices more than 1 month
+    three_months_before = timezone.now() - datetime.timedelta(months=3)
+    invoices: list[Invoice] = Invoice.objects.filter(
+        status="outstanding", due_date__gt=three_months_before
+    ).all()
+
+    # send an email notification if needed to the invoice owner
+    for invoice in invoices:
+        if invoice.client.email:
+            notification = Notification.objects.create(
+                title="Invoice notification",
+                event=Notification.EVENTS.INVOICE_EXPIRED,
+                content=f"You have an invoice to pay (#{invoice.id}).",
                 receiver=invoice.client.email,
             )
 

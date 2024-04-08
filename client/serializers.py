@@ -321,6 +321,9 @@ class CarePlanSerializer(serializers.ModelSerializer):
     attachment_ids_to_delete = serializers.ListField(
         child=serializers.IntegerField(), write_only=True, required=False, allow_null=True
     )
+    domain_ids = serializers.ListField(
+        child=serializers.IntegerField(), required=False, allow_null=True, default=list
+    )
 
     class Meta:
         model = CarePlan
@@ -334,15 +337,30 @@ class CarePlanSerializer(serializers.ModelSerializer):
             "temporary_file_ids",
             "attachment_ids_to_delete",
             "attachments",
+            "domain_ids",
         ]
         extra_kwargs = {"client": {"required": True}}
+
+    def to_representation(self, instance: CarePlan):
+        ret = super().to_representation(instance)
+        ret["domain_ids"] = [domain.id for domain in instance.domains.all()]
+        return ret
 
     def create(self, validated_data):
         with transaction.atomic():
             temporary_file_ids = validated_data.pop("temporary_file_ids", [])
             attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
+            domain_ids: list[int] = validated_data.pop("domain_ids", [])
 
             careplan = CarePlan.objects.create(**validated_data)
+
+            # register domains
+            for domain_id in domain_ids:
+                try:
+                    domain = AssessmentDomain.objects.get(id=domain_id)
+                    careplan.domains.add(domain)
+                except AssessmentDomain.DoesNotExist:
+                    pass
 
             # Bulk delete specified attachments
             if attachment_ids_to_delete:
@@ -373,16 +391,28 @@ class CarePlanSerializer(serializers.ModelSerializer):
 
             return careplan
 
-    def update(self, instance, validated_data):
+    def update(self, instance: CarePlan, validated_data):
         with transaction.atomic():
             # Pop attachment-related data that should not be directly updated in the Contract model
             temporary_file_ids = validated_data.pop("temporary_file_ids", [])
             attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
+            domain_ids: list[int] = validated_data.pop("domain_ids", [])
 
             # Update the Contract instance with other validated data
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
+
+            # Delete all previous domains
+            instance.domains.clear()
+
+            # register the new domains
+            for domain_id in domain_ids:
+                try:
+                    domain = AssessmentDomain.objects.get(id=domain_id)
+                    instance.domains.add(domain)
+                except AssessmentDomain.DoesNotExist:
+                    pass
 
             # Handle deletion of specified existing attachments
             if attachment_ids_to_delete:

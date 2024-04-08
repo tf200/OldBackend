@@ -244,6 +244,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "client.tasks.invoice_mark_as_expired",
         "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
     },
+    "invoice_send_notification_3_months_before": {
+        "task": "client.tasks.invoice_send_notification_3_months_before",
+        "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
+    },
 }
 
 DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")

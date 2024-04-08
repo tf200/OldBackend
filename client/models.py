@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 
+from assessments.models import AssessmentDomain
 from authentication.models import Location
 
 
@@ -400,6 +401,7 @@ class CarePlan(models.Model):
     end_date = models.DateField()
     status = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    domains = models.ManyToManyField(AssessmentDomain, related_name="care_plans")
 
 
 class CareplanAtachements(models.Model):
