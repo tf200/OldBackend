@@ -158,6 +158,11 @@ class ClientDocuments(models.Model):
         super(ClientDocuments, self).save(*args, **kwargs)
 
 
+# TODO: Add some contract type seeds
+class ContractType(models.Model):
+    name = models.CharField(max_length=100)
+
+
 class Contract(models.Model):
     sender = models.ForeignKey(
         ClientType, on_delete=models.CASCADE, related_name="sender_contracts"
@@ -185,6 +190,11 @@ class Contract(models.Model):
         blank=True,
         verbose_name="Rate Value",
     )
+
+    contract_type = models.ForeignKey(
+        ContractType, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
+    )
+
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def calculate_cost_for_period(self, start_date_str, end_date_str):

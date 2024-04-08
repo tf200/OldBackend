@@ -138,6 +138,7 @@ class ContractSerializer(serializers.ModelSerializer):
             "temporary_file_ids",
             "attachment_ids_to_delete",
             "attachments",
+            "contract_type",
         ]
         extra_kwargs = {"sender": {"required": True}, "client": {"required": True}}
 

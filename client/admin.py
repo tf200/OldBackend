@@ -5,6 +5,7 @@ from .models import (
     CareplanAtachements,
     ClientTypeContactRelation,
     Contact,
+    ContractType,
     Invoice,
     InvoiceContract,
     TemporaryFile,
@@ -45,20 +46,25 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 
 @admin.register(CarePlan)
-class InvoiceAdmin(admin.ModelAdmin):
+class CarePlanAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(TemporaryFile)
-class InvoiceAdmin(admin.ModelAdmin):
+class TemporaryFileAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ClientTypeContactRelation)
-class InvoiceAdmin(admin.ModelAdmin):
+class ClientTypeContactRelationAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Contact)
-class InvoiceAdmin(admin.ModelAdmin):
+class ContactAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ContractType)
+class ContractTypeAdmin(admin.ModelAdmin):
     pass
