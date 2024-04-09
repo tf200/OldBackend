@@ -197,15 +197,18 @@ class PhysicalState(models.Model):
 
 
 class ClientMedication(models.Model):
-    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     name = models.CharField(max_length=100)
     dosage = models.CharField(max_length=100)
     frequency = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     self_administered = models.BooleanField(default=True)
+
+    times = models.JSONField(default=list, blank=True, null=True)
+    days = models.JSONField(default=list, blank=True, null=True)
+
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     administered_by = models.ForeignKey(
         EmployeeProfile,
         on_delete=models.SET_NULL,
@@ -213,6 +216,9 @@ class ClientMedication(models.Model):
         blank=True,
         related_name="medications_administered",
     )
+
+    updated = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_index=True)
 
 
 class ClientGoals(models.Model):
