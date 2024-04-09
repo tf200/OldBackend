@@ -37,23 +37,14 @@ def medications(request: HttpRequest):
     return ClientMedication.objects.all()
 
 
-@router.get("/medications/{int:client_id}", response=list[ClientMedicationSchema])
+@router.get("/{int:client_id}/medications", response=list[ClientMedicationSchema])
 @paginate(NinjaCustomPagination)
 def client_medications(request: HttpRequest, client_id: int):
     """Returns all the client's medications"""
-    return ClientMedication.objects.filter(administered_by=client_id).all()
+    return ClientMedication.objects.filter(client=client_id).all()
 
 
 @router.post("/medications/add", response={201: ClientMedicationSchema})
 def add_client_medication(request: HttpRequest, medication: ClientMedicationSchema):
-    values = medication.dict()
-    client_id = values.pop("client")
-    administered_by_id = values.pop("administered_by")
-
-    client = get_object_or_404(ClientDetails, id=client_id)
-    administered_by = get_object_or_404(EmployeeProfile, id=administered_by_id)
-
-    client_medication = ClientMedication.objects.create(
-        **values, client=client, administered_by=administered_by
-    )
+    client_medication = ClientMedication.objects.create(**medication.dict())
     return 201, client_medication

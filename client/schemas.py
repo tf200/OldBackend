@@ -17,9 +17,10 @@ class ClientDetailsSchema(ModelSchema):
 
 
 class ClientMedicationSchema(ModelSchema):
+    client_id: int
+    administered_by_id: int
 
     class Meta:
         model = ClientMedication
-        fields = "__all__"
-        # exclude = ("", "")
-        # read_only_fields = ("updated", "created")
+        # fields = "__all__"
+        exclude = ("client", "administered_by", "updated")
