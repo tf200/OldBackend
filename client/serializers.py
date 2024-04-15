@@ -299,9 +299,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
         else:
             return None
 
-    def get_sender(self, obj):
+    def get_sender(self, obj) -> str | None:
         if obj.client:
-            return obj.client.sender.name
+            return obj.client.sender.name if obj.client.sender is not None else None
         else:
             return None
 

@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -7,6 +8,7 @@ from django.utils import timezone
 
 from authentication.models import Location
 from client.models import ClientDetails
+from system.models import Notification
 
 
 class EmployeeProfile(models.Model):
@@ -199,7 +201,6 @@ class PhysicalState(models.Model):
 class ClientMedication(models.Model):
     name = models.CharField(max_length=100)
     dosage = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
@@ -211,14 +212,78 @@ class ClientMedication(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     administered_by = models.ForeignKey(
         EmployeeProfile,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        on_delete=models.CASCADE,
         related_name="medications_administered",
     )
 
+    is_critical = models.BooleanField(default=False)
+
     updated = models.DateTimeField(auto_now=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_index=True)
+
+    def get_days(self) -> list[datetime]:
+        """Returns a list of days which medications will be taken"""
+        return [datetime.fromisoformat(day.split(".")[0]) for day in self.days]
+
+    def get_available_slots(self) -> list[datetime]:
+        """Returns a list stots (datetime) when a medicen should be taken"""
+        available_datetime: list[datetime] = []
+
+        for day in self.get_days():
+            for time in self.times:
+                hours, minutes = [int(value) for value in time.split(":")]
+                available_datetime.append(day.replace(hour=hours, minute=minutes))
+
+        return available_datetime
+
+    def create_medication_records(self) -> None:
+        for slot in self.get_available_slots():
+            ClientMedicationRecord.objects.create(
+                client_medication=self,
+                time=slot,
+            )
+
+
+class ClientMedicationRecord(models.Model):
+    class Status(models.TextChoices):
+        TAKEN = "taken", "Taken"
+        NOT_TAKEN = "not_taken", "Not Taken"
+        AWAITING = "awaiting", "Awaiting"
+
+    client_medication = models.ForeignKey(
+        ClientMedication, related_name="records", on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        choices=Status.choices, default=Status.AWAITING, null=True, blank=True
+    )
+    reason = models.TextField(default="", null=True, blank=True)
+    time = models.DateTimeField(db_index=True)
+
+    updated = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def notify(self):
+        print(f"Send Medical Notification {self.id}")
+        # inform client as well as his employee
+        # Send to the client
+        notification = Notification.objects.create(
+            title=f"It's time to take your medication (#{self.id}).",
+            event=Notification.EVENTS.MEDICATION_TIME,
+            content=f"You have a medication to take.",
+            receiver=self.client_medication.client.user,
+        )
+
+        notification.notify()
+
+        # Send to the employee
+        notification = Notification.objects.create(
+            title=f"Medication record (#{self.id}).",
+            event=Notification.EVENTS.MEDICATION_TIME,
+            content=f"You have a medication record to fill up.",
+            receiver=self.client_medication.administered_by.user,
+        )
+
+        notification.notify()
 
 
 class ClientGoals(models.Model):

@@ -226,6 +226,7 @@ broker_connection_retry = True
 CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
+MEDICATION_RECORDS_CREATATION: int = 60  # in minutes
 
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
@@ -247,6 +248,12 @@ CELERY_BEAT_SCHEDULE = {
     "invoice_send_notification_3_months_before": {
         "task": "client.tasks.invoice_send_notification_3_months_before",
         "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
+    },
+    "create_and_send_medication_record_notification": {
+        "task": "client.tasks.create_and_send_medication_record_notification",
+        "schedule": crontab(
+            minute=f"*/{MEDICATION_RECORDS_CREATATION}",
+        ),  # every hour
     },
 }
 

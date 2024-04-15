@@ -3,6 +3,7 @@ import datetime
 import logging
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.template.loader import render_to_string
@@ -12,7 +13,7 @@ from rest_framework.response import Response
 from weasyprint import HTML
 
 from celery import shared_task
-from employees.models import ProgressReport
+from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport
 from system.models import Notification
 from system.utils import send_mail_async
 
@@ -198,7 +199,48 @@ def invoice_send_notification_3_months_before():
                 title="Invoice notification",
                 event=Notification.EVENTS.INVOICE_EXPIRED,
                 content=f"You have an invoice to pay (#{invoice.id}).",
-                receiver=invoice.client.email,
+                receiver=invoice.client.user,
             )
 
             notification.notify()
+
+
+@shared_task
+def create_and_send_medication_record_notification():
+    current_date = timezone.now()
+    ahead_datetime = current_date + datetime.timedelta(
+        minutes=settings.MEDICATION_RECORDS_CREATATION
+    )  # one hour ahead (and it should be the task interval)
+
+    # client_medication_records = ClientMedicationRecord.objects.filter(
+    #     time__gte=current_date, time__lt=ahead_datetime
+    # ).all()
+
+    # for medication_record in client_medication_records:
+    #     medication_record.notify()
+
+    medications = ClientMedication.objects.filter(
+        start_date__lte=current_date, end_date__gt=ahead_datetime
+    ).all()
+
+    created_medication_records: list[ClientMedicationRecord] = []
+
+    # Create Medication Records when they get close (in time)
+    for medication in medications:
+        for slot in medication.get_available_slots():
+            print(
+                f"{current_date} <= {slot} < {ahead_datetime}: ",
+                current_date <= slot < ahead_datetime,
+            )
+            if current_date <= slot < ahead_datetime:
+                # Create a Medication record
+                medication_record = ClientMedicationRecord.objects.create(
+                    client_medication=medication,
+                    time=slot,
+                )
+                print(f"Medical Record Created #{medication_record.id}")
+                created_medication_records.append(medication_record)
+
+    # Send notifications
+    for medication_record in created_medication_records:
+        medication_record.notify()

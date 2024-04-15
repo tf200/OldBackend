@@ -17,8 +17,8 @@ class ClientDetailsSchema(ModelSchema):
 
 
 class ClientMedicationSchema(ModelSchema):
-    client_id: int
-    administered_by_id: int
+    client_id: int | None
+    administered_by_id: int | None
 
     class Meta:
         model = ClientMedication

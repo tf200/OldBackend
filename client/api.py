@@ -47,4 +47,8 @@ def client_medications(request: HttpRequest, client_id: int):
 @router.post("/medications/add", response={201: ClientMedicationSchema})
 def add_client_medication(request: HttpRequest, medication: ClientMedicationSchema):
     client_medication = ClientMedication.objects.create(**medication.dict())
+
+    # Create all medication records at once
+    # client_medication.create_medication_records()
+
     return 201, client_medication

@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from employees.models import ClientMedicationRecord
+
 from .models import (
     CarePlan,
     CareplanAtachements,
@@ -67,4 +69,9 @@ class ContactAdmin(admin.ModelAdmin):
 
 @admin.register(ContractType)
 class ContractTypeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ClientMedicationRecord)
+class ClientMedicationRecordAdmin(admin.ModelAdmin):
     pass
