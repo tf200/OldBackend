@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from django.conf import settings
 from django.core.mail import send_mail
+from loguru import logger
 from ninja import Field, Schema
 from ninja.pagination import PaginationBase
 
@@ -11,7 +12,7 @@ from celery import shared_task
 @shared_task
 def send_mail_async(*args, recipient_list=None, **kwargs):
     if recipient_list is not None:
-        print("Sending email to:", recipient_list)
+        logger.debug("Send an email to:", recipient_list)
         return send_mail(*args, recipient_list=recipient_list, **kwargs)
 
 
@@ -38,6 +39,6 @@ class NinjaCustomPagination(PaginationBase):
 
         return {
             "results": queryset[offset : offset + self.page_size],
-            "count": queryset.count(),
+            "count": self._items_count(queryset),
             "page_size": self.page_size,
         }

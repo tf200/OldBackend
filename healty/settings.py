@@ -16,12 +16,21 @@ from pathlib import Path
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
+from loguru import logger
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
+# Configuring the logs
+logger.add(
+    BASE_DIR / "logs/file_{time}.log",
+    rotation="100 MB",
+    retention="30 days",
+    enqueue=True,
+    backtrace=True,
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

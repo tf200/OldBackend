@@ -4,8 +4,12 @@ from ninja import Router
 from ninja.pagination import paginate
 
 from client.models import ClientDetails, ContractType
-from client.schemas import ClientMedicationSchema, ContractTypeSchema
-from employees.models import ClientMedication, EmployeeProfile
+from client.schemas import (
+    ClientMedicationSchema,
+    ContractTypeSchema,
+    MedicationRecordSchema,
+)
+from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
 from system.schemas import EmptyResponseSchema
 from system.utils import NinjaCustomPagination
 
@@ -52,3 +56,43 @@ def add_client_medication(request: HttpRequest, medication: ClientMedicationSche
     # client_medication.create_medication_records()
 
     return 201, client_medication
+
+
+@router.get("/medications/records", response=list[MedicationRecordSchema])
+@paginate(NinjaCustomPagination)
+def all_medication_records(request: HttpRequest):
+    """Return all the records on the platform"""
+    return ClientMedicationRecord.objects.all()
+
+
+@router.get("/medications/{int:medication_id}/records", response=list[MedicationRecordSchema])
+@paginate(NinjaCustomPagination)
+def medication_records(request: HttpRequest, medication_id: int):
+    """Return all the records if a specific medication"""
+    medication: ClientMedication = get_object_or_404(ClientMedication, id=medication_id)
+    return medication.records.all()
+
+
+@router.get(
+    "{int:client_id}/medications/records",
+    response=list[MedicationRecordSchema],
+)
+@paginate(NinjaCustomPagination)
+def client_medication_records(request: HttpRequest, client_id: int):
+    """Return all client's medical records"""
+    records: list[ClientMedicationRecord] = []
+    medications = ClientMedication.objects.filter(client=client_id).all()
+
+    for medication in medications:
+        records.extend(medication.records.all())
+
+    return records
+
+
+@router.get("/medications/records/{int:medication_record_id}", response=MedicationRecordSchema)
+def medication_record_details(request: HttpRequest, medication_record_id: int):
+    """Return details of a specific medication record"""
+    medication_record: ClientMedicationRecord = get_object_or_404(
+        ClientMedicationRecord, id=medication_record_id
+    )
+    return medication_record

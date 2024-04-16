@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from loguru import logger
 
 from authentication.models import Location
 from client.models import ClientDetails
@@ -263,7 +264,7 @@ class ClientMedicationRecord(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def notify(self):
-        print(f"Send Medical Notification {self.id}")
+        logger.debug(f"Send Medical Notification {self.id}")
         # inform client as well as his employee
         # Send to the client
         notification = Notification.objects.create(

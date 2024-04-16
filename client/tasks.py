@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.template.loader import render_to_string
 from django.utils import timezone
+from loguru import logger
 from rest_framework import status
 from rest_framework.response import Response
 from weasyprint import HTML
@@ -46,8 +47,6 @@ def send_progress_report_email(progress_report_id, report_text):
                 recipient_list=[contact.email],
                 fail_silently=False,
             )
-
-        print("task finnished")
     except ProgressReport.DoesNotExist:
         pass
 
@@ -149,9 +148,9 @@ def invoice_creation_per_month():
 
             return "Processed clients successfully."
         except ClientDetails.DoesNotExist:
-            logging.error(f"Client {client_id} not found.")
+            logger.error(f"Client {client_id} not found.")
         except Exception as e:
-            logging.error(f"Error processing client {client_id}: {e}")
+            logger.error(f"Error processing client {client_id}: {e}")
             continue
 
     # This function runs every month to create invoices
@@ -228,7 +227,7 @@ def create_and_send_medication_record_notification():
     # Create Medication Records when they get close (in time)
     for medication in medications:
         for slot in medication.get_available_slots():
-            print(
+            logger.debug(
                 f"{current_date} <= {slot} < {ahead_datetime}: ",
                 current_date <= slot < ahead_datetime,
             )
@@ -238,7 +237,7 @@ def create_and_send_medication_record_notification():
                     client_medication=medication,
                     time=slot,
                 )
-                print(f"Medical Record Created #{medication_record.id}")
+                logger.debug(f"Medical Record Created #{medication_record.id}")
                 created_medication_records.append(medication_record)
 
     # Send notifications

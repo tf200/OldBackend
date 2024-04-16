@@ -1,7 +1,7 @@
 from ninja import Field, ModelSchema
 
 from client.models import ClientDetails, ContractType
-from employees.models import ClientMedication
+from employees.models import ClientMedication, ClientMedicationRecord
 
 
 class ContractTypeSchema(ModelSchema):
@@ -24,3 +24,11 @@ class ClientMedicationSchema(ModelSchema):
         model = ClientMedication
         # fields = "__all__"
         exclude = ("client", "administered_by", "updated")
+
+
+class MedicationRecordSchema(ModelSchema):
+    client_medication_id: int | None = None
+
+    class Meta:
+        model = ClientMedicationRecord
+        exclude = ("client_medication",)
