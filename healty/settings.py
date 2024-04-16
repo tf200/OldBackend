@@ -25,7 +25,7 @@ load_dotenv(BASE_DIR / ".env")
 
 # Configuring the logs
 logger.add(
-    BASE_DIR / "logs/file_{time}.log",
+    BASE_DIR / "logs/file.log",
     rotation="100 MB",
     retention="30 days",
     enqueue=True,

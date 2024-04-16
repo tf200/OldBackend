@@ -57,18 +57,17 @@ def invoice_creation_per_month():
     start_date, _ = calendar.monthrange(today.year, today.month)
     end_date = today
     start_date = datetime.date(today.year, today.month, 1)
-    end_date = datetime.date(today.year, today.month, end_date)
+    end_date = datetime.date(today.year, today.month, end_date.day)
 
-    client_ids = ClientDetails.objects.all().values_list("client_id", flat=True)
-    for client_id in client_ids:
+    clients = ClientDetails.objects.all()
+    for client in clients:
         try:
-            client = ClientDetails.objects.get(id=client_id)
             contracts = Contract.objects.filter(client=client)
             if contracts.exists():
-                client_type = contracts.first().sender
+                sender = contracts.first().sender
             else:
-                # Handle the case where there are no contracts, perhaps set client_type to None or default
-                client_type = None
+                # Handle the case where there are no contracts, perhaps set sender to None or default
+                sender = None
 
             # Create an invoice instance
             invoice = Invoice(client=client, due_date=end_date)
@@ -78,7 +77,7 @@ def invoice_creation_per_month():
             for contract in contracts:
                 contract_id = contract.id
                 care_type = contract.care_type
-                cost = Decimal(contract.calculate_cost_for_period(start_date, end_date))
+                cost = Decimal(contract.calculate_cost_for_period(str(start_date), str(end_date)))
                 vat_rate = Decimal(invoice.vat_rate)
                 vat_amount = cost * (vat_rate / 100)
                 total_amount = cost + vat_amount
@@ -92,7 +91,6 @@ def invoice_creation_per_month():
                     ),  # JSON doesn't support Decimal, so we convert it to float
                     "vat_rate": float(vat_rate),
                     "vat_amount": float(vat_amount),
-                    "total_amount": float(total_amount),
                 }
 
                 # Adding the dictionary to our array
@@ -107,13 +105,15 @@ def invoice_creation_per_month():
             invoice.update_totals()
             invoice.save()
 
+            logger.debug(f"Invoice created #{invoice.id}")
+
             # Prepare the context and generate the PDF
             context = {
                 "invoice_contracts": json_array,
                 "invoice": invoice,
-                "company_name": client_type.name,
-                "email": client_type.email_adress,
-                "address": client_type.address,
+                "company_name": sender.name if sender else "",
+                "email": sender.email_adress if sender else "",
+                "address": sender.address if sender else "",
                 "vat_rate": invoice.vat_rate,
                 "vat_amount": invoice.vat_amount,
                 "total_amount": invoice.total_amount,
@@ -137,21 +137,31 @@ def invoice_creation_per_month():
             invoice.save()
 
             # ADD NOTIFICATIONS HERE
+            # send a notification to client
             notification = Notification.objects.create(
                 title="Invoice created",
                 event=Notification.EVENTS.INVOICE_CREATED,
                 content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
-                receiver=invoice.client.email,
+                receiver=invoice.client.user,
             )
 
             notification.notify()
 
-            return "Processed clients successfully."
-        except ClientDetails.DoesNotExist:
-            logger.error(f"Client {client_id} not found.")
+            # send a notification to sender
+            if sender:
+                notification = Notification.objects.create(
+                    title="Invoice created",
+                    event=Notification.EVENTS.INVOICE_CREATED,
+                    content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
+                    receiver=sender,
+                )
+
+                notification.notify()
+
         except Exception as e:
-            logger.error(f"Error processing client {client_id}: {e}")
-            continue
+            logger.exception("Oops!")
+
+    logger.debug('"invoice_creation_per_month" task finished')
 
     # This function runs every month to create invoices
     # This function should create invoices for each client to pay (or for each contract to be paid)?? you know the logic here
@@ -228,8 +238,7 @@ def create_and_send_medication_record_notification():
     for medication in medications:
         for slot in medication.get_available_slots():
             logger.debug(
-                f"{current_date} <= {slot} < {ahead_datetime}: ",
-                current_date <= slot < ahead_datetime,
+                f"{current_date} <= {slot} < {ahead_datetime}: {(current_date <= slot < ahead_datetime)}"
             )
             if current_date <= slot < ahead_datetime:
                 # Create a Medication record

@@ -7,10 +7,11 @@ from client.models import ClientDetails, ContractType
 from client.schemas import (
     ClientMedicationSchema,
     ContractTypeSchema,
+    MedicationRecordInput,
     MedicationRecordSchema,
 )
 from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
-from system.schemas import EmptyResponseSchema
+from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
 
 router = Router()
@@ -96,3 +97,16 @@ def medication_record_details(request: HttpRequest, medication_record_id: int):
         ClientMedicationRecord, id=medication_record_id
     )
     return medication_record
+
+
+@router.patch(
+    "/medications/records/{int:medication_record_id}",
+    response={200: MedicationRecordSchema, 404: ErrorResponseSchema},
+)
+def patch_medication_record(
+    request: HttpRequest, medication_record_id: int, medication: MedicationRecordInput
+):
+
+    if ClientMedicationRecord.objects.filter(id=medication_record_id).update(**medication.dict()):
+        return ClientMedicationRecord.objects.get(id=medication_record_id)
+    return 404, "Medication Not Found"

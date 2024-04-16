@@ -197,7 +197,7 @@ class Contract(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-    def calculate_cost_for_period(self, start_date_str, end_date_str):
+    def calculate_cost_for_period(self, start_date_str: str, end_date_str: str):
         # Convert string dates to datetime objects
         start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
         end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()

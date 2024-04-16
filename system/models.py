@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from loguru import logger
 
 from system.utils import send_mail_async
 
@@ -76,6 +77,8 @@ class Notification(models.Model):
         """Notify receiver via email or SMS based on his preference,\n
         And should be dispatched once a notofication is created
         """
+        logger.debug("Send a notification.")
+
         title: str = self.title
         content: str = self.content
 

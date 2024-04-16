@@ -1,4 +1,6 @@
-from ninja import Field, ModelSchema
+from typing import Literal
+
+from ninja import Field, ModelSchema, Schema
 
 from client.models import ClientDetails, ContractType
 from employees.models import ClientMedication, ClientMedicationRecord
@@ -32,3 +34,8 @@ class MedicationRecordSchema(ModelSchema):
     class Meta:
         model = ClientMedicationRecord
         exclude = ("client_medication",)
+
+
+class MedicationRecordInput(Schema):
+    status: Literal["taken", "not taken", "awaiting"]
+    reason: str | None

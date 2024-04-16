@@ -207,8 +207,7 @@ class ClientMedication(models.Model):
     notes = models.TextField(blank=True, null=True)
     self_administered = models.BooleanField(default=True)
 
-    times = models.JSONField(default=list, blank=True, null=True)
-    days = models.JSONField(default=list, blank=True, null=True)
+    slots = models.JSONField(default=list, blank=True, null=True)
 
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     administered_by = models.ForeignKey(
@@ -224,14 +223,28 @@ class ClientMedication(models.Model):
 
     def get_days(self) -> list[datetime]:
         """Returns a list of days which medications will be taken"""
-        return [datetime.fromisoformat(day.split(".")[0]) for day in self.days]
+        # [
+        #     {
+        #         date: "2024-05-10",
+        #         times: ["12:33", "15:66", "48:54"]
+        #     },
+        # ]
+        days = [slot["date"] for slot in self.slots]
+        return [datetime.fromisoformat(day.split(".")[0]) for day in days]
 
     def get_available_slots(self) -> list[datetime]:
         """Returns a list stots (datetime) when a medicen should be taken"""
+        # [
+        #     {
+        #         date: "2024-05-10",
+        #         times: ["12:33", "15:66", "48:54"]
+        #     },
+        # ]
         available_datetime: list[datetime] = []
 
-        for day in self.get_days():
-            for time in self.times:
+        for slot in self.slots:
+            day = datetime.fromisoformat(slot["date"].split(".")[0])
+            for time in slot["times"]:
                 hours, minutes = [int(value) for value in time.split(":")]
                 available_datetime.append(day.replace(hour=hours, minute=minutes))
 
