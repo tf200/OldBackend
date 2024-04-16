@@ -220,7 +220,7 @@ def create_and_send_medication_record_notification():
     #     medication_record.notify()
 
     medications = ClientMedication.objects.filter(
-        start_date__lte=current_date, end_date__gt=ahead_datetime
+        start_date__lte=current_date.date(), end_date__gte=current_date.date()
     ).all()
 
     created_medication_records: list[ClientMedicationRecord] = []

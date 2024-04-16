@@ -9,10 +9,10 @@ from celery import shared_task
 
 
 @shared_task
-def send_mail_async(recipient_list=None, *args, **kwargs):
+def send_mail_async(*args, recipient_list=None, **kwargs):
     if recipient_list is not None:
         print("Sending email to:", recipient_list)
-        return send_mail(*args, **kwargs)
+        return send_mail(*args, recipient_list=recipient_list, **kwargs)
 
 
 class NinjaCustomPagination(PaginationBase):
