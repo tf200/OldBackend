@@ -99,7 +99,7 @@ class ClientDetailsFilter(filters.FilterSet):
 
 
 class InvoiceFilter(filters.FilterSet):
-    invoice_number = filters.UUIDFilter(lookup_expr="icontains")
+    invoice_number = filters.CharFilter(lookup_expr="icontains")
     client = filters.NumberFilter(field_name="client__id")
     issue_date = filters.DateFilter()
     due_date = filters.DateFilter()
@@ -107,9 +107,9 @@ class InvoiceFilter(filters.FilterSet):
     vat_rate = filters.NumberFilter()
     vat_amount = filters.NumberFilter()
     total_amount = filters.NumberFilter()
-    status = filters.ChoiceFilter(choices=Invoice.STATUS_CHOICES)
+    status = filters.ChoiceFilter(choices=Invoice.Status.choices)
     payment_type = filters.ChoiceFilter(
-        choices=Invoice.PAYMENT_TYPE_CHOICES, null_label="Not Applicable/Not Paid"
+        choices=Invoice.PaymentMethods.choices, null_label="Not Applicable/Not Paid"
     )  # New filter
     url = filters.CharFilter(lookup_expr="icontains")
     sender = filters.NumberFilter(field_name="client__sender")

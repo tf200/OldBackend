@@ -2,8 +2,17 @@ from typing import Literal
 
 from ninja import Field, ModelSchema, Schema
 
-from client.models import ClientDetails, ContractType
+from client.models import ClientDetails, Contract, ContractType
 from employees.models import ClientMedication, ClientMedicationRecord
+
+
+class ContractSchema(ModelSchema):
+    sender_id: int
+    client_id: int
+
+    class Meta:
+        model = Contract
+        exclude = ("sender", "client")
 
 
 class ContractTypeSchema(ModelSchema):

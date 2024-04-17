@@ -19,7 +19,7 @@ def generate_invoice_id() -> str:
     return os.urandom(4).hex().upper()
 
 
-class ClientType(models.Model):
+class Sender(models.Model):
     TYPE_CHOICES = [
         ("main_provider", "Main Provider"),
         ("local_authority", "Local Authority"),
@@ -37,6 +37,9 @@ class ClientType(models.Model):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     client_number = models.CharField(max_length=20, null=True, blank=True)
     email_adress = models.CharField(max_length=20, null=True, blank=True)
+
+
+ClientType = Sender  # For backword compatibility
 
 
 class ClientDetails(models.Model):
@@ -77,7 +80,7 @@ class ClientDetails(models.Model):
     street_number = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     sender = models.ForeignKey(
-        ClientType, on_delete=models.CASCADE, related_name="clientsender", null=True
+        Sender, on_delete=models.CASCADE, related_name="clientsender", null=True
     )
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name="client_location", null=True
@@ -163,66 +166,100 @@ class ClientDocuments(models.Model):
 class ContractType(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self) -> str:
+        return self.name.title()
+
 
 class Contract(models.Model):
-    sender = models.ForeignKey(
-        ClientType, on_delete=models.CASCADE, related_name="sender_contracts"
-    )
-    RATE_TYPE_CHOICES = (
-        ("day", "Per Day"),
-        ("week", "Per Week"),
-        ("hour", "Per Hour"),
-        ("minute", "Per Minute"),
-    )
-    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="contracts")
-    start_date = models.DateField(verbose_name="Date of Care Commencement")
-    duration_client = models.IntegerField(verbose_name="Duration in Months", null=True)
-    duration_sender = models.IntegerField(
-        verbose_name="Times per Year", null=True
-    )  # New field for duration
-    care_type = models.CharField(max_length=100, verbose_name="Type of Care")
-    rate_type = models.CharField(
-        max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True
-    )
-    rate_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name="Rate Value",
-    )
+    class CareTypes(models.TextChoices):
+        AMBULANTE = "​ambulante", "Ambulante"
+        ACCOMMODATION = "accommodation", "Accommodation"
 
-    contract_type = models.ForeignKey(
-        ContractType, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    class Periods(models.TextChoices):
+        HOURLY = "hourly", "Hourly"
+        DAILY = "daily", "Daily"
+        WEEKLY = "weekly", "Weekly"
+        MONTHLY = "monthly", "Monthly"
 
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    type = models.ForeignKey(ContractType, on_delete=models.SET_NULL, null=True, blank=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
 
-    def calculate_cost_for_period(self, start_date_str: str, end_date_str: str):
-        # Convert string dates to datetime objects
-        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-        end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+    reminder_period = models.IntegerField(default=10)  # in days
+    tax_exemption = models.BooleanField(default=False)
+    tax = models.IntegerField(
+        default=-1, null=True, blank=True
+    )  # -1 means use the default Tax (20%)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price_frequency = models.CharField(choices=Periods.choices, default=Periods.WEEKLY)
 
-        # Calculate the total duration in days
-        duration_in_days = (end_date - start_date).days + 1
+    care_name = models.CharField(max_length=255)
+    care_type = models.CharField(choices=CareTypes.choices)
 
-        # Ensure duration_in_days is a Decimal for arithmetic operations
-        duration_in_days_decimal = Decimal(duration_in_days)
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    sender = models.ForeignKey(Sender, on_delete=models.SET_NULL, null=True, blank=True)
 
-        # Calculate the cost based on the rate type
-        if self.rate_type == "day":
-            return duration_in_days_decimal * self.rate_value
-        elif self.rate_type == "week":
-            weeks = duration_in_days_decimal / Decimal(7)
-            return weeks * self.rate_value
-        elif self.rate_type == "hour":
-            hours = duration_in_days_decimal * Decimal(24)
-            return hours * self.rate_value
-        elif self.rate_type == "minute":
-            minutes = duration_in_days_decimal * Decimal(24) * Decimal(60)
-            return minutes * self.rate_value
-        else:
-            return Decimal(0)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+
+# class Contract(models.Model):
+#     sender = models.ForeignKey(Sender, on_delete=models.CASCADE, related_name="sender_contracts")
+#     RATE_TYPE_CHOICES = (
+#         ("day", "Per Day"),
+#         ("week", "Per Week"),
+#         ("hour", "Per Hour"),
+#         ("minute", "Per Minute"),
+#     )
+#     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="contracts")
+#     start_date = models.DateField(verbose_name="Date of Care Commencement")
+#     duration_client = models.IntegerField(verbose_name="Duration in Months", null=True)
+#     duration_sender = models.IntegerField(
+#         verbose_name="Times per Year", null=True
+#     )  # New field for duration
+#     care_type = models.CharField(max_length=100, verbose_name="Type of Care")
+#     rate_type = models.CharField(
+#         max_length=10, choices=RATE_TYPE_CHOICES, verbose_name="Rate Type", null=True
+#     )
+#     rate_value = models.DecimalField(
+#         max_digits=10,
+#         decimal_places=2,
+#         null=True,
+#         blank=True,
+#         verbose_name="Rate Value",
+#     )
+
+#     contract_type = models.ForeignKey(
+#         ContractType, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
+#     )
+
+#     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+#     def calculate_cost_for_period(self, start_date_str: str, end_date_str: str):
+#         # Convert string dates to datetime objects
+#         start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+#         end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+
+#         # Calculate the total duration in days
+#         duration_in_days = (end_date - start_date).days + 1
+
+#         # Ensure duration_in_days is a Decimal for arithmetic operations
+#         duration_in_days_decimal = Decimal(duration_in_days)
+
+#         # Calculate the cost based on the rate type
+#         if self.rate_type == "day":
+#             return duration_in_days_decimal * self.rate_value
+#         elif self.rate_type == "week":
+#             weeks = duration_in_days_decimal / Decimal(7)
+#             return weeks * self.rate_value
+#         elif self.rate_type == "hour":
+#             hours = duration_in_days_decimal * Decimal(24)
+#             return hours * self.rate_value
+#         elif self.rate_type == "minute":
+#             minutes = duration_in_days_decimal * Decimal(24) * Decimal(60)
+#             return minutes * self.rate_value
+#         else:
+#             return Decimal(0)
 
 
 class ContractAttachment(models.Model):
@@ -301,8 +338,8 @@ class Contact(models.Model):
         return self.name
 
 
-class ClientTypeContactRelation(models.Model):
-    client_type = models.ForeignKey(ClientType, on_delete=models.CASCADE)
+class SenderContactRelation(models.Model):
+    client_type = models.ForeignKey(Sender, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
@@ -316,63 +353,98 @@ class TemporaryFile(models.Model):
 
 
 class Invoice(models.Model):
-    STATUS_CHOICES = (
-        ("outstanding", "Outstanding"),
-        ("partially_paid", "Partially Paid"),
-        ("paid", "Paid"),
-        ("douabtfull_uncollectible", "Douabtfull or Uncollectible"),
-        ("expired", "Expired"),
-        ("overpaid", "Overpaid"),
-        ("imported", "Imported"),
-        ("concept", "Concept"),
-    )
-    PAYMENT_TYPE_CHOICES = (
-        ("bank_transfer", "Bank Transfer"),
-        ("credit_card", "Credit Card"),
-        ("check", "Check"),
-        ("cash", "Cash"),
-    )
+    class PaymentMethods(models.TextChoices):
+        BANK_TRANSFER = "bank_transfer", "Bank Transfer"
+        CREDIT_CARD = "credit_card", "Credit Card"
+        CHECK = "check", "Check"
+        CASH = "cash", "Cash"
+
+    class Status(models.TextChoices):
+        OUTSTANDING = ("outstanding", "Outstanding")
+        PARTIALLY_PAID = ("partially_paid", "Partially Paid")
+        PAID = ("paid", "Paid")
+        EXPIRED = ("expired", "Expired")
+        OVERPAID = ("overpaid", "Overpaid")
+        IMPORTED = ("imported", "Imported")
+        CONCEPT = ("concept", "Concept")
+
     invoice_number = models.CharField(
         max_length=10, default=generate_invoice_id, editable=False, unique=True
     )
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
-    pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
-    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_amount = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )  # Post-VAT total
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="concept")
-    url = models.URLField(max_length=200, blank=True, null=True)
-    payment_type = models.CharField(
-        max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True
-    )
-    client = models.ForeignKey(
-        ClientDetails, on_delete=models.CASCADE, related_name="client_invoice"
-    )
-    invoice_details = models.JSONField(null=True, blank=True)
+    payment_method = models.CharField(choices=PaymentMethods.choices)
+    updated = models.DateTimeField(auto_now=True)
+    status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
+    invoice_details = models.JSONField(default=list, null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
 
-    updated = models.DateTimeField(auto_now=True, db_index=True)
-    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
-    def update_totals(self):
-        logger.debug("self.invoice_details: %s" % self.invoice_details)
-        # Assuming invoice_details is a list of dictionaries
-        # Extract the pre_vat_total and total_amount values into NumPy arrays
-        pre_vat_totals = np.array([item["pre_vat_total"] for item in self.invoice_details])
-        total_amounts = np.array([item["total_amount"] for item in self.invoice_details])
+    class Meta:
+        ordering = ("-created",)
 
-        # Compute the sums using NumPy and convert them back to Decimal for precision
-        pre_vat_total_sum = round(np.sum(pre_vat_totals), 2)
-        total_amount_sum = round(np.sum(total_amounts), 2)
 
-        self.pre_vat_total = pre_vat_total_sum
-        self.vat_amount = self.pre_vat_total * (self.vat_rate / 100)
-        self.total_amount = total_amount_sum
+# class Invoice(models.Model):
+#     STATUS_CHOICES = (
+#         ("outstanding", "Outstanding"),
+#         ("partially_paid", "Partially Paid"),
+#         ("paid", "Paid"),
+#         ("douabtfull_uncollectible", "Douabtfull or Uncollectible"),
+#         ("expired", "Expired"),
+#         ("overpaid", "Overpaid"),
+#         ("imported", "Imported"),
+#         ("concept", "Concept"),
+#     )
+#     PAYMENT_TYPE_CHOICES = (
+#         ("bank_transfer", "Bank Transfer"),
+#         ("credit_card", "Credit Card"),
+#         ("check", "Check"),
+#         ("cash", "Cash"),
+#     )
+#     invoice_number = models.CharField(
+#         max_length=10, default=generate_invoice_id, editable=False, unique=True
+#     )
+#     issue_date = models.DateField(auto_now_add=True)
+#     due_date = models.DateField()
 
-        # Save the updated totals
-        self.save()
+#     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20)  # As a percentage
+#     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     total_amount = models.DecimalField(
+#         max_digits=10, decimal_places=2, default=0.00
+#     )  # Post-VAT total
+#     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="concept")
+#     url = models.URLField(max_length=200, blank=True, null=True)
+#     payment_type = models.CharField(
+#         max_length=50, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True
+#     )
+#     client = models.ForeignKey(
+#         ClientDetails, on_delete=models.CASCADE, related_name="client_invoice"
+#     )
+#     invoice_details = models.JSONField(null=True, blank=True)
+
+#     updated = models.DateTimeField(auto_now=True, db_index=True)
+#     created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+#     def update_totals(self):
+#         logger.debug("self.invoice_details: %s" % self.invoice_details)
+#         # Assuming invoice_details is a list of dictionaries
+#         # Extract the pre_vat_total and total_amount values into NumPy arrays
+#         pre_vat_totals = np.array([item["pre_vat_total"] for item in self.invoice_details])
+#         total_amounts = np.array([item["total_amount"] for item in self.invoice_details])
+
+#         # Compute the sums using NumPy and convert them back to Decimal for precision
+#         pre_vat_total_sum = round(np.sum(pre_vat_totals), 2)
+#         total_amount_sum = round(np.sum(total_amounts), 2)
+
+#         self.pre_vat_total = pre_vat_total_sum
+#         self.vat_amount = self.pre_vat_total * (self.vat_rate / 100)
+#         self.total_amount = total_amount_sum
+
+#         # Save the updated totals
+#         self.save()
 
 
 class InvoiceContract(models.Model):

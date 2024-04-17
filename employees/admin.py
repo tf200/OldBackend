@@ -33,55 +33,55 @@ class WeeklyReportSummaryAdmin(admin.ModelAdmin):
 
 
 @admin.register(Certification)
-class InvoiceAdmin(admin.ModelAdmin):
+class CertificationAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(AiGeneratedWeeklyReports)
-class InvoiceAdmin(admin.ModelAdmin):
+class AiGeneratedWeeklyReportsAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ClientDetails)
-class InvoiceAdmin(admin.ModelAdmin):
+class ClientDetailsAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ClientGoals)
-class InvoiceAdmin(admin.ModelAdmin):
+class ClientGoalsAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(EmotionalState)
-class InvoiceAdmin(admin.ModelAdmin):
+class EmotionalStateAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(GoalsReport)
-class InvoiceAdmin(admin.ModelAdmin):
+class GoalsReportAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(PhysicalState)
-class InvoiceAdmin(admin.ModelAdmin):
+class PhysicalStateAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ProgressReport)
-class InvoiceAdmin(admin.ModelAdmin):
+class ProgressReportAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ClientMedication)
-class InvoiceAdmin(admin.ModelAdmin):
+class ClientMedicationAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Feedback)
-class InvoiceAdmin(admin.ModelAdmin):
+class FeedbackAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Observations)
-class InvoiceAdmin(admin.ModelAdmin):
+class ObservationsAdmin(admin.ModelAdmin):
     pass

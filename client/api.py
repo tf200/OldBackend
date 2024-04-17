@@ -3,9 +3,10 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from client.models import ClientDetails, ContractType
+from client.models import ClientDetails, Contract, ContractType
 from client.schemas import (
     ClientMedicationSchema,
+    ContractSchema,
     ContractTypeSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
@@ -15,6 +16,12 @@ from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
 
 router = Router()
+
+
+@router.get("/contracts", response=list[ContractSchema])
+@paginate(NinjaCustomPagination)
+def contracts(request: HttpRequest):
+    return Contract.objects.all()
 
 
 @router.get("/contracts/contract-types", response=list[ContractTypeSchema])
@@ -71,7 +78,7 @@ def all_medication_records(request: HttpRequest):
 def medication_records(request: HttpRequest, medication_id: int):
     """Return all the records if a specific medication"""
     medication: ClientMedication = get_object_or_404(ClientMedication, id=medication_id)
-    return medication.records.all()
+    return medication.records.all()  # type: ignore
 
 
 @router.get(
@@ -85,7 +92,7 @@ def client_medication_records(request: HttpRequest, client_id: int):
     medications = ClientMedication.objects.filter(client=client_id).all()
 
     for medication in medications:
-        records.extend(medication.records.all())
+        records.extend(medication.records.all())  # type: ignore
 
     return records
 

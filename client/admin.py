@@ -5,11 +5,12 @@ from employees.models import ClientMedicationRecord
 from .models import (
     CarePlan,
     CareplanAtachements,
-    ClientTypeContactRelation,
     Contact,
+    Contract,
     ContractType,
     Invoice,
     InvoiceContract,
+    SenderContactRelation,
     TemporaryFile,
 )
 
@@ -37,6 +38,23 @@ class CareplanAttachmentsAdmin(admin.ModelAdmin):
     search_fields = ("name", "careplan__description")  # Enable search by these fields
 
 
+@admin.register(Contract)
+class ContractAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "type",
+        "start_date",
+        "end_date",
+        "reminder_period",
+        "tax_exemption",
+        "price",
+        "price_frequency",
+        "created",
+    )
+
+    list_filter = ("price_frequency", "tax_exemption", "type", "created")
+
+
 @admin.register(InvoiceContract)
 class CareplanAtachementsAdmin(admin.ModelAdmin):
     pass
@@ -46,8 +64,6 @@ class CareplanAtachementsAdmin(admin.ModelAdmin):
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = (
         "invoice_number",
-        "vat_rate",
-        "vat_amount",
         "due_date",
         "total_amount",
         "status",
@@ -67,8 +83,8 @@ class TemporaryFileAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ClientTypeContactRelation)
-class ClientTypeContactRelationAdmin(admin.ModelAdmin):
+@admin.register(SenderContactRelation)
+class SenderContactRelationAdmin(admin.ModelAdmin):
     pass
 
 
