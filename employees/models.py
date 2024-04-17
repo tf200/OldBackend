@@ -221,6 +221,9 @@ class ClientMedication(models.Model):
     updated = models.DateTimeField(auto_now=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_index=True)
 
+    class Meta:
+        ordering = ("-created",)
+
     def get_days(self) -> list[datetime]:
         """Returns a list of days which medications will be taken"""
         # [
@@ -275,6 +278,9 @@ class ClientMedicationRecord(models.Model):
 
     updated = models.DateTimeField(auto_now=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created",)
 
     def notify(self):
         logger.debug(f"Send Medical Notification {self.id}")

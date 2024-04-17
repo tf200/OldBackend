@@ -91,6 +91,7 @@ def invoice_creation_per_month():
                     ),  # JSON doesn't support Decimal, so we convert it to float
                     "vat_rate": float(vat_rate),
                     "vat_amount": float(vat_amount),
+                    "total_amount": float(total_amount),
                 }
 
                 # Adding the dictionary to our array
@@ -148,15 +149,14 @@ def invoice_creation_per_month():
             notification.notify()
 
             # send a notification to sender
-            if sender:
+            if sender and sender.email_adress:
                 notification = Notification.objects.create(
                     title="Invoice created",
                     event=Notification.EVENTS.INVOICE_CREATED,
                     content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
-                    receiver=sender,
                 )
 
-                notification.notify()
+                notification.notify(to=sender.email_adress)
 
         except Exception as e:
             logger.exception("Oops!")
@@ -171,9 +171,9 @@ def invoice_creation_per_month():
 def invoice_mark_as_expired():
     # Get all "outstanding" invoices more than 1 month
     one_month_datetime = timezone.now() - datetime.timedelta(days=30)
-    invoices: list[Invoice] = Invoice.objects.filter(
-        status="outstanding", due_date__gt=one_month_datetime
-    ).all()
+    invoices: list[Invoice] = list(
+        Invoice.objects.filter(status="outstanding", due_date__gt=one_month_datetime).all()
+    )
 
     # make it as "expired"
     for invoice in invoices:

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+from loguru import logger
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
@@ -331,7 +332,9 @@ class Invoice(models.Model):
         ("check", "Check"),
         ("cash", "Cash"),
     )
-    invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    invoice_number = models.CharField(
+        max_length=10, default=generate_invoice_id, editable=False, unique=True
+    )
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     pre_vat_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -354,17 +357,18 @@ class Invoice(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def update_totals(self):
+        logger.debug("self.invoice_details: %s" % self.invoice_details)
         # Assuming invoice_details is a list of dictionaries
         # Extract the pre_vat_total and total_amount values into NumPy arrays
         pre_vat_totals = np.array([item["pre_vat_total"] for item in self.invoice_details])
         total_amounts = np.array([item["total_amount"] for item in self.invoice_details])
 
         # Compute the sums using NumPy and convert them back to Decimal for precision
-        pre_vat_total_sum = Decimal(np.sum(pre_vat_totals).item())
-        total_amount_sum = Decimal(np.sum(total_amounts).item())
-        print(total_amount_sum)
+        pre_vat_total_sum = round(np.sum(pre_vat_totals), 2)
+        total_amount_sum = round(np.sum(total_amounts), 2)
+
         self.pre_vat_total = pre_vat_total_sum
-        self.vat_amount = self.pre_vat_total * (self.vat_rate / Decimal("100.00"))
+        self.vat_amount = self.pre_vat_total * (self.vat_rate / 100)
         self.total_amount = total_amount_sum
 
         # Save the updated totals

@@ -24,6 +24,9 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ("-created",)
+
     receiver = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="notifications",
@@ -33,10 +36,16 @@ class Notification(models.Model):
     )
 
     def send_via_email(
-        self, title: str | None = None, content: str | None = None, *, icon: str = "🔔"
+        self,
+        title: str | None = None,
+        content: str | None = None,
+        *,
+        to: str | None = None,
+        icon: str = "🔔",
     ) -> None:
         # Check if there is a receiver email first
-        receiver_email: str | None = self.get_receiver_email()
+        receiver_email: str | None = to if to is not None else self.get_receiver_email()
+
         if receiver_email is None or receiver_email == "":
             return None
 
@@ -50,6 +59,8 @@ class Notification(models.Model):
         if icon is not None:
             title = f"{icon} {self.title}"
 
+        logger.debug(f"Send a notification ({receiver_email}).")
+
         send_mail_async.delay(
             subject=title,
             message=content,
@@ -59,28 +70,35 @@ class Notification(models.Model):
         )
 
     def get_receiver_email(self) -> str | None:
-        if hasattr(self.receiver, "profile"):
-            # this is an employee
-            return self.receiver.profile.email_address
+        if self.receiver:
+            if hasattr(self.receiver, "profile"):
+                # this is an employee
+                return self.receiver.profile.email_address
 
-        if hasattr(self.receiver, "Client_Profile"):
-            # this is a client
-            return self.receiver.Client_Profile.email
+            if hasattr(self.receiver, "Client_Profile"):
+                # this is a client
+                return self.receiver.Client_Profile.email
+        return None
 
     def send_via_sms(
         self, title: str | None = None, content: str | None = None, icon: str = "🔔"
     ) -> None: ...
 
     def notify(
-        self, email_title: str | None = None, email_content: str | None = None, icon: str = "🔔"
+        self,
+        email_title: str | None = None,
+        email_content: str | None = None,
+        *,
+        to: str | None = None,
+        icon: str = "🔔",
     ) -> None:
         """Notify receiver via email or SMS based on his preference,\n
         And should be dispatched once a notofication is created
         """
-        logger.debug("Send a notification.")
 
         title: str = self.title
         content: str = self.content
+        email_address: str | None = None
 
         if email_title is not None:
             title = email_title
@@ -88,5 +106,8 @@ class Notification(models.Model):
         if email_content is not None:
             content = email_content
 
-        self.send_via_email(title, content, icon=icon)
+        if to is not None:
+            email_address = to
+
+        self.send_via_email(title, content, to=email_address, icon=icon)
         self.send_via_sms(title, content, icon=icon)

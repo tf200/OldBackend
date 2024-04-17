@@ -1,7 +1,10 @@
+import os
+
 from celery import shared_task
+from employees.models import ProgressReport
 from system.utils import send_mail_async
 
-from .models import ClientEmergencyContact, ProgressReport
+from .models import ClientEmergencyContact
 
 
 @shared_task

@@ -19,6 +19,7 @@ def send_mail_async(*args, recipient_list=None, **kwargs):
 class NinjaCustomPagination(PaginationBase):
     class Input(Schema):
         page: int | None = Field(None, gt=0)
+        page_size: int | None = Field(None, gt=0)
 
     class Output(Schema):
         results: list[Any]
@@ -34,6 +35,9 @@ class NinjaCustomPagination(PaginationBase):
     def paginate_queryset(self, queryset, pagination: Input, **params):
         if pagination.page is None:
             pagination.page = 1
+
+        if pagination.page_size is not None:
+            self.page_size = pagination.page_size
 
         offset = (pagination.page - 1) * self.page_size
 

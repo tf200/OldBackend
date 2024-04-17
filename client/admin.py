@@ -44,7 +44,17 @@ class CareplanAtachementsAdmin(admin.ModelAdmin):
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "invoice_number",
+        "vat_rate",
+        "vat_amount",
+        "due_date",
+        "total_amount",
+        "status",
+        "issue_date",
+    )
+    list_filter = ("due_date", "status", "issue_date")
+    search_fields = ("invoice_number",)
 
 
 @admin.register(CarePlan)
