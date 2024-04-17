@@ -74,6 +74,7 @@ def send_login_credentials(user, username, password):
         event=Notification.EVENTS.LOGIN_SEND_CREDENTIALS,
         content="Login credentials are sent to your contacts (e.g email).",
         receiver=user,
+        metadata={"user_id": user.id},
     )
 
     notification.notify(

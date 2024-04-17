@@ -25,6 +25,7 @@ def appointment_created(sender, instance: Appointment, created, **kwargs):
                 event=Notification.EVENTS.APPOINTMENT_CREATED,
                 content=f"A new appointment has been scheduled at {instance.start_time}.",
                 receiver=user,
+                metadata={"appointment_id": instance.id},
             )
 
             message = f"A new appointment has been scheduled:\n\ntitle: {instance.title}\nstart: {instance.start_time}."
@@ -55,6 +56,7 @@ def appointment_rescheduled_or_canceled(sender, instance: Appointment, **kwargs)
                     event=Notification.EVENTS.APPOINTMENT_RESCHEDULED,
                     content=f"The appointment #{instance.id} has been rescheduled to {instance.start_time}.",
                     receiver=user,
+                    metadata={"appointment_id": instance.id},
                 )
 
                 message = f"The appointment #{instance.id} has been rescheduled:\n\ntitle: {instance.title}\nstart: {instance.start_time}."
@@ -74,6 +76,7 @@ def appointment_rescheduled_or_canceled(sender, instance: Appointment, **kwargs)
                     event=Notification.EVENTS.APPOINTMENT_CANCELED,
                     content=f"The appointment #{instance.id} has been canceled.",
                     receiver=user,
+                    metadata={"appointment_id": instance.id},
                 )
 
                 message = f"The appointment #{instance.id} has been canceled."

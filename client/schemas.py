@@ -37,5 +37,5 @@ class MedicationRecordSchema(ModelSchema):
 
 
 class MedicationRecordInput(Schema):
-    status: Literal["taken", "not taken", "awaiting"]
+    status: Literal["taken", "not_taken", "awaiting"]
     reason: str | None

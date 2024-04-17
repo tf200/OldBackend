@@ -22,6 +22,8 @@ class Notification(models.Model):
     title = models.CharField(max_length=100, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     is_read = models.BooleanField(default=False)
+    metadata = models.JSONField(default=dict, null=True, blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -35,6 +35,7 @@ def send_progress_report_email(progress_report_id, report_text):
             event=Notification.EVENTS.PROGRESS_REPORT_AVAILABLE,
             content=f"You have a new progress report available #{progress_report.id}.",
             receiver=progress_report.client.user,
+            metadata={"report_id": progress_report.id},
         )
 
         notification.notify()
@@ -144,6 +145,7 @@ def invoice_creation_per_month():
                 event=Notification.EVENTS.INVOICE_CREATED,
                 content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
                 receiver=invoice.client.user,
+                metadata={"invoice_id": invoice.id},
             )
 
             notification.notify()
@@ -154,6 +156,7 @@ def invoice_creation_per_month():
                     title="Invoice created",
                     event=Notification.EVENTS.INVOICE_CREATED,
                     content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
+                    metadata={"invoice_id": invoice.id},
                 )
 
                 notification.notify(to=sender.email_adress)
@@ -188,6 +191,7 @@ def invoice_mark_as_expired():
                 event=Notification.EVENTS.INVOICE_EXPIRED,
                 content=f"The invoice #{invoice.id} expired.",
                 receiver=invoice.client.email,
+                metadata={"invoice_id": invoice.id},
             )
 
             notification.notify()
@@ -209,6 +213,7 @@ def invoice_send_notification_3_months_before():
                 event=Notification.EVENTS.INVOICE_EXPIRED,
                 content=f"You have an invoice to pay (#{invoice.id}).",
                 receiver=invoice.client.user,
+                metadata={"invoice_id": invoice.id},
             )
 
             notification.notify()

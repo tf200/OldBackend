@@ -291,6 +291,7 @@ class ClientMedicationRecord(models.Model):
             event=Notification.EVENTS.MEDICATION_TIME,
             content=f"You have a medication to take.",
             receiver=self.client_medication.client.user,
+            metadata={"medication_id": self.client_medication.id, "medication_record_id": self.id},
         )
 
         notification.notify()
@@ -301,6 +302,7 @@ class ClientMedicationRecord(models.Model):
             event=Notification.EVENTS.MEDICATION_TIME,
             content=f"You have a medication record to fill up.",
             receiver=self.client_medication.administered_by.user,
+            metadata={"medication_id": self.client_medication.id, "medication_record_id": self.id},
         )
 
         notification.notify()
