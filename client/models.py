@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import uuid
 from datetime import datetime
@@ -202,6 +204,45 @@ class Contract(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ("-created",)
+
+
+class Invoice(models.Model):
+    class PaymentMethods(models.TextChoices):
+        BANK_TRANSFER = "bank_transfer", "Bank Transfer"
+        CREDIT_CARD = "credit_card", "Credit Card"
+        CHECK = "check", "Check"
+        CASH = "cash", "Cash"
+
+    class Status(models.TextChoices):
+        OUTSTANDING = ("outstanding", "Outstanding")
+        PARTIALLY_PAID = ("partially_paid", "Partially Paid")
+        PAID = ("paid", "Paid")
+        EXPIRED = ("expired", "Expired")
+        OVERPAID = ("overpaid", "Overpaid")
+        IMPORTED = ("imported", "Imported")
+        CONCEPT = ("concept", "Concept")
+
+    invoice_number = models.CharField(
+        max_length=10, default=generate_invoice_id, editable=False, unique=True
+    )
+    issue_date = models.DateField(auto_now_add=True)
+    due_date = models.DateField()
+    payment_method = models.CharField(choices=PaymentMethods.choices)
+    updated = models.DateTimeField(auto_now=True)
+    status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
+    invoice_details = models.JSONField(default=list, null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
+
+    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
 
 # class Contract(models.Model):
 #     sender = models.ForeignKey(Sender, on_delete=models.CASCADE, related_name="sender_contracts")
@@ -350,40 +391,6 @@ class TemporaryFile(models.Model):
 
     def __str__(self):
         return f'Temporary file "{self.id}" uploaded at "{self.uploaded_at}"'
-
-
-class Invoice(models.Model):
-    class PaymentMethods(models.TextChoices):
-        BANK_TRANSFER = "bank_transfer", "Bank Transfer"
-        CREDIT_CARD = "credit_card", "Credit Card"
-        CHECK = "check", "Check"
-        CASH = "cash", "Cash"
-
-    class Status(models.TextChoices):
-        OUTSTANDING = ("outstanding", "Outstanding")
-        PARTIALLY_PAID = ("partially_paid", "Partially Paid")
-        PAID = ("paid", "Paid")
-        EXPIRED = ("expired", "Expired")
-        OVERPAID = ("overpaid", "Overpaid")
-        IMPORTED = ("imported", "Imported")
-        CONCEPT = ("concept", "Concept")
-
-    invoice_number = models.CharField(
-        max_length=10, default=generate_invoice_id, editable=False, unique=True
-    )
-    issue_date = models.DateField(auto_now_add=True)
-    due_date = models.DateField()
-    payment_method = models.CharField(choices=PaymentMethods.choices)
-    updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
-    invoice_details = models.JSONField(default=list, null=True, blank=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ("-created",)
 
 
 # class Invoice(models.Model):

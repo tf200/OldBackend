@@ -2,7 +2,7 @@ from typing import Literal
 
 from ninja import Field, ModelSchema, Schema
 
-from client.models import ClientDetails, Contract, ContractType
+from client.models import ClientDetails, Contract, ContractType, Invoice
 from employees.models import ClientMedication, ClientMedicationRecord
 
 
@@ -13,6 +13,14 @@ class ContractSchema(ModelSchema):
     class Meta:
         model = Contract
         exclude = ("sender", "client")
+
+
+class InvoiceSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = Invoice
+        exclude = ("client",)
 
 
 class ContractTypeSchema(ModelSchema):

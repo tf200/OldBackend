@@ -3,11 +3,12 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from client.models import ClientDetails, Contract, ContractType
+from client.models import ClientDetails, Contract, ContractType, Invoice
 from client.schemas import (
     ClientMedicationSchema,
     ContractSchema,
     ContractTypeSchema,
+    InvoiceSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
 )
@@ -22,6 +23,18 @@ router = Router()
 @paginate(NinjaCustomPagination)
 def contracts(request: HttpRequest):
     return Contract.objects.all()
+
+
+@router.get("/{int:client_id}/contracts", response=list[ContractSchema])
+@paginate(NinjaCustomPagination)
+def client_contracts(request: HttpRequest, client_id: int):
+    return Contract.objects.filter(client__id=client_id).all()
+
+
+@router.get("/invoices", response=list[InvoiceSchema])
+@paginate(NinjaCustomPagination)
+def client_invoices(request: HttpRequest):
+    return Invoice.objects.all()
 
 
 @router.get("/contracts/contract-types", response=list[ContractTypeSchema])
