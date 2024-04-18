@@ -163,3 +163,4 @@ cython_debug/
 
 diagrams/
 logs/*.log
+!logs/.noignore
