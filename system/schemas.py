@@ -2,7 +2,7 @@ from typing import Any, Generic, TypeAlias, TypeVar, Union
 
 from ninja import ModelSchema, Schema
 
-from system.models import Notification
+from system.models import AttachmentFile, Notification
 
 
 class NotificationSchema(ModelSchema):
@@ -24,3 +24,9 @@ class ErrorResponseSchema(Schema):
 
 class EmptyResponseSchema(Schema):
     pass
+
+
+class AttachmentFileSchema(ModelSchema):
+    class Meta:
+        model = AttachmentFile
+        fields = "__all__"

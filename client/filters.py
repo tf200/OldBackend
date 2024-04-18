@@ -2,6 +2,7 @@ import django_filters
 from django.db.models import Q
 from django_filters import rest_framework as filters
 from django_filters.filters import CharFilter, DateFilter, DateFromToRangeFilter
+from ninja import FilterSchema
 
 from employees.models import ClientMedication
 
@@ -129,3 +130,11 @@ class InvoiceFilter(filters.FilterSet):
             "payment_type",
             "url",
         ]
+
+
+# class ContractFilterSchema(FilterSchema):
+#     sender: int
+#     client: int
+#     type_id: int
+#     price_frequency: Literal["hourly", "daily", "weekly", "monthly"]
+#     care_type: Literal["​ambulante", "accommodation"]

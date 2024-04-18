@@ -1,10 +1,17 @@
+from uuid import UUID
+
 from django.http import HttpRequest
-from django.shortcuts import render
-from ninja import Router
+from loguru import logger
+from ninja import Router, UploadedFile
 from ninja.pagination import paginate
 
-from system.models import Notification
-from system.schemas import EmptyResponseSchema, ErrorResponseSchema, NotificationSchema
+from system.models import AttachmentFile, Notification
+from system.schemas import (
+    AttachmentFileSchema,
+    EmptyResponseSchema,
+    ErrorResponseSchema,
+    NotificationSchema,
+)
 from system.utils import NinjaCustomPagination
 
 router = Router()
@@ -36,3 +43,26 @@ def mark_as_read(request, id: int):
         return 401, {"message", "Unauthorized action/request!"}
     except Notification.DoesNotExist:
         return 404, {"message": "Notification not found"}
+
+
+@router.get("/attachments", response=list[AttachmentFileSchema])
+@paginate(NinjaCustomPagination)
+def attachments(request: HttpRequest):
+    return AttachmentFile.objects.all()
+
+
+@router.post("/attachments/upload", response=AttachmentFileSchema)
+def upload_attachment(request: HttpRequest, file: UploadedFile):
+    return AttachmentFile.objects.create(name=file.name, file=file, size=file.size)
+
+
+@router.delete(
+    "/attachments/{uuid}/delete", response={204: EmptyResponseSchema, 500: ErrorResponseSchema}
+)
+def delete_attachment(request: HttpRequest, uuid: UUID):
+    try:
+        AttachmentFile.objects.filter(id=uuid).delete()
+        return 204, {}
+    except Exception:
+        logger.exception()  # type: ignore
+    return 500, "Oops! something went wrong, please try again or later."

@@ -15,6 +15,18 @@ class ContractSchema(ModelSchema):
         exclude = ("sender", "client")
 
 
+class ContractSchemaInput(ModelSchema):
+    sender_id: int
+    client_id: int
+    type_id: int
+    price_frequency: Literal["hourly", "daily", "weekly", "monthly"]
+    care_type: Literal["​ambulante", "accommodation"]
+
+    class Meta:
+        model = Contract
+        exclude = ("id", "type", "sender", "client", "updated", "created")
+
+
 class InvoiceSchema(ModelSchema):
     client_id: int
 

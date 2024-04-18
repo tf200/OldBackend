@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+import os
+import uuid
+
 from django.conf import settings
 from django.db import models
 from loguru import logger
@@ -113,3 +118,18 @@ class Notification(models.Model):
 
         self.send_via_email(title, content, to=email_address, icon=icon)
         self.send_via_sms(title, content, icon=icon)
+
+
+def get_directory_path(instance: AttachmentFile, filename: str) -> str:
+    ext = os.path.splitext(filename)[-1]
+    return f"uploads/attachments/{instance.id}{ext}"
+
+
+class AttachmentFile(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True)
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to=get_directory_path)
+    size = models.IntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)

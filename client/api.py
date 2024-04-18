@@ -7,6 +7,7 @@ from client.models import ClientDetails, Contract, ContractType, Invoice
 from client.schemas import (
     ClientMedicationSchema,
     ContractSchema,
+    ContractSchemaInput,
     ContractTypeSchema,
     InvoiceSchema,
     MedicationRecordInput,
@@ -31,10 +32,21 @@ def client_contracts(request: HttpRequest, client_id: int):
     return Contract.objects.filter(client__id=client_id).all()
 
 
+@router.post("/contracts/add", response=ContractSchema)
+def add_client_contract(request: HttpRequest, contract: ContractSchemaInput):
+    return Contract.objects.create(**contract.dict())
+
+
 @router.get("/invoices", response=list[InvoiceSchema])
 @paginate(NinjaCustomPagination)
-def client_invoices(request: HttpRequest):
+def all_invoices(request: HttpRequest):
     return Invoice.objects.all()
+
+
+@router.get("/{int:client_id}/invoices", response=list[InvoiceSchema])
+@paginate(NinjaCustomPagination)
+def client_invoices(request: HttpRequest, client_id: int):
+    return Invoice.objects.filter(client__id=client_id).all()
 
 
 @router.get("/contracts/contract-types", response=list[ContractTypeSchema])
