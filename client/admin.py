@@ -10,6 +10,7 @@ from .models import (
     ContractType,
     Invoice,
     InvoiceContract,
+    Sender,
     SenderContactRelation,
     TemporaryFile,
 )
@@ -46,13 +47,12 @@ class ContractAdmin(admin.ModelAdmin):
         "start_date",
         "end_date",
         "reminder_period",
-        "tax_exemption",
         "price",
         "price_frequency",
         "created",
     )
 
-    list_filter = ("price_frequency", "tax_exemption", "type", "created")
+    list_filter = ("price_frequency", "type", "created")
 
 
 @admin.register(InvoiceContract)
@@ -93,9 +93,9 @@ class ContactAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ContractType)
-class ContractTypeAdmin(admin.ModelAdmin):
-    pass
+@admin.register(Sender)
+class SenderAdmin(admin.ModelAdmin):
+    list_display = ("name", "email_adress", "phone_number", "client_number")
 
 
 @admin.register(ClientMedicationRecord)

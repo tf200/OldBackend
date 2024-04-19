@@ -12,6 +12,10 @@ class ContractSchema(ModelSchema):
     sender_id: int
     client_id: int
     attachments: list[AttachmentFileSchema]
+    price: float
+    price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
+    care_type: Literal["​ambulante", "accommodation"]
+    status: Literal["approved", "draft", "terminated"]
 
     @staticmethod
     def resolve_attachments(contract: Contract) -> list[AttachmentFileSchema]:
@@ -29,13 +33,28 @@ class ContractSchemaInput(ModelSchema):
     sender_id: int
     client_id: int
     type_id: int
+    price: float
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["​ambulante", "accommodation"]
     attachment_ids: list[str] = []
+    status: Literal["approved", "draft", "terminated"]
 
     class Meta:
         model = Contract
         exclude = ("id", "type", "sender", "client", "updated", "created")
+
+
+# class ContractSchemaPatch(ModelSchema):
+#     sender_id: int | None
+#     client_id: int | None
+#     type_id: int | None
+#     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"] | None
+#     care_type: Literal["​ambulante", "accommodation"] | None
+#     attachment_ids: list[str] | None
+
+#     class Meta:
+#         model = Contract
+#         exclude = ("id", "type", "sender", "client", "updated", "created")
 
 
 class InvoiceSchema(ModelSchema):

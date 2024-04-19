@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from client.models import ClientDetails, Contract, ContractType, Invoice
+from client.models import Contract, ContractType, Invoice
 from client.schemas import (
     ClientMedicationSchema,
     ContractSchema,
@@ -35,6 +35,13 @@ def client_contracts(request: HttpRequest, client_id: int):
 @router.post("/contracts/add", response=ContractSchema)
 def add_client_contract(request: HttpRequest, contract: ContractSchemaInput):
     return Contract.objects.create(**contract.dict())
+
+
+@router.put("/contracts/{int:id}/update")
+def update_client_contract(request: HttpRequest, id: int, contract: ContractSchemaInput):
+    Contract.objects.filter(id=id).update(**contract.dict(exclude_unset=True))
+
+    return get_object_or_404(Contract, id=id)
 
 
 @router.get("/invoices", response=list[InvoiceSchema])

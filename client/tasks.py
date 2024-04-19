@@ -257,3 +257,33 @@ def create_and_send_medication_record_notification():
     # Send notifications
     for medication_record in created_medication_records:
         medication_record.notify()
+
+
+@shared_task
+def send_contract_reminders():
+    logger.debug("Sending contract reminders.")
+    current_datetime = timezone.now()
+
+    all_contracts = Contract.objects.filter(status=Contract.Status.APPROVED).all()
+    available_contracts: list[Contract] = []
+
+    # select the contracts that are going to expire
+    for contract in all_contracts:
+
+        date = (current_datetime + datetime.timedelta(days=contract.reminder_period)).date()
+        logger.debug(f"{date} == {contract.end_date.date()}: {date == contract.end_date.date()}")
+
+        if date == contract.end_date.date():
+            available_contracts.append(contract)
+
+    # Send notification reminder
+    for contract in available_contracts:
+        if contract.sender and contract.sender.email_adress:
+            notification = Notification.objects.create(
+                title="Contract reminder",
+                event=Notification.EVENTS.CONTRACT_REMINDER,
+                content=f"The contract #{contract.pk} is about to expire, make sure to renew it if needed.",
+                metadata={"contract_id": contract.pk},
+            )
+
+            notification.notify(to=contract.sender.email_adress)

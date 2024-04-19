@@ -22,6 +22,7 @@ class Notification(models.Model):
         INVOICE_CREATED = "invoice_created", "Invoice created"
         PROGRESS_REPORT_AVAILABLE = "progress_report_available", "Progress Report Available"
         MEDICATION_TIME = "medication_time", "Medication Time"
+        CONTRACT_REMINDER = "contract_reminder", "Contract Reminder"
 
     event = models.CharField(choices=EVENTS.choices, default=EVENTS.NORMAL)
     title = models.CharField(max_length=100, null=True, blank=True)

@@ -41,6 +41,9 @@ class Sender(models.Model):
     client_number = models.CharField(max_length=20, null=True, blank=True)
     email_adress = models.CharField(max_length=20, null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.name} (#{self.pk})"
+
 
 ClientType = Sender  # For backword compatibility
 
@@ -185,15 +188,20 @@ class Contract(models.Model):
         WEEKLY = "weekly", "Weekly"
         MONTHLY = "monthly", "Monthly"
 
+    class Status(models.TextChoices):
+        APPROVED = ("approved", "Approved")
+        DRAFT = ("draft", "Draft")
+        TERMINATED = ("terminated", "Terminated")
+
     type = models.ForeignKey(ContractType, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(choices=Status.choices, default=Status.DRAFT)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
     reminder_period = models.IntegerField(default=10)  # in days
-    tax_exemption = models.BooleanField(default=False)
     tax = models.IntegerField(
         default=-1, null=True, blank=True
-    )  # -1 means use the default Tax (20%)
+    )  # -1 means use the default Tax (20%) | 0 means tax exemption
     price = models.DecimalField(max_digits=10, decimal_places=2)
     price_frequency = models.CharField(choices=Frequency.choices, default=Frequency.WEEKLY)
 
@@ -217,6 +225,9 @@ class Contract(models.Model):
         AttachmentFile.objects.filter(id__in=self.attachment_ids).update(is_used=True)
 
         return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Contract (#{self.pk})"
 
 
 class Invoice(models.Model):
