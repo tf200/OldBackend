@@ -15,6 +15,7 @@ from loguru import logger
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
+from system.models import AttachmentFile
 
 
 def generate_invoice_id() -> str:
@@ -177,7 +178,8 @@ class Contract(models.Model):
         AMBULANTE = "​ambulante", "Ambulante"
         ACCOMMODATION = "accommodation", "Accommodation"
 
-    class Periods(models.TextChoices):
+    class Frequency(models.TextChoices):
+        MINUTE = "minute", "Minute"
         HOURLY = "hourly", "Hourly"
         DAILY = "daily", "Daily"
         WEEKLY = "weekly", "Weekly"
@@ -193,7 +195,7 @@ class Contract(models.Model):
         default=-1, null=True, blank=True
     )  # -1 means use the default Tax (20%)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    price_frequency = models.CharField(choices=Periods.choices, default=Periods.WEEKLY)
+    price_frequency = models.CharField(choices=Frequency.choices, default=Frequency.WEEKLY)
 
     care_name = models.CharField(max_length=255)
     care_type = models.CharField(choices=CareTypes.choices)
@@ -201,11 +203,20 @@ class Contract(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     sender = models.ForeignKey(Sender, on_delete=models.SET_NULL, null=True, blank=True)
 
+    attachment_ids = models.JSONField(default=list)
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ("-created",)
+
+    def save(self, *args, **kwargs):
+
+        # Mark attachments as used
+        AttachmentFile.objects.filter(id__in=self.attachment_ids).update(is_used=True)
+
+        return super().save(*args, **kwargs)
 
 
 class Invoice(models.Model):

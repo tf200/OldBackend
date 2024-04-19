@@ -4,23 +4,34 @@ from ninja import Field, ModelSchema, Schema
 
 from client.models import ClientDetails, Contract, ContractType, Invoice
 from employees.models import ClientMedication, ClientMedicationRecord
+from system.models import AttachmentFile
+from system.schemas import AttachmentFileSchema
 
 
 class ContractSchema(ModelSchema):
     sender_id: int
     client_id: int
+    attachments: list[AttachmentFileSchema]
+
+    @staticmethod
+    def resolve_attachments(contract: Contract) -> list[AttachmentFileSchema]:
+        return [
+            AttachmentFileSchema.from_orm(AttachmentFile.objects.get(id=uuid))
+            for uuid in contract.attachment_ids
+        ]
 
     class Meta:
         model = Contract
-        exclude = ("sender", "client")
+        exclude = ("sender", "client", "attachment_ids")
 
 
 class ContractSchemaInput(ModelSchema):
     sender_id: int
     client_id: int
     type_id: int
-    price_frequency: Literal["hourly", "daily", "weekly", "monthly"]
+    price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["​ambulante", "accommodation"]
+    attachment_ids: list[str] = []
 
     class Meta:
         model = Contract
