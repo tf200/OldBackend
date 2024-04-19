@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from loguru import logger
 
 from assessments.models import AssessmentDomain
@@ -220,6 +221,9 @@ class Contract(models.Model):
         ordering = ("-created",)
 
     def save(self, *args, **kwargs):
+        if self.pk:
+            old_contract = get_object_or_404(Contact, id=self.pk)
+            AttachmentFile.objects.filter(id__in=old_contract.attachment_ids).update(is_used=False)  # type: ignore
 
         # Mark attachments as used
         AttachmentFile.objects.filter(id__in=self.attachment_ids).update(is_used=True)
