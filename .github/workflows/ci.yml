@@ -78,7 +78,7 @@ jobs:
           script_stop: true
           script: |
             # Login to ECR
-            docker login --username ${{ github.repository_owner }} --password ${{ github.token }}
+            echo $(aws ecr get-login-password --region ${{ env.ECR_REGION }}) | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
             cd ~/core
             # Pull the new image
