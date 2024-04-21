@@ -2,6 +2,7 @@ name: CI/CD
 
 env:
   OWNER: aiautomationagency
+  ECR_REGISTERY: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/ai_automation_agency
 
 on:
   workflow_dispatch:
@@ -17,25 +18,34 @@ jobs:
       - name: Fetching local repo
         uses: actions/checkout@v3
 
-      - name: Login to the GHCR
-        run: docker login --username ${{ github.repository_owner }} --password ${{ github.token }} ghcr.io
-  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
       - name: Build Docker images
         run: |
-          docker build -t ghcr.io/${{ env.OWNER }}/healthy:latest .
-          docker tag ghcr.io/${{ env.OWNER }}/healthy:latest ghcr.io/${{ env.OWNER }}/healthy:${{ github.ref_name }}
+          docker build -t ${{ env.ECR_REGISTERY }}/healthy:latest .
+          docker tag ${{ env.ECR_REGISTERY }}/healthy:latest ${{ env.ECR_REGISTERY }}/healthy:${{ github.ref_name }}
           
-          # Push the images to ghcr
-          docker build -t ghcr.io/${{ env.OWNER }}/my_celery:latest --file celery/Dockerfile .
-          docker tag ghcr.io/${{ env.OWNER }}/my_celery:latest ghcr.io/${{ env.OWNER }}/my_celery:${{ github.ref_name }}
+          # Push the images to ECR
+          docker build -t ${{ env.ECR_REGISTERY }}/my_celery:latest --file celery/Dockerfile .
+          docker tag ${{ env.ECR_REGISTERY }}/my_celery:latest ${{ env.ECR_REGISTERY }}/my_celery:${{ github.ref_name }}
 
-      - name: Push the image to ghcr Hub
+      - name: Push the image to ECR Hub
         run: |
-          docker push ghcr.io/${{ env.OWNER }}/healthy:latest
-          docker push ghcr.io/${{ env.OWNER }}/healthy:${{ github.ref_name }}
+          docker push ${{ env.ECR_REGISTERY }}/healthy:latest
+          docker push ${{ env.ECR_REGISTERY }}/healthy:${{ github.ref_name }}
 
-          docker push ghcr.io/${{ env.OWNER }}/my_celery:latest
-          docker push ghcr.io/${{ env.OWNER }}/my_celery:${{ github.ref_name }}
+          docker push ${{ env.ECR_REGISTERY }}/my_celery:latest
+          docker push ${{ env.ECR_REGISTERY }}/my_celery:${{ github.ref_name }}
 
 
   deploy_to_testing_environment:
@@ -66,8 +76,8 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script_stop: true
           script: |
-            # Login to ghcr
-            docker login --username ${{ github.repository_owner }} --password ${{ github.token }} ghcr.io
+            # Login to ECR
+            docker login --username ${{ github.repository_owner }} --password ${{ github.token }}
 
             cd ~/core
             # Pull the new image

@@ -179,7 +179,7 @@ class ContractType(models.Model):
 
 class Contract(models.Model):
     class CareTypes(models.TextChoices):
-        AMBULANTE = "​ambulante", "Ambulante"
+        AMBULANTE = "ambulante", "Ambulante"
         ACCOMMODATION = "accommodation", "Accommodation"
 
     class Frequency(models.TextChoices):

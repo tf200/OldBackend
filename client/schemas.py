@@ -14,7 +14,7 @@ class ContractSchema(ModelSchema):
     attachments: list[AttachmentFileSchema]
     price: float
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
-    care_type: Literal["​ambulante", "accommodation"]
+    care_type: Literal["ambulante", "accommodation"]
     status: Literal["approved", "draft", "terminated"] = "draft"
 
     @staticmethod
@@ -35,7 +35,7 @@ class ContractSchemaInput(ModelSchema):
     type_id: int
     price: float
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
-    care_type: Literal["​ambulante", "accommodation"]
+    care_type: Literal["ambulante", "accommodation"]
     attachment_ids: list[str] = []
     status: Literal["approved", "draft", "terminated"] = "draft"
 
