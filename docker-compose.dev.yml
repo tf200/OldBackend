@@ -3,4 +3,20 @@ version: "3.8"
 services:
   web:
     image: healthy:latest
+    user: ${UID:-1000}:${UID:-1000}
+    build: .
+    ports:
+      - "8000:8000"
     command: bash -c "make serve"
+    volumes:
+      - ./:/healthy
+
+  celery:
+    image: my_celery:latest
+    working_dir: /healthy
+    user: ${UID:-1000}:${UID:-1000}
+    build:
+      context: .
+      dockerfile: ./celery/Dockerfile
+    volumes:
+      - ./:/healthy

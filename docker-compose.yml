@@ -2,16 +2,10 @@ version: '3.8'
 
 services:
   web:
-    image: healthy:latest
-    user: ${UID:-1000}:${UID:-1000}
-    build: .
+    image: mrmed/healthy:latest
     command: bash -c "daphne healty.asgi:application --bind 0.0.0.0 --port 8000"
-    volumes:
-      - ./:/healthy
     env_file:
       - .env
-    ports:
-      - "8000:8000"
     networks:
       - public
       - private
@@ -25,19 +19,13 @@ services:
       - private
 
   celery:
-    image: my_celery:latest
+    image: mrmed/my_celery:latest
     working_dir: /healthy
-    user: ${UID:-1000}:${UID:-1000}
-    build:
-      context: .
-      dockerfile: ./celery/Dockerfile
     command: celery -A healty.celery worker -l info
     env_file:
       - .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379
-    volumes:
-      - ./:/healthy
     networks:
       - private
     depends_on:

@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetching local repo
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build the Docker images
+        run: |
+          docker build -t mrmed/healthy:latest .
+          docker tag mrmed/healthy:latest mrmed/healthy:${{ github.ref_name }}
+          
+          docker build -t mrmed/my_celery:latest --file celery/Dockerfile .
+          docker tag mrmed/my_celery:latest mrmed/my_celery:${{ github.ref_name }}
+
+      - name: Push the image to Docker Hub
+        run: |
+          docker push mrmed/healthy:latest
+          docker push mrmed/healthy:${{ github.ref_name }}
+
+          docker push mrmed/my_celery:latest
+          docker push mrmed/my_celery:${{ github.ref_name }}
+
+
+  deploy-to-testing-environment:
+    env:
+      SERVER: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+      SOURCE: .env docker-compose.yml nginx
+      DESTINATION: ~/core/
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Get the repo
+        uses: actions/checkout@v4
+
+      - name: Sync files
+        run: |
+          sudo apt install sshpass -y
+
+          # Copy the main services
+          sshpass -p "${{ secrets.VPS_PASS }}" rsync -aP -e "ssh -p ${{ secrets.VPS_PORT }}" ${{ env.SOURCE }} ${{ env.SERVER }}:${{ env.DESTINATION }}
+
+
+      - name: Deploy now
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASS }}
+          port: ${{ secrets.VPS_PORT }}
+          script_stop: true
+          script: |
+            cd ~/core
+            # Pull the new image
+            docker-compose pull web celery
+
+            # Stop and remove the old container
+            docker rm -fv core_web_1 core_celery_1
+
+            # Up everything
+            docker-compose up -d
+
+            # Run migrations
+            # Nothing yet
+
+            # Run DB seeds
+            # Nothing yet
+
+            # Some space clean up
+            docker image prune -f
+
+            # Inform me/us
+            # nothing yet
