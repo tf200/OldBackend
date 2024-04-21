@@ -69,9 +69,9 @@ jobs:
 
 
       - name: Deploy now
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
+          host: ${{ secrets.VPS_HOST }} # the VPS/server should have awscli installed and configured (aws configure)
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASS }}
           port: ${{ secrets.VPS_PORT }}
