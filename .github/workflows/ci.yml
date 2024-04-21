@@ -2,7 +2,7 @@ name: CI/CD
 
 env:
   OWNER: aiautomationagency
-  ECR_REPOSITORY: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/ai_automation_agency
+  ECR_REGISTRY: 146023855582.dkr.ecr.eu-central-1.amazonaws.com
   ECR_REGION: eu-central-1
 
 on:
@@ -33,20 +33,20 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker build -t ${{ env.ECR_REPOSITORY }}/healthy:latest .
-          docker tag ${{ env.ECR_REPOSITORY }}/healthy:latest ${{ env.ECR_REPOSITORY }}/healthy:${{ github.ref_name }}
+          docker build -t ${{ env.ECR_REGISTRY }}/healthy:latest .
+          docker tag ${{ env.ECR_REGISTRY }}/healthy:latest ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
           
           # Push the images to ECR
-          docker build -t ${{ env.ECR_REPOSITORY }}/my_celery:latest --file celery/Dockerfile .
-          docker tag ${{ env.ECR_REPOSITORY }}/my_celery:latest ${{ env.ECR_REPOSITORY }}/my_celery:${{ github.ref_name }}
+          docker build -t ${{ env.ECR_REGISTRY }}/my_celery:latest --file celery/Dockerfile .
+          docker tag ${{ env.ECR_REGISTRY }}/my_celery:latest ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
 
       - name: Push the image to ECR Hub
         run: |
-          docker push ${{ env.ECR_REPOSITORY }}/healthy:latest
-          docker push ${{ env.ECR_REPOSITORY }}/healthy:${{ github.ref_name }}
+          docker push ${{ env.ECR_REGISTRY }}/healthy:latest
+          docker push ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
 
-          docker push ${{ env.ECR_REPOSITORY }}/my_celery:latest
-          docker push ${{ env.ECR_REPOSITORY }}/my_celery:${{ github.ref_name }}
+          docker push ${{ env.ECR_REGISTRY }}/my_celery:latest
+          docker push ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
 
 
   deploy_to_testing_environment:

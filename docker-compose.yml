@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: ghcr.io/AiAutomationAgency/healthy:latest
+    image: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/healthy:latest
     command: bash -c "daphne healty.asgi:application --bind 0.0.0.0 --port 8000"
     env_file:
       - .env
@@ -19,7 +19,7 @@ services:
       - private
 
   celery:
-    image: ghcr.io/AiAutomationAgency/my_celery:latest
+    image: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/my_celery:latest
     working_dir: /healthy
     command: celery -A healty.celery worker -l info
     env_file:
