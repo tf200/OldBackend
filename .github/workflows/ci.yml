@@ -80,6 +80,8 @@ jobs:
             # Login to ECR
             echo $(aws ecr get-login-password --region ${{ env.ECR_REGION }}) | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
+            echo "Current User ID: $UID"
+
             cd ~/core
             # Pull the new image
             docker-compose pull web celery
@@ -88,7 +90,7 @@ jobs:
             docker rm -fv core_web_1 core_celery_1
 
             # Up everything
-            docker-compose up -d
+            docker-compose up -d --remove-orphans
 
             # Run migrations
             # Nothing yet

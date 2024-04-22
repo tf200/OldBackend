@@ -42,11 +42,15 @@ services:
       REVERSE_PROXY: web:8000
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy/data:/data
+      - caddy_data:/data
       - ./caddy/config:/config
     networks:
       - public
       - private
+
+volumes:
+  caddy_data:
+
 
 networks:
   public:
