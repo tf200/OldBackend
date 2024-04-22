@@ -1,0 +1,4 @@
+
+{$DOMAIN_NAME:localhost} {
+    reverse_proxy {$REVERSE_PROXY}
+}

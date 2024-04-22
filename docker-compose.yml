@@ -31,14 +31,17 @@ services:
     depends_on:
       - redis
 
-  nginx:
-    image: nginx:alpine
+  caddy:
+    image: caddy:2
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
+    environment:
+      DOMAIN_NAME: https://maicare.devteam.cc
+      REVERSE_PROXY: web:8000
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data:/data
     networks:
       - public
       - private
