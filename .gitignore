@@ -164,6 +164,8 @@ cython_debug/
 diagrams/
 logs/*.log
 !logs/.noignore
-caddy/data/
-!logs/data/.noignore
 
+caddy/
+!caddy/data/.noignore
+!caddy/config/.noignore
+!caddy/Caddyfile
