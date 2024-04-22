@@ -1,12 +1,14 @@
 from uuid import UUID
 
 from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
 from loguru import logger
 from ninja import Router, UploadedFile
 from ninja.pagination import paginate
 
 from system.models import AttachmentFile, Notification
 from system.schemas import (
+    AttachmentFilePatch,
     AttachmentFileSchema,
     EmptyResponseSchema,
     ErrorResponseSchema,
@@ -66,3 +68,9 @@ def delete_attachment(request: HttpRequest, uuid: UUID):
     except Exception:
         logger.exception()  # type: ignore
     return 500, "Oops! something went wrong, please try again or later."
+
+
+@router.patch("/attachments/{uuid}/update", response=AttachmentFileSchema)
+def update_attachment(request: HttpRequest, uuid: UUID, attachment: AttachmentFilePatch):
+    AttachmentFile.objects.filter(id=uuid).update(**attachment.dict(exclude_unset=True))
+    return get_object_or_404(AttachmentFile, id=uuid)

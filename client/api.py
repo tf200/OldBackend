@@ -8,6 +8,7 @@ from client.schemas import (
     ClientMedicationSchema,
     ContractSchema,
     ContractSchemaInput,
+    ContractTypeInput,
     ContractTypeSchema,
     InvoiceSchema,
     MedicationRecordInput,
@@ -24,6 +25,11 @@ router = Router()
 @paginate(NinjaCustomPagination)
 def contracts(request: HttpRequest):
     return Contract.objects.all()
+
+
+@router.get("/contracts/{int:contract_id}", response=ContractSchema)
+def contract_details(request: HttpRequest, contract_id: int):
+    return get_object_or_404(Contract, id=contract_id)
 
 
 @router.get("/{int:client_id}/contracts", response=list[ContractSchema])
@@ -66,6 +72,16 @@ def add_contract_type(request: HttpRequest, content_type: ContractTypeSchema):
     type = ContractType.objects.create(name=content_type.name)
     if type.id:
         return 201, ContractTypeSchema.from_orm(type)
+
+
+@router.patch(
+    "/contracts/contract-types/{int:contract_type_id}/update", response={204: EmptyResponseSchema}
+)
+def update_contract_type(
+    request: HttpRequest, contract_type_id: int, content_type: ContractTypeInput
+):
+    ContractType.objects.filter(id=contract_type_id).update(name=content_type.name)
+    return 204, {}
 
 
 @router.delete("/contracts/contract-types/{int:id}/delete", response={204: EmptyResponseSchema})

@@ -71,6 +71,10 @@ class ContractTypeSchema(ModelSchema):
         fields = "__all__"
 
 
+class ContractTypeInput(Schema):
+    name: str
+
+
 class ClientDetailsSchema(ModelSchema):
     class Meta:
         model = ClientDetails

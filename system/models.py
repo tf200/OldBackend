@@ -132,5 +132,6 @@ class AttachmentFile(models.Model):
     file = models.FileField(upload_to=get_directory_path)
     size = models.IntegerField(default=0)
     is_used = models.BooleanField(default=False)
+    tag = models.CharField(max_length=100, default="", null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
