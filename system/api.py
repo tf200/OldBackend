@@ -58,6 +58,11 @@ def upload_attachment(request: HttpRequest, file: UploadedFile):
     return AttachmentFile.objects.create(name=file.name, file=file, size=file.size)
 
 
+@router.get("/attachments/{uuid}", response=AttachmentFileSchema)
+def attachment_details(request: HttpRequest, uuid: UUID):
+    return get_object_or_404(AttachmentFile, id=uuid)
+
+
 @router.delete(
     "/attachments/{uuid}/delete", response={204: EmptyResponseSchema, 500: ErrorResponseSchema}
 )

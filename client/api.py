@@ -43,7 +43,7 @@ def add_client_contract(request: HttpRequest, contract: ContractSchemaInput):
     return Contract.objects.create(**contract.dict())
 
 
-@router.put("/contracts/{int:id}/update")
+@router.put("/contracts/{int:id}/update", response=ContractSchema)
 def update_client_contract(request: HttpRequest, id: int, contract: ContractSchemaInput):
     Contract.objects.filter(id=id).update(**contract.dict(exclude_unset=True))
 

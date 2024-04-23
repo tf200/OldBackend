@@ -54,120 +54,162 @@ def send_progress_report_email(progress_report_id, report_text):
 
 @shared_task
 def invoice_creation_per_month():
-    today = datetime.date.today()
-    start_date, _ = calendar.monthrange(today.year, today.month)
-    end_date = today
-    start_date = datetime.date(today.year, today.month, 1)
-    end_date = datetime.date(today.year, today.month, end_date.day)
+    # Get all the current approved clients with a valid contract period
+    clients = ClientDetails.objects.filter(status="In Care").all()
 
-    clients = ClientDetails.objects.all()
     for client in clients:
-        try:
-            contracts = Contract.objects.filter(client=client)
-            if contracts.exists():
-                sender = contracts.first().sender
-            else:
-                # Handle the case where there are no contracts, perhaps set sender to None or default
-                sender = None
+        # Get all client approved contracts
+        current_date = timezone.now().date()
+        contracts: list[Contract] = list(
+            Contract.objects.filter(
+                status=Contract.Status.APPROVED,
+                start_date__lte=current_date,
+                end_date__gte=current_date,
+            ).all()
+        )
 
-            # Create an invoice instance
-            invoice = Invoice(client=client, due_date=end_date)
-            invoice.save()
+        invoice_details = []
 
-            json_array = []
-            for contract in contracts:
-                contract_id = contract.id
-                care_type = contract.care_type
-                cost = Decimal(contract.calculate_cost_for_period(str(start_date), str(end_date)))
-                vat_rate = Decimal(invoice.vat_rate)
-                vat_amount = cost * (vat_rate / 100)
-                total_amount = cost + vat_amount
-
-                # Creating a dictionary for the current contract
-                contract_json = {
-                    "contract": contract_id,
-                    "care_type": care_type,
-                    "pre_vat_total": float(
-                        cost
-                    ),  # JSON doesn't support Decimal, so we convert it to float
-                    "vat_rate": float(vat_rate),
-                    "vat_amount": float(vat_amount),
-                    "total_amount": float(total_amount),
+        for contract in contracts:
+            invoice_details.append(
+                {
+                    "contract_id": contract.pk,
+                    "contract_amount": contract.get_current_month_price(),
+                    "used_tax": contract.used_tax(),
                 }
-
-                # Adding the dictionary to our array
-                json_array.append(contract_json)
-
-                # Now you can safely create the InvoiceContract instance with Decimal values
-            invoice.invoice_details = json_array
-
-            # Saving the changes to the database
-
-            # Calculate and update invoice totals based on the created InvoiceContract instances
-            invoice.update_totals()
-            invoice.save()
-
-            logger.debug(f"Invoice created #{invoice.id}")
-
-            # Prepare the context and generate the PDF
-            context = {
-                "invoice_contracts": json_array,
-                "invoice": invoice,
-                "company_name": sender.name if sender else "",
-                "email": sender.email_adress if sender else "",
-                "address": sender.address if sender else "",
-                "vat_rate": invoice.vat_rate,
-                "vat_amount": invoice.vat_amount,
-                "total_amount": invoice.total_amount,
-                "pre_vat_total": invoice.pre_vat_total,
-                "issue_date": invoice.issue_date,
-                "invoice_number": invoice.invoice_number,
-            }
-            html_string = render_to_string("invoice_template.html", context)
-            html = HTML(string=html_string)
-            pdf_content = html.write_pdf()
-            invoice_filename = f"invoice_{invoice.invoice_number}.pdf"
-
-            # Save the PDF content
-            if default_storage.exists(invoice_filename):
-                default_storage.delete(invoice_filename)
-            default_storage.save(invoice_filename, ContentFile(pdf_content))
-
-            # Update the Invoice instance with the PDF URL
-            invoice_pdf_url = default_storage.url(invoice_filename)
-            invoice.url = invoice_pdf_url
-            invoice.save()
-
-            # ADD NOTIFICATIONS HERE
-            # send a notification to client
-            notification = Notification.objects.create(
-                title="Invoice created",
-                event=Notification.EVENTS.INVOICE_CREATED,
-                content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
-                receiver=invoice.client.user,
-                metadata={"invoice_id": invoice.id},
             )
 
-            notification.notify()
+        # Create invoice for each all the available contracts
+        invoice = Invoice.objects.create(
+            client=client, total_amount=0, invoice_details=invoice_details
+        )
 
-            # send a notification to sender
-            if sender and sender.email_adress:
-                notification = Notification.objects.create(
-                    title="Invoice created",
-                    event=Notification.EVENTS.INVOICE_CREATED,
-                    content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
-                    metadata={"invoice_id": invoice.id},
-                )
+        # due_date = models.DateField()
+        # payment_method = models.CharField(choices=PaymentMethods.choices)
+        # updated = models.DateTimeField(auto_now=True)
+        # status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
+        # invoice_details = models.JSONField(default=list, null=True, blank=True)
+        # total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
 
-                notification.notify(to=sender.email_adress)
+        # client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
 
-        except Exception as e:
-            logger.exception("Oops!")
 
-    logger.debug('"invoice_creation_per_month" task finished')
+# @shared_task
+# def invoice_creation_per_month():
+#     today = datetime.date.today()
+#     start_date, _ = calendar.monthrange(today.year, today.month)
+#     end_date = today
+#     start_date = datetime.date(today.year, today.month, 1)
+#     end_date = datetime.date(today.year, today.month, end_date.day)
 
-    # This function runs every month to create invoices
-    # This function should create invoices for each client to pay (or for each contract to be paid)?? you know the logic here
+#     clients = ClientDetails.objects.all()
+#     for client in clients:
+#         try:
+#             contracts = Contract.objects.filter(client=client)
+#             if contracts.exists():
+#                 sender = contracts.first().sender
+#             else:
+#                 # Handle the case where there are no contracts, perhaps set sender to None or default
+#                 sender = None
+
+#             # Create an invoice instance
+#             invoice = Invoice(client=client, due_date=end_date)
+#             invoice.save()
+
+#             json_array = []
+#             for contract in contracts:
+#                 contract_id = contract.id
+#                 care_type = contract.care_type
+#                 cost = Decimal(contract.calculate_cost_for_period(str(start_date), str(end_date)))
+#                 vat_rate = Decimal(invoice.vat_rate)
+#                 vat_amount = cost * (vat_rate / 100)
+#                 total_amount = cost + vat_amount
+
+#                 # Creating a dictionary for the current contract
+#                 contract_json = {
+#                     "contract": contract_id,
+#                     "care_type": care_type,
+#                     "pre_vat_total": float(
+#                         cost
+#                     ),  # JSON doesn't support Decimal, so we convert it to float
+#                     "vat_rate": float(vat_rate),
+#                     "vat_amount": float(vat_amount),
+#                     "total_amount": float(total_amount),
+#                 }
+
+#                 # Adding the dictionary to our array
+#                 json_array.append(contract_json)
+
+#                 # Now you can safely create the InvoiceContract instance with Decimal values
+#             invoice.invoice_details = json_array
+
+#             # Saving the changes to the database
+
+#             # Calculate and update invoice totals based on the created InvoiceContract instances
+#             invoice.update_totals()
+#             invoice.save()
+
+#             logger.debug(f"Invoice created #{invoice.id}")
+
+#             # Prepare the context and generate the PDF
+#             context = {
+#                 "invoice_contracts": json_array,
+#                 "invoice": invoice,
+#                 "company_name": sender.name if sender else "",
+#                 "email": sender.email_adress if sender else "",
+#                 "address": sender.address if sender else "",
+#                 "vat_rate": invoice.vat_rate,
+#                 "vat_amount": invoice.vat_amount,
+#                 "total_amount": invoice.total_amount,
+#                 "pre_vat_total": invoice.pre_vat_total,
+#                 "issue_date": invoice.issue_date,
+#                 "invoice_number": invoice.invoice_number,
+#             }
+#             html_string = render_to_string("invoice_template.html", context)
+#             html = HTML(string=html_string)
+#             pdf_content = html.write_pdf()
+#             invoice_filename = f"invoice_{invoice.invoice_number}.pdf"
+
+#             # Save the PDF content
+#             if default_storage.exists(invoice_filename):
+#                 default_storage.delete(invoice_filename)
+#             default_storage.save(invoice_filename, ContentFile(pdf_content))
+
+#             # Update the Invoice instance with the PDF URL
+#             invoice_pdf_url = default_storage.url(invoice_filename)
+#             invoice.url = invoice_pdf_url
+#             invoice.save()
+
+#             # ADD NOTIFICATIONS HERE
+#             # send a notification to client
+#             notification = Notification.objects.create(
+#                 title="Invoice created",
+#                 event=Notification.EVENTS.INVOICE_CREATED,
+#                 content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
+#                 receiver=invoice.client.user,
+#                 metadata={"invoice_id": invoice.id},
+#             )
+
+#             notification.notify()
+
+#             # send a notification to sender
+#             if sender and sender.email_adress:
+#                 notification = Notification.objects.create(
+#                     title="Invoice created",
+#                     event=Notification.EVENTS.INVOICE_CREATED,
+#                     content=f"You have a new invoice #{invoice.id} to be paid/resolved.",
+#                     metadata={"invoice_id": invoice.id},
+#                 )
+
+#                 notification.notify(to=sender.email_adress)
+
+#         except Exception as e:
+#             logger.exception("Oops!")
+
+#     logger.debug('"invoice_creation_per_month" task finished')
+
+#     # This function runs every month to create invoices
+#     # This function should create invoices for each client to pay (or for each contract to be paid)?? you know the logic here
 
 
 @shared_task

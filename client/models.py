@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 import os
 import uuid
 from datetime import datetime
@@ -12,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from loguru import logger
 
 from assessments.models import AssessmentDomain
@@ -194,6 +196,10 @@ class Contract(models.Model):
         DRAFT = ("draft", "Draft")
         TERMINATED = ("terminated", "Terminated")
 
+    class HoursType(models.TextChoices):
+        WEEKLY = ("weekly", "Weekly")
+        ALL_PERIOD = ("all_period", "All Period")
+
     type = models.ForeignKey(ContractType, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(choices=Status.choices, default=Status.DRAFT)
     start_date = models.DateTimeField()
@@ -205,6 +211,9 @@ class Contract(models.Model):
     )  # -1 means use the default Tax (20%) | 0 means tax exemption
     price = models.DecimalField(max_digits=10, decimal_places=2)
     price_frequency = models.CharField(choices=Frequency.choices, default=Frequency.WEEKLY)
+
+    hours = models.IntegerField(default=0)
+    hours_type = models.CharField(choices=HoursType.choices, default=HoursType.ALL_PERIOD)
 
     care_name = models.CharField(max_length=255)
     care_type = models.CharField(choices=CareTypes.choices)
@@ -229,6 +238,62 @@ class Contract(models.Model):
         AttachmentFile.objects.filter(id__in=self.attachment_ids).update(is_used=True)
 
         return super().save(*args, **kwargs)
+
+    def get_monthly_price(self) -> float:
+        price: float = 0.0
+
+        # current month
+        now = timezone.now()
+        current_month: int = now.month
+        _, number_of_days_this_month = calendar.monthrange(now.year, current_month)
+
+        if self.price_frequency == self.Frequency.MONTHLY:
+            price = float(self.price)
+        if self.price_frequency == self.Frequency.DAILY:
+            price = float(self.price * Decimal(number_of_days_this_month))
+        if self.price_frequency == self.Frequency.HOURLY:
+            price = float(self.price * 24 * Decimal(number_of_days_this_month))
+        if self.price_frequency == self.Frequency.MINUTE:
+            price = float(self.price * 60 * 24 * Decimal(number_of_days_this_month))
+        if self.price_frequency == self.Frequency.WEEKLY:
+            price = float(self.price * Decimal(4.345))  # NOTE: 1 month = 4.345 weeks
+
+        return price
+
+    def clamp_period(self) -> tuple[datetime, datetime]:
+        """Get only the involved duration/period of the month"""
+        now = timezone.now()
+        start_date = now.replace(day=1, hour=0, minute=0, second=0)
+        _, number_of_days_this_month = calendar.monthrange(now.year, now.month)
+
+        end_date = start_date.replace(day=number_of_days_this_month)
+
+        if self.start_date > start_date:
+            start_date = self.start_date
+
+        if self.end_date < end_date:
+            end_date = self.end_date
+
+        return start_date, end_date
+
+    def get_current_month_price(self, apply_tax=True) -> float:
+        now = timezone.now()
+        start_date, end_date = self.clamp_period()
+        monthly_price = self.get_monthly_price()
+        _, number_of_days_this_month = calendar.monthrange(now.year, now.month)
+
+        price: float = (end_date - start_date).days * monthly_price / number_of_days_this_month
+
+        # apply the task
+        if apply_tax:
+            return price * (1 - self.used_tax() / 100)
+
+        return price
+
+    def used_tax(self) -> int:
+        if self.tax is None or self.tax == -1:
+            return settings.DEFAULT_TAX
+        return self.tax
 
     def __str__(self):
         return f"Contract (#{self.pk})"
@@ -255,7 +320,7 @@ class Invoice(models.Model):
     )
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
-    payment_method = models.CharField(choices=PaymentMethods.choices)
+    payment_method = models.CharField(choices=PaymentMethods.choices, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)

@@ -250,29 +250,33 @@ MEDICATION_RECORDS_CREATATION: int = 60  # in minutes
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
         "task": "planning.tasks.clear_temporary_files",
-        "schedule": crontab(minute=0, hour=0),  # Runs daily at midnight
+        "schedule": crontab(minute="0", hour="0"),  # Runs daily at midnight
     },
     "summarize_weekly_reports": {
         "task": "employees.tasks.summarize_weekly_reports",
-        "schedule": crontab(minute=0, hour=0, day_of_week="6"),
+        "schedule": crontab(minute="0", hour="0", day_of_week="6"),
     },
     "invoice_creation_per_month": {
         "task": "client.tasks.invoice_creation_per_month",
-        "schedule": crontab(minute=0, hour=0, day_of_month=1),
+        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
     },
     "invoice_mark_as_expired": {
         "task": "client.tasks.invoice_mark_as_expired",
-        "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
+        "schedule": crontab(minute="0", hour="*/1"),  # Runs per hour
     },
     "invoice_send_notification_3_months_before": {
         "task": "client.tasks.invoice_send_notification_3_months_before",
-        "schedule": crontab(minute=0, hour="*/1"),  # Runs per hour
+        "schedule": crontab(minute="0", hour="*/1"),  # Runs per hour
     },
     "create_and_send_medication_record_notification": {
         "task": "client.tasks.create_and_send_medication_record_notification",
         "schedule": crontab(
             minute=f"*/{MEDICATION_RECORDS_CREATATION}",
         ),  # every hour
+    },
+    "send_contract_reminders": {
+        "task": "client.tasks.send_contract_reminders",
+        "schedule": crontab(minute="0", hour="0", day_of_month="*"),  # every day
     },
 }
 
@@ -288,4 +292,7 @@ EMAIL_BACKEND: str = "django.core.mail.backends.smtp.EmailBackend"
 OPENAI_KEY: str = os.getenv("OPENAI_KEY", "")
 OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 
-VERSION: str = "0.5.0-alpha"
+# Default tax
+DEFAULT_TAX: int = 20  # 20%
+
+VERSION: str = "0.0.1.a16"
