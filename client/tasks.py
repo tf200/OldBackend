@@ -54,44 +54,12 @@ def send_progress_report_email(progress_report_id, report_text):
 
 @shared_task
 def invoice_creation_per_month():
+    logger.debug("task: Create monthly invoices!")
     # Get all the current approved clients with a valid contract period
     clients = ClientDetails.objects.filter(status="In Care").all()
 
     for client in clients:
-        # Get all client approved contracts
-        current_date = timezone.now().date()
-        contracts: list[Contract] = list(
-            Contract.objects.filter(
-                status=Contract.Status.APPROVED,
-                start_date__lte=current_date,
-                end_date__gte=current_date,
-            ).all()
-        )
-
-        invoice_details = []
-
-        for contract in contracts:
-            invoice_details.append(
-                {
-                    "contract_id": contract.pk,
-                    "contract_amount": contract.get_current_month_price(),
-                    "used_tax": contract.used_tax(),
-                }
-            )
-
-        # Create invoice for each all the available contracts
-        invoice = Invoice.objects.create(
-            client=client, total_amount=0, invoice_details=invoice_details
-        )
-
-        # due_date = models.DateField()
-        # payment_method = models.CharField(choices=PaymentMethods.choices)
-        # updated = models.DateTimeField(auto_now=True)
-        # status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
-        # invoice_details = models.JSONField(default=list, null=True, blank=True)
-        # total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
-
-        # client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+        invoice = client.generate_the_monthly_invoice(send_notifications=True)
 
 
 # @shared_task
@@ -215,9 +183,9 @@ def invoice_creation_per_month():
 @shared_task
 def invoice_mark_as_expired():
     # Get all "outstanding" invoices more than 1 month
-    one_month_datetime = timezone.now() - datetime.timedelta(days=30)
+    # one_month_datetime = timezone.now() - datetime.timedelta(days=30)
     invoices: list[Invoice] = list(
-        Invoice.objects.filter(status="outstanding", due_date__gt=one_month_datetime).all()
+        Invoice.objects.filter(status="outstanding", due_date__lt=timezone.now()).all()
     )
 
     # make it as "expired"

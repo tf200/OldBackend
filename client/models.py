@@ -3,7 +3,7 @@ from __future__ import annotations
 import calendar
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import numpy as np
@@ -18,7 +18,7 @@ from loguru import logger
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from system.models import AttachmentFile
+from system.models import AttachmentFile, Notification
 
 
 def generate_invoice_id() -> str:
@@ -94,6 +94,68 @@ class ClientDetails(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name="client_location", null=True
     )
+
+    def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice:
+        """This function mush be called on once a month (to avoid invoice duplicate)."""
+        # Get all client approved contracts
+        current_date = timezone.now().date()
+        contracts: list[Contract] = list(
+            Contract.objects.filter(
+                status=Contract.Status.APPROVED,
+                start_date__lte=current_date,
+                end_date__gte=current_date,
+            ).all()
+        )
+
+        invoice_details = []
+        total_amount: float = 0.0
+
+        for contract in contracts:
+            contract_amount = contract.get_current_month_price()
+            total_amount += contract_amount
+
+            invoice_details.append(
+                {
+                    "contract_id": contract.pk,
+                    "contract_amount": contract_amount,
+                    "used_tax": contract.used_tax(),
+                }
+            )
+
+        # Create invoice for each all the available contracts
+        invoice = Invoice.objects.create(
+            client=self,
+            total_amount=Decimal(total_amount),
+            invoice_details=invoice_details,
+            due_date=timezone.now() + timedelta(days=30),
+        )
+
+        # Send notifications
+        if send_notifications:
+            for contract in contracts:
+                # Send a notification to the client
+                notification = Notification.objects.create(
+                    title="Invoice created",
+                    event=Notification.EVENTS.INVOICE_CREATED,
+                    content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
+                    receiver=invoice.client.user,
+                    metadata={"invoice_id": invoice.id},  # type: ignore
+                )
+
+                notification.notify()
+
+                # send a notification to sender
+                if contract.sender and contract.sender.email_adress:
+                    notification = Notification.objects.create(
+                        title="Invoice created",
+                        event=Notification.EVENTS.INVOICE_CREATED,
+                        content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
+                        metadata={"invoice_id": invoice.id},  # type: ignore
+                    )
+
+                    notification.notify(to=contract.sender.email_adress)
+
+        return invoice
 
 
 class ClientDiagnosis(models.Model):
@@ -324,7 +386,7 @@ class Invoice(models.Model):
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0))
+    total_amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))
 
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
 

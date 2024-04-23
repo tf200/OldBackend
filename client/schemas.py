@@ -11,11 +11,26 @@ from system.schemas import AttachmentFileSchema
 class ContractSchema(ModelSchema):
     sender_id: int
     client_id: int
+    client_first_name: str | None
+    client_last_name: str | None
+    client_email: str | None
     attachments: list[AttachmentFileSchema]
     price: float
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["ambulante", "accommodation"]
     status: Literal["approved", "draft", "terminated"] = "draft"
+
+    @staticmethod
+    def resolve_client_first_name(contract: Contract) -> str | None:
+        return contract.client.first_name
+
+    @staticmethod
+    def resolve_client_last_name(contract: Contract) -> str | None:
+        return contract.client.last_name
+
+    @staticmethod
+    def resolve_client_email(contract: Contract) -> str | None:
+        return contract.client.email
 
     @staticmethod
     def resolve_attachments(contract: Contract) -> list[AttachmentFileSchema]:

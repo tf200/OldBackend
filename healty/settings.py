@@ -258,7 +258,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "invoice_creation_per_month": {
         "task": "client.tasks.invoice_creation_per_month",
-        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
+        "schedule": crontab(minute="0", hour="0", day_of_month="28"),
     },
     "invoice_mark_as_expired": {
         "task": "client.tasks.invoice_mark_as_expired",
@@ -293,6 +293,6 @@ OPENAI_KEY: str = os.getenv("OPENAI_KEY", "")
 OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 
 # Default tax
-DEFAULT_TAX: int = 20  # 20%
+DEFAULT_TAX: int = 0  # 0%
 
 VERSION: str = "0.0.1.a16"
