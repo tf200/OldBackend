@@ -2,7 +2,15 @@ from typing import Any, Generic, TypeAlias, TypeVar, Union
 
 from ninja import ModelSchema, Schema
 
-from system.models import AttachmentFile, Notification
+from system.models import AttachmentFile, DBSettings, Notification
+
+
+class DBSettingsSchema(Schema):
+    settings: dict[str, Any] = {}
+
+    @staticmethod
+    def resolve_settings(list) -> dict[str, Any]:
+        return DBSettings.get_settings()
 
 
 class NotificationSchema(ModelSchema):

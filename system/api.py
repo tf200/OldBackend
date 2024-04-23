@@ -6,10 +6,11 @@ from loguru import logger
 from ninja import Router, UploadedFile
 from ninja.pagination import paginate
 
-from system.models import AttachmentFile, Notification
+from system.models import AttachmentFile, DBSettings, Notification
 from system.schemas import (
     AttachmentFilePatch,
     AttachmentFileSchema,
+    DBSettingsSchema,
     EmptyResponseSchema,
     ErrorResponseSchema,
     NotificationSchema,
@@ -17,6 +18,11 @@ from system.schemas import (
 from system.utils import NinjaCustomPagination
 
 router = Router()
+
+
+@router.get("/settings", response=DBSettingsSchema)
+def settings(request: HttpRequest):
+    return DBSettings.objects.all()
 
 
 @router.get("/notifications", response=list[NotificationSchema])

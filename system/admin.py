@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from system.models import AttachmentFile, Notification
+from system.models import AttachmentFile, DBSettings, Notification
+
+
+@admin.register(DBSettings)
+class DBSettingsAdmin(admin.ModelAdmin):
+    list_display = ("option_name", "option_value", "option_type")
+    list_filter = ("option_name", "option_value")
 
 
 @admin.register(Notification)

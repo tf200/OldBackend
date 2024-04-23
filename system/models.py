@@ -2,12 +2,71 @@ from __future__ import annotations
 
 import os
 import uuid
+from typing import Any
 
 from django.conf import settings
 from django.db import models
 from loguru import logger
 
 from system.utils import send_mail_async
+
+
+class DBSettings(models.Model):
+    _settings: dict[str, Any] | None = None
+
+    class OptionTypes(models.TextChoices):
+        STR = ("str", "string")
+        INT = ("int", "integer")
+        FLOAT = ("float", "float")
+        BOOL = ("bool", "boolean")
+
+    option_name = models.CharField(max_length=255, unique=True)
+    option_value = models.CharField(default="", blank=True)
+    option_type = models.CharField(choices=OptionTypes.choices, default=OptionTypes.STR)
+
+    class Meta:
+        ordering = ("id",)
+        verbose_name = "DB Setting"
+
+    @classmethod
+    def get_settings(cls, refresh=False) -> dict[str, Any]:
+        if cls._settings is None or refresh:
+            cls._settings = {}
+
+            # Fetch all the settings.
+            options = cls.objects.all()
+            for option in options:
+                cls._settings[option.option_name.upper()] = cls.parse_value(option)
+
+            # assign the version
+            cls._settings["VERSION"] = settings.VERSION
+
+        return cls._settings
+
+    @classmethod
+    def get(cls, key: str) -> Any:
+        if cls._settings is None:
+            cls.get_settings()
+
+        return cls._settings.get(key, "")  # type: ignore
+
+    @classmethod
+    def set(cls, key: str, value: Any):
+        if cls.objects.filter(option_name=key).update(option_value=value):
+            cls.get_settings(refresh=True)  # to refresh the _settings dict
+            return True
+        return False
+
+    @classmethod
+    def parse_value(cls, option: DBSettings) -> Any:
+        if option.option_type == cls.OptionTypes.INT:
+            return int(option.option_value)
+        if option.option_type == cls.OptionTypes.FLOAT:
+            return float(option.option_value)
+        if option.option_type == cls.OptionTypes.BOOL:
+            return option.option_value in (1, "1", "true", "True", "TRUE")
+
+        return str(option.option_value)
 
 
 class Notification(models.Model):
