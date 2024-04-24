@@ -10,7 +10,7 @@ class DBSettingsSchema(Schema):
 
     @staticmethod
     def resolve_settings(list) -> dict[str, Any]:
-        return DBSettings.get_settings()
+        return DBSettings.get_settings(refresh=True)
 
 
 class NotificationSchema(ModelSchema):

@@ -22,7 +22,7 @@ router = Router()
 
 @router.get("/settings", response=DBSettingsSchema)
 def settings(request: HttpRequest):
-    return DBSettings.objects.all()
+    return DBSettingsSchema()
 
 
 @router.get("/notifications", response=list[NotificationSchema])

@@ -59,12 +59,13 @@ class DBSettings(models.Model):
 
     @classmethod
     def parse_value(cls, option: DBSettings) -> Any:
-        if option.option_type == cls.OptionTypes.INT:
-            return int(option.option_value)
-        if option.option_type == cls.OptionTypes.FLOAT:
-            return float(option.option_value)
-        if option.option_type == cls.OptionTypes.BOOL:
-            return option.option_value in (1, "1", "true", "True", "TRUE")
+        if option.option_value:
+            if option.option_type == cls.OptionTypes.INT:
+                return int(option.option_value)
+            if option.option_type == cls.OptionTypes.FLOAT:
+                return float(option.option_value)
+            if option.option_type == cls.OptionTypes.BOOL:
+                return option.option_value in (1, "1", "true", "True", "TRUE")
 
         return str(option.option_value)
 
