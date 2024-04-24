@@ -1,6 +1,6 @@
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
-from ninja import Router
+from ninja import Query, Router
 from ninja.pagination import paginate
 
 from client.models import Contract, ContractType, Invoice
@@ -11,6 +11,7 @@ from client.schemas import (
     ContractTypeInput,
     ContractTypeSchema,
     InvoiceSchema,
+    MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
 )
@@ -134,13 +135,12 @@ def medication_records(request: HttpRequest, medication_id: int):
     response=list[MedicationRecordSchema],
 )
 @paginate(NinjaCustomPagination)
-def client_medication_records(request: HttpRequest, client_id: int):
+def client_medication_records(
+    request: HttpRequest, client_id: int, filters: MedicationRecordFilterSchema = Query(...)  # type: ignore
+):
     """Return all client's medical records"""
-    records: list[ClientMedicationRecord] = []
-    medications = ClientMedication.objects.filter(client=client_id).all()
-
-    for medication in medications:
-        records.extend(medication.records.all())  # type: ignore
+    records = ClientMedicationRecord.objects.filter(client_medication__client=client_id).all()
+    records = filters.filter(records)
 
     return records
 

@@ -44,11 +44,16 @@ class DBSettings(models.Model):
         return cls._settings
 
     @classmethod
-    def get(cls, key: str) -> Any:
+    def get(cls, key: str, default=None) -> Any:
         if cls._settings is None:
             cls.get_settings()
 
-        return cls._settings.get(key, "")  # type: ignore
+        if default is None:
+            default = ""
+
+        value = cls._settings.get(key, "")  # type: ignore
+
+        return value if value != "" else default
 
     @classmethod
     def set(cls, key: str, value: Any):

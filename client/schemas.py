@@ -1,6 +1,7 @@
+from datetime import date
 from typing import Literal
 
-from ninja import Field, ModelSchema, Schema
+from ninja import Field, FilterSchema, ModelSchema, Schema
 
 from client.models import ClientDetails, Contract, ContractType, Invoice
 from employees.models import ClientMedication, ClientMedicationRecord
@@ -112,6 +113,11 @@ class MedicationRecordSchema(ModelSchema):
     class Meta:
         model = ClientMedicationRecord
         exclude = ("client_medication",)
+
+
+class MedicationRecordFilterSchema(FilterSchema):
+    created: date | None = Field(None, q="created__date")
+    status: Literal["awaiting", "taken", "not_taken"] | None = None
 
 
 class MedicationRecordInput(Schema):

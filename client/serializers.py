@@ -50,6 +50,11 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             return obj.location.name
         return None
 
+    def to_representation(self, instance: ClientDetails):
+        representation = super().to_representation(instance)
+        representation["has_untaken_medications"] = instance.has_untaken_medications()
+        return representation
+
 
 class ClientDetailsNestedSerializer(serializers.ModelSerializer):
     class Meta:
