@@ -211,9 +211,9 @@ def invoice_mark_as_expired():
 def invoice_send_notification_3_months_before():
     # Get all "outstanding" invoices more than 1 month
     three_months_before = timezone.now() - datetime.timedelta(months=3)
-    invoices: list[Invoice] = Invoice.objects.filter(
-        status="outstanding", due_date__gt=three_months_before
-    ).all()
+    invoices: list[Invoice] = list(
+        Invoice.objects.filter(status="outstanding", due_date__gt=three_months_before).all()
+    )
 
     # send an email notification if needed to the invoice owner
     for invoice in invoices:
@@ -236,13 +236,6 @@ def create_and_send_medication_record_notification():
         minutes=settings.MEDICATION_RECORDS_CREATATION
     )  # one hour ahead (and it should be the task interval)
 
-    # client_medication_records = ClientMedicationRecord.objects.filter(
-    #     time__gte=current_date, time__lt=ahead_datetime
-    # ).all()
-
-    # for medication_record in client_medication_records:
-    #     medication_record.notify()
-
     medications = ClientMedication.objects.filter(
         start_date__lte=current_date.date(), end_date__gte=current_date.date()
     ).all()
@@ -261,7 +254,7 @@ def create_and_send_medication_record_notification():
                     client_medication=medication,
                     time=slot,
                 )
-                logger.debug(f"Medical Record Created #{medication_record.id}")
+                logger.debug(f"Task: Medical Record Created #{medication_record.id}")
                 created_medication_records.append(medication_record)
 
     # Send notifications
@@ -271,7 +264,7 @@ def create_and_send_medication_record_notification():
 
 @shared_task
 def send_contract_reminders():
-    logger.debug("Sending contract reminders.")
+    logger.debug("Task: Sending contract reminders.")
     current_datetime = timezone.now()
 
     all_contracts = Contract.objects.filter(status=Contract.Status.APPROVED).all()
@@ -279,9 +272,7 @@ def send_contract_reminders():
 
     # select the contracts that are going to expire
     for contract in all_contracts:
-
         date = (current_datetime + datetime.timedelta(days=contract.reminder_period)).date()
-        logger.debug(f"{date} == {contract.end_date.date()}: {date == contract.end_date.date()}")
 
         if date == contract.end_date.date():
             available_contracts.append(contract)

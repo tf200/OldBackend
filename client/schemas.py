@@ -107,6 +107,7 @@ class ClientDetailsSchema(ModelSchema):
 class ClientMedicationSchema(ModelSchema):
     client_id: int | None
     administered_by_id: int | None
+    administered_by_name: str | None
     unset_medications: int | None
 
     class Meta:
@@ -121,6 +122,10 @@ class ClientMedicationSchema(ModelSchema):
                 status=ClientMedicationRecord.Status.AWAITING
             ).count()
         )
+
+    @staticmethod
+    def resolve_administered_by_name(medication: ClientMedication) -> str:
+        return f"{medication.administered_by.last_name} {medication.administered_by.last_name}"
 
 
 class MedicationRecordSchema(ModelSchema):

@@ -108,10 +108,16 @@ class ClientDetails(models.Model):
         )
 
         invoice_details = []
-        total_amount: float = 0.0
+        total_amount: float = 0
 
         for contract in contracts:
-            contract_amount = contract.get_current_month_price()
+            contract_amount: float = 0  # the contract amount for this month
+
+            if contract.type == Contract.CareTypes.ACCOMMODATION:
+                contract_amount = contract.get_current_month_price()
+            else:
+                contract_amount = contract.get_current_month_price_via_working_hours()
+
             total_amount += contract_amount
 
             invoice_details.append(
@@ -368,6 +374,31 @@ class Contract(models.Model):
         _, number_of_days_this_month = calendar.monthrange(now.year, now.month)
 
         price: float = (end_date - start_date).days * monthly_price / number_of_days_this_month
+
+        # apply the task
+        if apply_tax:
+            return price * (1 - self.used_tax() / 100)
+
+        return price
+
+    def get_current_month_price_via_working_hours(self, apply_tax=True) -> float:
+        start_date, end_date = self.clamp_period()
+
+        working_hours: list[ContractWorkingHours] = list(
+            self.working_hours.filter(  # type: ignore
+                datetime__gte=start_date, datetime__lte=end_date
+            ).all()
+        )
+
+        total_working_hours: float = (
+            sum(w.minutes for w in working_hours) / 60
+        )  # to convert from minutes to hours.
+        price: float = 0
+
+        if self.price_frequency == self.Frequency.HOURLY:
+            price = float(self.price * Decimal(total_working_hours))
+        if self.price_frequency == self.Frequency.MINUTE:
+            price = float(self.price * 60 * Decimal(total_working_hours))
 
         # apply the task
         if apply_tax:
