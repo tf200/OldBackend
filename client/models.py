@@ -47,6 +47,12 @@ ClientType = Sender  # For backword compatibility
 
 
 class ClientDetails(models.Model):
+    Status = (
+        ("In Care", "In Care"),
+        ("On Waiting List", "On Waiting List"),
+        ("Out Of Care", "Out Of Care"),
+    )
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -58,11 +64,7 @@ class ClientDetails(models.Model):
     identity = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
-        choices=(
-            ("In Care", "In Care"),
-            ("On Waiting List", "On Waiting List"),
-            ("Out Of Care", "Out Of Care"),
-        ),
+        choices=Status,
         default="On Waiting List",
         blank=True,
         null=True,
@@ -89,6 +91,9 @@ class ClientDetails(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name="client_location", null=True
     )
+
+    # class Meta:
+    #     verbose_name = "Client"
 
     def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
@@ -151,6 +156,27 @@ class ClientDetails(models.Model):
                     notification.notify(to=contract.sender.email_adress)
 
         return invoice
+
+    def has_untaken_medications(self) -> int:
+        from employees.models import ClientMedicationRecord
+
+        return ClientMedicationRecord.objects.filter(
+            client_medication__client=self, status=ClientMedicationRecord.Status.NOT_TAKEN
+        ).count()
+
+
+class ClientStatusHistory(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="status_history", on_delete=models.CASCADE
+    )
+    status = models.CharField(choices=ClientDetails.Status)
+    start_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-start_date",)
+
+    def __str__(self):
+        return f"{self.status} (since: {self.start_date})"
 
 
 class ClientDiagnosis(models.Model):

@@ -9,7 +9,10 @@ def ai_enhance_report(content: str) -> str:
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "Please enhance the following text/report and make it more appealing."),
+            (
+                "system",
+                "Please enhance the following text/report and make it more appealing with grammatically correct.",
+            ),
             ("user", "{input}"),
         ]
     )

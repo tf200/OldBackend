@@ -32,6 +32,7 @@ from .tasks import send_progress_report_email
 
 class ClientCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ClientDetailsSerializer
 
     def post(self, request, *args, **kwargs):
         with transaction.atomic():

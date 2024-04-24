@@ -5,6 +5,7 @@ from employees.models import ClientMedicationRecord
 from .models import (
     CarePlan,
     CareplanAtachements,
+    ClientStatusHistory,
     Contact,
     Contract,
     ContractType,
@@ -100,4 +101,9 @@ class SenderAdmin(admin.ModelAdmin):
 
 @admin.register(ClientMedicationRecord)
 class ClientMedicationRecordAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ClientStatusHistory)
+class ClientStatusHistoryAdmin(admin.ModelAdmin):
     pass

@@ -3,9 +3,10 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
-from client.models import Contract, ContractType, Invoice
+from client.models import ClientStatusHistory, Contract, ContractType, Invoice
 from client.schemas import (
     ClientMedicationSchema,
+    ClientStatusHistorySchema,
     ContractSchema,
     ContractSchemaInput,
     ContractTypeInput,
@@ -165,3 +166,9 @@ def patch_medication_record(
     if ClientMedicationRecord.objects.filter(id=medication_record_id).update(**medication.dict()):
         return ClientMedicationRecord.objects.get(id=medication_record_id)
     return 404, "Medication Not Found"
+
+
+@router.get("/{int:client_id}/profile-status-history", response=list[ClientStatusHistorySchema])
+@paginate(NinjaCustomPagination)
+def client_profile_status_history(request: HttpRequest, client_id: int):
+    return ClientStatusHistory.objects.filter(client=client_id).all()

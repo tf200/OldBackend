@@ -3,7 +3,13 @@ from typing import Literal
 
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
-from client.models import ClientDetails, Contract, ContractType, Invoice
+from client.models import (
+    ClientDetails,
+    ClientStatusHistory,
+    Contract,
+    ContractType,
+    Invoice,
+)
 from employees.models import ClientMedication, ClientMedicationRecord
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
@@ -132,3 +138,11 @@ class MedicationRecordFilterSchema(FilterSchema):
 class MedicationRecordInput(Schema):
     status: Literal["taken", "not_taken", "awaiting"]
     reason: str | None
+
+
+class ClientStatusHistorySchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ClientStatusHistory
+        exclude = ("client",)
