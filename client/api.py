@@ -3,7 +3,13 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
-from client.models import ClientStatusHistory, Contract, ContractType, Invoice
+from client.models import (
+    ClientStatusHistory,
+    Contract,
+    ContractType,
+    ContractWorkingHours,
+    Invoice,
+)
 from client.schemas import (
     ClientMedicationSchema,
     ClientStatusHistorySchema,
@@ -11,6 +17,8 @@ from client.schemas import (
     ContractSchemaInput,
     ContractTypeInput,
     ContractTypeSchema,
+    ContractWorkingHoursInput,
+    ContractWorkingHoursSchema,
     InvoiceSchema,
     MedicationRecordFilterSchema,
     MedicationRecordInput,
@@ -32,6 +40,36 @@ def contracts(request: HttpRequest):
 @router.get("/contracts/{int:contract_id}", response=ContractSchema)
 def contract_details(request: HttpRequest, contract_id: int):
     return get_object_or_404(Contract, id=contract_id)
+
+
+@router.get(
+    "/contracts/{int:contract_id}/working-hours", response=list[ContractWorkingHoursSchema]
+)
+@paginate(NinjaCustomPagination)
+def contract_working_hours(request: HttpRequest, contract_id: int):
+    return ContractWorkingHours.objects.filter(contract__id=contract_id).all()
+
+
+@router.patch(
+    "/contracts/working-hours/{int:id}",
+    response=ContractWorkingHoursSchema,
+)
+def contract_working_hours_details(
+    request: HttpRequest, id: int, working_hours: ContractWorkingHoursInput
+):
+    ContractWorkingHours.objects.filter(id=id).update(**working_hours.dict(exclude_unset=True))
+
+    return get_object_or_404(ContractWorkingHours, id=id)
+
+
+@router.delete(
+    "/contracts/working-hours/{int:id}/delete",
+    response={204: EmptyResponseSchema},
+)
+def delete_contract_working_hours(request: HttpRequest, id: int):
+    ContractWorkingHours.objects.filter(id=id).delete()
+
+    return 204, {}
 
 
 @router.get("/{int:client_id}/contracts", response=list[ContractSchema])

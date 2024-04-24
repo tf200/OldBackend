@@ -9,6 +9,7 @@ from .models import (
     Contact,
     Contract,
     ContractType,
+    ContractWorkingHours,
     Invoice,
     InvoiceContract,
     Sender,
@@ -107,3 +108,14 @@ class ClientMedicationRecordAdmin(admin.ModelAdmin):
 @admin.register(ClientStatusHistory)
 class ClientStatusHistoryAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(ContractWorkingHours)
+class ContractWorkingHoursAdmin(admin.ModelAdmin):
+    list_display = ("contract", "minutes", "datetime")
+    list_filter = ("datetime",)
+    search_fields = (
+        "id",
+        "contract__id",
+        "datetime",
+    )

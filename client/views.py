@@ -25,7 +25,6 @@ from employees.utils import generate_unique_username
 from .models import ClientDetails
 from .pagination import CustomPagination
 from .serializers import *
-from .tasks import send_progress_report_email
 
 # Create your views here.
 

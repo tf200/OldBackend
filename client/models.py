@@ -384,6 +384,17 @@ class Contract(models.Model):
         return f"Contract (#{self.pk})"
 
 
+class ContractWorkingHours(models.Model):
+    contract = models.ForeignKey(Contract, related_name="working_hours", on_delete=models.CASCADE)
+    minutes = models.IntegerField(default=0)
+    datetime = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        ordering = ("datetime",)
+        verbose_name = "Contract Working Hours"
+        verbose_name_plural = "Contract Working Hours"
+
+
 class Invoice(models.Model):
     class PaymentMethods(models.TextChoices):
         BANK_TRANSFER = "bank_transfer", "Bank Transfer"

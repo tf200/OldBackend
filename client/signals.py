@@ -12,7 +12,6 @@ def create_client_profile_status_history(
     sender: type[ClientDetails], instance: ClientDetails, **kwargs
 ):
     old_client = get_object_or_404(ClientDetails, id=instance.pk)
-    logger.debug("In pre_save ClientDetails")
 
     if instance.status != old_client.status:
         # Status changed
@@ -24,9 +23,6 @@ def create_client_profile_status_history(
 def create_client_profile_status_history_on_create(
     sender: type[ClientDetails], instance: ClientDetails, created: bool, **kwargs
 ):
-    logger.debug("In post_save ClientDetails")
-
     if created:
         # Status changed
-        logger.debug("New ClientStatusHistory created!!")
         ClientStatusHistory.objects.create(client=instance, status=instance.status)

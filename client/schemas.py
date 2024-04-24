@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from ninja import Field, FilterSchema, ModelSchema, Schema
@@ -8,6 +8,7 @@ from client.models import (
     ClientStatusHistory,
     Contract,
     ContractType,
+    ContractWorkingHours,
     Invoice,
 )
 from employees.models import ClientMedication, ClientMedicationRecord
@@ -146,3 +147,16 @@ class ClientStatusHistorySchema(ModelSchema):
     class Meta:
         model = ClientStatusHistory
         exclude = ("client",)
+
+
+class ContractWorkingHoursSchema(ModelSchema):
+    contract_id: int
+
+    class Meta:
+        model = ContractWorkingHours
+        exclude = ("contract",)
+
+
+class ContractWorkingHoursInput(Schema):
+    minutes: int | None
+    datetime: datetime | None
