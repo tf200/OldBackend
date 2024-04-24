@@ -297,3 +297,15 @@ def send_contract_reminders():
             )
 
             notification.notify(to=contract.sender.email_adress)
+
+
+@shared_task
+def mark_client_profile_as_in_care():
+    logger.debug("Task: Mark Client Profile as 'In Care'")
+    now = timezone.now()
+    ClientDetails.objects.filter(
+        status="On Waiting List",
+        contracts__start_date__lte=now,
+        contracts__end_date__gt=now,
+        contracts__status=Contract.Status.APPROVED,
+    ).update(status="In Care")

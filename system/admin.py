@@ -6,7 +6,7 @@ from system.models import AttachmentFile, DBSettings, Notification
 @admin.register(DBSettings)
 class DBSettingsAdmin(admin.ModelAdmin):
     list_display = ("option_name", "option_value", "option_type")
-    list_filter = ("option_name", "option_value")
+    list_filter = ("option_name", "option_type")
 
 
 @admin.register(Notification)

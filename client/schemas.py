@@ -100,11 +100,20 @@ class ClientDetailsSchema(ModelSchema):
 class ClientMedicationSchema(ModelSchema):
     client_id: int | None
     administered_by_id: int | None
+    unset_medications: int | None
 
     class Meta:
         model = ClientMedication
         # fields = "__all__"
         exclude = ("client", "administered_by", "updated")
+
+    @staticmethod
+    def resolve_unset_medications(medication: ClientMedication) -> int:
+        return int(
+            medication.records.filter(  # type: ignore
+                status=ClientMedicationRecord.Status.AWAITING
+            ).count()
+        )
 
 
 class MedicationRecordSchema(ModelSchema):

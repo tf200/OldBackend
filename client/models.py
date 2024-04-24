@@ -61,7 +61,7 @@ class ClientDetails(models.Model):
         choices=(
             ("In Care", "In Care"),
             ("On Waiting List", "On Waiting List"),
-            ("Out Of Concern", "Out Of Concern"),
+            ("Out Of Care", "Out Of Care"),
         ),
         default="On Waiting List",
         blank=True,
@@ -275,8 +275,10 @@ class Contract(models.Model):
     care_name = models.CharField(max_length=255)
     care_type = models.CharField(choices=CareTypes.choices)
 
-    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
-    sender = models.ForeignKey(Sender, on_delete=models.SET_NULL, null=True, blank=True)
+    client = models.ForeignKey(ClientDetails, related_name="contracts", on_delete=models.CASCADE)
+    sender = models.ForeignKey(
+        Sender, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     attachment_ids = models.JSONField(default=list)
 
