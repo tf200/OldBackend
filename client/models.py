@@ -113,11 +113,7 @@ class ClientDetails(models.Model):
         for contract in contracts:
             contract_amount: float = 0  # the contract amount for this month
 
-            if contract.type == Contract.CareTypes.ACCOMMODATION:
-                contract_amount = contract.get_current_month_price()
-            else:
-                contract_amount = contract.get_current_month_price_via_working_hours()
-
+            contract_amount = contract.get_current_month_price()
             total_amount += contract_amount
 
             invoice_details.append(
@@ -169,6 +165,10 @@ class ClientDetails(models.Model):
         return ClientMedicationRecord.objects.filter(
             client_medication__client=self, status=ClientMedicationRecord.Status.NOT_TAKEN
         ).count()
+
+    def generate_profile_document_link(self) -> str:
+        """Generate a Client profile PDF and return a downloadable link (please see the PDF templete for it)"""
+        pass
 
 
 class ClientStatusHistory(models.Model):
@@ -367,7 +367,7 @@ class Contract(models.Model):
 
         return start_date, end_date
 
-    def get_current_month_price(self, apply_tax=True) -> float:
+    def get_current_month_price_via_period(self, apply_tax=True) -> float:
         now = timezone.now()
         start_date, end_date = self.clamp_period()
         monthly_price = self.get_monthly_price()
@@ -405,6 +405,12 @@ class Contract(models.Model):
             return price * (1 - self.used_tax() / 100)
 
         return price
+
+    def get_current_month_price(self, apply_tax=True) -> float:
+        if self.type == Contract.CareTypes.ACCOMMODATION:
+            return self.get_current_month_price(apply_tax=apply_tax)
+
+        return self.get_current_month_price_via_working_hours(apply_tax=apply_tax)
 
     def used_tax(self) -> int:
         if self.tax is None or self.tax == -1:
@@ -459,6 +465,19 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ("-created",)
+
+    def refresh_total_amount(self, save: bool = True) -> None:
+        # recalculating the amount every time/update
+        self.total_amount = Decimal(
+            sum([item["contract_amount"] for item in self.invoice_details])  # type: ignore
+        )
+
+        if save:
+            self.save()
+
+    def download_link(self) -> str:
+        """Ensure to generate an invoice PDF and return a link to download it"""
+        pass
 
 
 # class Contract(models.Model):

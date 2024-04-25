@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
@@ -97,7 +97,7 @@ class InvoiceSchemaPatch(Schema):
         ]
         | None
     ) = None
-    invoice_details: str | None = None
+    invoice_details: list[dict[str, Any]] | None = None
 
 
 class ContractTypeSchema(ModelSchema):

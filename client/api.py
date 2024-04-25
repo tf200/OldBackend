@@ -97,10 +97,17 @@ def all_invoices(request: HttpRequest):
     return Invoice.objects.all()
 
 
+@router.get("/invoices/{int:invoice_id}", response=InvoiceSchema)
+def invoice_details(request: HttpRequest, invoice_id: int):
+    return get_object_or_404(Invoice, id=invoice_id)
+
+
 @router.patch("/invoices/{int:invoice_id}/update", response=InvoiceSchema)
 def patch_invoices(request: HttpRequest, invoice_id: int, invoice: InvoiceSchemaPatch):
     Invoice.objects.filter(id=invoice_id).update(**invoice.dict(exclude_unset=True))
-    return get_object_or_404(Invoice, id=invoice_id)
+    invoice: Invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice.refresh_total_amount()
+    return invoice
 
 
 @router.get("/{int:client_id}/invoices", response=list[InvoiceSchema])

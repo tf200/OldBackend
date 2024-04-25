@@ -85,3 +85,26 @@ def delete_attachment(request: HttpRequest, uuid: UUID):
 def update_attachment(request: HttpRequest, uuid: UUID, attachment: AttachmentFilePatch):
     AttachmentFile.objects.filter(id=uuid).update(**attachment.dict(exclude_unset=True))
     return get_object_or_404(AttachmentFile, id=uuid)
+
+
+@router.get("/dashboard/analytics")
+def dashboard(request: HttpRequest):
+    """
+    Ensure to return all the needed info:
+    - Users (Total users, number In care, out of care, on waiting list users)
+    - Invoices (Total invoices, number of paid invoices, number of unpaid invoices)
+    - Contracts (Total contracts, number of approved contracts, number of terminated contracts)
+    - medications (total medications, number of critical medications, number of medication records, number of taken/not taken medications)
+    - Reports (Total number of reports)
+    - Revenue (Total income, total outcome/cost)
+
+    """
+
+    # Fetch all the needed data from DB here, then pass it to the dectionary bellow
+
+    return {
+        "total_users": 0,
+        "total_in_care_users": 0,
+        "total_out_of_care_users": 0,
+        # ... etc
+    }
