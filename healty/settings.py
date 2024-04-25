@@ -278,6 +278,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "client.tasks.send_contract_reminders",
         "schedule": crontab(minute="0", hour="0", day_of_month="*"),  # every day
     },
+    "delete_unused_attachments": {
+        "task": "client.tasks.delete_unused_attachments",
+        "schedule": crontab(minute="0", hour="*"),  # hour
+    },
 }
 
 DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")
@@ -295,4 +299,4 @@ OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 # Default tax
 DEFAULT_TAX: int = 0  # 0%
 
-VERSION: str = "0.0.1.a22"
+VERSION: str = "0.0.1.a23"
