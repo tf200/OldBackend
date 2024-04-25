@@ -15,7 +15,7 @@ from weasyprint import HTML
 
 from celery import shared_task
 from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport
-from system.models import Notification
+from system.models import AttachmentFile, Notification
 from system.utils import send_mail_async
 
 from .models import ClientDetails, ClientEmergencyContact, Contract, Invoice
@@ -300,3 +300,11 @@ def mark_client_profile_as_in_care():
         contracts__end_date__gt=now,
         contracts__status=Contract.Status.APPROVED,
     ).update(status="In Care")
+
+
+@shared_task
+def delete_unused_attachments():
+    logger.debug("Task: Delete unused attachment files.")
+    AttachmentFile.objects.filter(
+        is_used=False, created__lte=timezone.now() - datetime.timedelta(days=1)
+    ).delete()

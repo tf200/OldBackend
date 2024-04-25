@@ -448,7 +448,6 @@ class Invoice(models.Model):
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     payment_method = models.CharField(choices=PaymentMethods.choices, null=True, blank=True)
-    updated = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))

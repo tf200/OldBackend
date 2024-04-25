@@ -20,6 +20,7 @@ from client.schemas import (
     ContractWorkingHoursInput,
     ContractWorkingHoursSchema,
     InvoiceSchema,
+    InvoiceSchemaPatch,
     MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
@@ -94,6 +95,12 @@ def update_client_contract(request: HttpRequest, id: int, contract: ContractSche
 @paginate(NinjaCustomPagination)
 def all_invoices(request: HttpRequest):
     return Invoice.objects.all()
+
+
+@router.patch("/invoices/{int:invoice_id}/update", response=InvoiceSchema)
+def patch_invoices(request: HttpRequest, invoice_id: int, invoice: InvoiceSchemaPatch):
+    Invoice.objects.filter(id=invoice_id).update(**invoice.dict(exclude_unset=True))
+    return get_object_or_404(Invoice, id=invoice_id)
 
 
 @router.get("/{int:client_id}/invoices", response=list[InvoiceSchema])

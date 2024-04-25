@@ -88,6 +88,18 @@ class InvoiceSchema(ModelSchema):
         exclude = ("client",)
 
 
+class InvoiceSchemaPatch(Schema):
+    due_date: datetime | None = None
+    payment_method: Literal["bank_transfer", "credit_card", "check", "cash"] | None = None
+    status: (
+        Literal[
+            "outstanding", "partially_paid", "paid", "expired", "overpaid", "imported", "concept"
+        ]
+        | None
+    ) = None
+    invoice_details: str | None = None
+
+
 class ContractTypeSchema(ModelSchema):
     class Meta:
         model = ContractType
