@@ -169,3 +169,5 @@ caddy/
 !caddy/data/.noignore
 !caddy/config/.noignore
 !caddy/Caddyfile
+
+.vscode/

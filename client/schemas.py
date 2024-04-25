@@ -1,6 +1,7 @@
 from datetime import date, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
+from loguru import logger
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
 from client.models import (
@@ -42,10 +43,15 @@ class ContractSchema(ModelSchema):
 
     @staticmethod
     def resolve_attachments(contract: Contract) -> list[AttachmentFileSchema]:
-        return [
-            AttachmentFileSchema.from_orm(AttachmentFile.objects.get(id=uuid))
-            for uuid in contract.attachment_ids
-        ]
+        files: list[AttachmentFileSchema] = []
+
+        for uuid in contract.attachment_ids:
+            try:
+                files.append(AttachmentFileSchema.from_orm(AttachmentFile.objects.get(id=uuid)))
+            except AttachmentFile.DoesNotExist:
+                logger.error(f"AttachmentFile not found: {uuid}")
+
+        return files
 
     class Meta:
         model = Contract
@@ -175,5 +181,6 @@ class ContractWorkingHoursSchema(ModelSchema):
 
 
 class ContractWorkingHoursInput(Schema):
-    minutes: int | None
-    datetime: datetime | None
+    minutes: int | None = None
+    datetime: Optional[datetime] = None  # type: ignore
+    notes: str | None = None

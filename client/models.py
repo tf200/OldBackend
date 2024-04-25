@@ -113,13 +113,18 @@ class ClientDetails(models.Model):
         for contract in contracts:
             contract_amount: float = 0  # the contract amount for this month
 
-            contract_amount = contract.get_current_month_price()
+            contract_amount_without_tax: float = contract.get_current_month_price(apply_tax=False)
+            contract_amount = round(
+                contract_amount_without_tax * (1 + contract.used_tax() / 100), 2
+            )
             total_amount += contract_amount
 
             invoice_details.append(
                 {
                     "contract_id": contract.pk,
+                    "item_desc": f"Care: {contract.care_name} (contract id: #{contract.id})",
                     "contract_amount": contract_amount,
+                    "contract_amount_without_tax": contract_amount_without_tax,
                     "used_tax": contract.used_tax(),
                 }
             )
@@ -168,6 +173,7 @@ class ClientDetails(models.Model):
 
     def generate_profile_document_link(self) -> str:
         """Generate a Client profile PDF and return a downloadable link (please see the PDF templete for it)"""
+        # Ensure to use "AttachmentFile" (in the system model)
         pass
 
 
@@ -408,7 +414,7 @@ class Contract(models.Model):
 
     def get_current_month_price(self, apply_tax=True) -> float:
         if self.type == Contract.CareTypes.ACCOMMODATION:
-            return self.get_current_month_price(apply_tax=apply_tax)
+            return self.get_current_month_price_via_period(apply_tax=apply_tax)
 
         return self.get_current_month_price_via_working_hours(apply_tax=apply_tax)
 
@@ -425,6 +431,7 @@ class ContractWorkingHours(models.Model):
     contract = models.ForeignKey(Contract, related_name="working_hours", on_delete=models.CASCADE)
     minutes = models.IntegerField(default=0)
     datetime = models.DateTimeField(default=timezone.now, db_index=True)
+    notes = models.TextField(default="", null=True, blank=True)
 
     class Meta:
         ordering = ("datetime",)
@@ -477,6 +484,16 @@ class Invoice(models.Model):
 
     def download_link(self) -> str:
         """Ensure to generate an invoice PDF and return a link to download it"""
+        """
+        this is the structure of "self.invoice_details"
+        {
+            "contract_id": str,
+            "item_desc": str,
+            "contract_amount": float,
+            "contract_amount_without_tax": float,
+            "used_tax": int,
+        }
+        """
         pass
 
 
