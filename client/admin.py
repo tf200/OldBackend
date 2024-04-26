@@ -12,6 +12,7 @@ from .models import (
     ContractWorkingHours,
     Invoice,
     InvoiceContract,
+    InvoiceHistory,
     Sender,
     SenderContactRelation,
     TemporaryFile,
@@ -73,6 +74,12 @@ class InvoiceAdmin(admin.ModelAdmin):
     )
     list_filter = ("due_date", "status", "issue_date")
     search_fields = ("invoice_number",)
+
+
+@admin.register(InvoiceHistory)
+class InvoiceHistoryAdmin(admin.ModelAdmin):
+    list_display = ("amount", "payment_method", "updated", "created")
+    list_filter = ("payment_method",)
 
 
 @admin.register(CarePlan)

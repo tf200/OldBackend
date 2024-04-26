@@ -9,6 +9,7 @@ from client.models import (
     ContractType,
     ContractWorkingHours,
     Invoice,
+    InvoiceHistory,
 )
 from client.schemas import (
     ClientMedicationSchema,
@@ -19,6 +20,8 @@ from client.schemas import (
     ContractTypeSchema,
     ContractWorkingHoursInput,
     ContractWorkingHoursSchema,
+    InvoiceHistoryInput,
+    InvoiceHistorySchema,
     InvoiceSchema,
     InvoiceSchemaPatch,
     MedicationRecordFilterSchema,
@@ -108,6 +111,24 @@ def patch_invoices(request: HttpRequest, invoice_id: int, invoice: InvoiceSchema
     invoice: Invoice = get_object_or_404(Invoice, id=invoice_id)
     invoice.refresh_total_amount()
     return invoice
+
+
+@router.post("/invoices/{int:invoice_id}/history/add", response=InvoiceHistorySchema)
+def add_invoice_history_record(
+    request: HttpRequest, invoice_id: int, invoice_history: InvoiceHistoryInput
+):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+
+    return InvoiceHistory.objects.create(**invoice_history.dict(), invoice=invoice)
+
+
+@router.delete(
+    "/invoices/history/{int:record_id}/delete",
+    response={204: EmptyResponseSchema},
+)
+def delete_invoice_history_record(request: HttpRequest, record_id: int):
+    InvoiceHistory.objects.filter(id=record_id).delete()
+    return 204, {}
 
 
 @router.get("/{int:client_id}/invoices", response=list[InvoiceSchema])

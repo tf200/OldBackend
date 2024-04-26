@@ -11,6 +11,7 @@ from client.models import (
     ContractType,
     ContractWorkingHours,
     Invoice,
+    InvoiceHistory,
 )
 from employees.models import ClientMedication, ClientMedicationRecord
 from system.models import AttachmentFile
@@ -86,12 +87,30 @@ class ContractSchemaInput(ModelSchema):
 #         exclude = ("id", "type", "sender", "client", "updated", "created")
 
 
+class InvoiceHistorySchema(ModelSchema):
+    class Meta:
+        model = InvoiceHistory
+        fields = "__all__"
+
+
 class InvoiceSchema(ModelSchema):
     client_id: int
+    history: list[InvoiceHistorySchema] = []
+    total_paid_amount: float = 0
 
     class Meta:
         model = Invoice
         exclude = ("client",)
+
+    @staticmethod
+    def resolve_total_paid_amount(invoice: Invoice) -> float:
+        return invoice.total_paid_amount()
+
+
+class InvoiceHistoryInput(ModelSchema):
+    class Meta:
+        model = InvoiceHistory
+        exclude = ("id", "invoice", "created", "updated")
 
 
 class InvoiceSchemaPatch(Schema):

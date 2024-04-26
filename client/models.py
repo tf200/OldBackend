@@ -445,6 +445,7 @@ class Invoice(models.Model):
         CREDIT_CARD = "credit_card", "Credit Card"
         CHECK = "check", "Check"
         CASH = "cash", "Cash"
+        OTHER = "other", "Other"
 
     class Status(models.TextChoices):
         OUTSTANDING = ("outstanding", "Outstanding")
@@ -460,7 +461,6 @@ class Invoice(models.Model):
     )
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
-    payment_method = models.CharField(choices=PaymentMethods.choices, null=True, blank=True)
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))
@@ -472,6 +472,9 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ("-created",)
+
+    def total_paid_amount(self) -> float:
+        return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
 
     def refresh_total_amount(self, save: bool = True) -> None:
         # recalculating the amount every time/update
@@ -495,6 +498,26 @@ class Invoice(models.Model):
         }
         """
         pass
+
+
+class InvoiceHistory(models.Model):
+    class PaymentMethods(models.TextChoices):
+        BANK_TRANSFER = "bank_transfer", "Bank Transfer"
+        CREDIT_CARD = "credit_card", "Credit Card"
+        CHECK = "check", "Check"
+        CASH = "cash", "Cash"
+        OTHER = "other", "Other"
+
+    payment_method = models.CharField(choices=PaymentMethods.choices, null=True, blank=True)
+    amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    invoice = models.ForeignKey(Invoice, related_name="history", on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ("-created",)
+        verbose_name_plural = "Invoice history"
 
 
 # class Contract(models.Model):
