@@ -10,6 +10,8 @@ from .models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    DomainGoal,
+    DomainObjective,
     Invoice,
     InvoiceContract,
     InvoiceHistory,
@@ -126,3 +128,20 @@ class ContractWorkingHoursAdmin(admin.ModelAdmin):
         "contract__id",
         "datetime",
     )
+
+
+class DomainObjectiveInline(admin.options.TabularInline):
+    model = DomainObjective
+    extra = 1
+
+
+@admin.register(DomainGoal)
+class DomainGoalAdmin(admin.ModelAdmin):
+    list_display = ("title", "total_objectives", "updated", "created")
+    list_filter = ("created",)
+    inlines = (DomainObjectiveInline,)
+
+
+# @admin.register(DomainObjective)
+# class DomainObjectiveAdmin(admin.ModelAdmin):
+#     list_display = ("title", "rating", "", "updated", "created")

@@ -10,6 +10,8 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    DomainGoal,
+    DomainObjective,
     Invoice,
     InvoiceHistory,
 )
@@ -108,6 +110,12 @@ class InvoiceSchema(ModelSchema):
 
 
 class InvoiceHistoryInput(ModelSchema):
+    invoice_status: Optional[
+        Literal[
+            "outstanding", "partially_paid", "paid", "expired", "overpaid", "imported", "concept"
+        ]
+    ] = None
+
     class Meta:
         model = InvoiceHistory
         exclude = ("id", "invoice", "created", "updated")
@@ -199,7 +207,50 @@ class ContractWorkingHoursSchema(ModelSchema):
         exclude = ("contract",)
 
 
-class ContractWorkingHoursInput(Schema):
+class ContractWorkingHoursInput(ModelSchema):
+    class Meta:
+        model = ContractWorkingHours
+        exclude = ("contract", "id")
+
+
+class ContractWorkingHoursPatch(Schema):
     minutes: int | None = None
     datetime: Optional[datetime] = None  # type: ignore
     notes: str | None = None
+
+
+class DomainObjectiveSchema(ModelSchema):
+    goal_id: int
+
+    class Meta:
+        model = DomainObjective
+        exclude = ("goal",)
+
+
+class DomainObjectiveInput(ModelSchema):
+
+    class Meta:
+        model = DomainObjective
+        exclude = ("created", "updated", "goal", "id")
+
+
+class DomainGoalSchema(ModelSchema):
+    domain_id: int
+    objectives: list[DomainObjectiveSchema]
+    main_goal_rating: float
+
+    class Meta:
+        model = DomainGoal
+        exclude = ("domain",)
+
+    @staticmethod
+    def resolve_main_goal_rating(domain_goal: DomainGoal) -> float:
+        return domain_goal.main_goal_rating()
+
+
+class DomainGoalInput(ModelSchema):
+    domain_id: int
+
+    class Meta:
+        model = DomainGoal
+        exclude = ("domain", "created", "updated", "id")

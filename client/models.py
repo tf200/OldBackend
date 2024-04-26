@@ -773,6 +773,43 @@ class CarePlan(models.Model):
     domains = models.ManyToManyField(AssessmentDomain, related_name="care_plans")
 
 
+class DomainGoal(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+
+    domain = models.ForeignKey(AssessmentDomain, related_name="goals", on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Main Goal: {self.title}"
+
+    def total_objectives(self) -> int:
+        return self.objectives.count()
+
+    def main_goal_rating(self) -> float:
+        """This average is calculated based on Objectives"""
+        objectives = self.objectives.all()
+        if objectives:
+            return round(sum([objective.rating for objective in objectives]) / len(objectives), 1)
+        return 0
+
+
+class DomainObjective(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+    rating = models.FloatField(default=0)
+
+    goal = models.ForeignKey(DomainGoal, related_name="objectives", on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Objective: {self.title}"
+
+
 class CareplanAtachements(models.Model):
     careplan = models.ForeignKey(
         CarePlan, on_delete=models.SET_NULL, null=True, related_name="care_attachement"

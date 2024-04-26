@@ -8,6 +8,8 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    DomainGoal,
+    DomainObjective,
     Invoice,
     InvoiceHistory,
 )
@@ -19,7 +21,12 @@ from client.schemas import (
     ContractTypeInput,
     ContractTypeSchema,
     ContractWorkingHoursInput,
+    ContractWorkingHoursPatch,
     ContractWorkingHoursSchema,
+    DomainGoalInput,
+    DomainGoalSchema,
+    DomainObjectiveInput,
+    DomainObjectiveSchema,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
     InvoiceSchema,
@@ -54,12 +61,19 @@ def contract_working_hours(request: HttpRequest, contract_id: int):
     return ContractWorkingHours.objects.filter(contract__id=contract_id).all()
 
 
+@router.post("/contracts/{int:contract_id}/working-hours/add", response=ContractWorkingHoursSchema)
+def add_contract_working_hours(
+    request: HttpRequest, contract_id: int, working_hours: ContractWorkingHoursInput
+):
+    return ContractWorkingHours.objects.create(contract_id=contract_id, **working_hours.dict())
+
+
 @router.patch(
     "/contracts/working-hours/{int:id}",
     response=ContractWorkingHoursSchema,
 )
 def contract_working_hours_details(
-    request: HttpRequest, id: int, working_hours: ContractWorkingHoursInput
+    request: HttpRequest, id: int, working_hours: ContractWorkingHoursPatch
 ):
     ContractWorkingHours.objects.filter(id=id).update(**working_hours.dict(exclude_unset=True))
 
@@ -118,8 +132,13 @@ def add_invoice_history_record(
     request: HttpRequest, invoice_id: int, invoice_history: InvoiceHistoryInput
 ):
     invoice = get_object_or_404(Invoice, id=invoice_id)
-
-    return InvoiceHistory.objects.create(**invoice_history.dict(), invoice=invoice)
+    payload = invoice_history.dict()
+    # Update the status if the invoice
+    if invoice_history.invoice_status:
+        invoice.status = invoice_history.invoice_status
+        invoice.save()
+        del payload["invoice_status"]
+    return InvoiceHistory.objects.create(**payload, invoice=invoice)
 
 
 @router.delete(
@@ -245,3 +264,33 @@ def patch_medication_record(
 @paginate(NinjaCustomPagination)
 def client_profile_status_history(request: HttpRequest, client_id: int):
     return ClientStatusHistory.objects.filter(client=client_id).all()
+
+
+@router.get("/domains/{int:domain_id}/goals", response=list[DomainGoalSchema])
+@paginate(NinjaCustomPagination)
+def domain_goals(request: HttpRequest, domain_id: int):
+    return DomainGoal.objects.filter(domain__id=domain_id).all()
+
+
+@router.post("/domains/goals/add", response=DomainGoalSchema)
+def add_domain_goal(request: HttpRequest, domain_goal: DomainGoalInput):
+
+    return DomainGoal.objects.create(**domain_goal.dict())
+
+
+@router.delete("/domains/goals/{int:goal_id}/delete", response={204: EmptyResponseSchema})
+def delete_domain_goal(request: HttpRequest, goal_id: int):
+    return DomainGoal.objects.filter(id=goal_id).delete()
+
+
+@router.post("/domains/goals/{int:goal_id}/objective/add", response=DomainObjectiveSchema)
+def add_domain_goal_objective(request: HttpRequest, goal_id: int, objective: DomainObjectiveInput):
+    goal = get_object_or_404(DomainGoal, id=goal_id)
+    return DomainObjective.objects.create(**objective.dict(), goal=goal)
+
+
+@router.delete(
+    "/domains/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema}
+)
+def delete_domain_goal_objective(request: HttpRequest, objective_id: int):
+    return DomainObjective.objects.filter(id=objective_id).delete()
