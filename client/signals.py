@@ -13,12 +13,15 @@ from .models import ClientDetails, ClientStatusHistory
 def create_client_profile_status_history(
     sender: type[ClientDetails], instance: ClientDetails, **kwargs
 ):
-    old_client = get_object_or_404(ClientDetails, id=instance.pk)
+    try:
+        old_client = ClientDetails.objects.get(id=instance.pk)
 
-    if instance.status != old_client.status:
-        # Status changed
-        logger.debug("New ClientStatusHistory created!")
-        ClientStatusHistory.objects.create(client=instance, status=instance.status)
+        if instance.status != old_client.status:
+            # Status changed
+            logger.debug("New ClientStatusHistory created!")
+            ClientStatusHistory.objects.create(client=instance, status=instance.status)
+    except ClientDetails.DoesNotExist:
+        logger.debug(f"Client not found")
 
 
 @receiver(post_save, sender=ClientDetails)
