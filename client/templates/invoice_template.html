@@ -24,7 +24,8 @@
             </div>
             <div class="text-center border-top border-bottom my-5 py-3">
                 <h2 class="display-5 fw-bold">Invoice V1 </h2>
-                <p class="m-0">Invoice No: {{invoice_number}}</p>
+                <p class="m-0">Invoice No:<strong>{{invoice_number}}</strong></p>
+
                 <p class="m-0">Invoice Date: {{ issue_date }}</p>
             </div>
 
@@ -64,19 +65,17 @@
                 <tbody>
                     {% for ic in invoice_contracts %}
                     <tr>
-                        <td>{{ ic.contract }}</td>
-                        <td>{{ ic.care_type }}</td>
-                        <td>${{ ic.pre_vat_total }}</td>
-                        <td>{{ ic.vat_rate }}%</td>
-                        <td>${{ ic.total_amount }}</td>
+                        <td>{{ ic.contract_id }}</td>
+                        <td>{{ ic.item_desc }}</td>
+                        <td>${{ ic.contract_amount_without_tax }}</td>
+                        <td>{{ ic.used_tax }}%</td>
+                        <td>${{ ic.contract_amount }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
                         <th></th>
                         <td></td>
                         <td></td>
-                        <td class="">{{ vat_rate }}</td>
-                        <td>${{ vat_amount }}</td>
                     </tr>
 
                     <tr>

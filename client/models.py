@@ -7,9 +7,12 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from loguru import logger
+from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
@@ -498,7 +501,30 @@ class Invoice(models.Model):
             "used_tax": int,
         }
         """
-        pass
+        
+        sender = self.client.sender
+        context = {
+                "invoice_contracts": self.invoice_details,
+                "company_name": sender.name if sender else "",
+                "email": sender.email_adress if sender else "",
+                "address": sender.address if sender else "",
+                "total_amount": self.total_amount,
+                "issue_date": self.issue_date,
+                "due_date" : self.due_date,
+                "invoice_number": self.invoice_number,
+            }
+        html_string = render_to_string("invoice_template.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = f"Invoice_{self.invoice_number}.pdf"
+        new_attachment.file.save(new_attachment.name, ContentFile(pdf_content))
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True 
+        new_attachment.tag = 'Invoice'  
+        new_attachment.save()
+
+        return new_attachment.file.url
 
 
 class InvoiceHistory(models.Model):
