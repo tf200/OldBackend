@@ -221,27 +221,29 @@ class ContractWorkingHoursPatch(Schema):
 
 class DomainObjectiveSchema(ModelSchema):
     goal_id: int
+    client_id: int
 
     class Meta:
         model = DomainObjective
-        exclude = ("goal",)
+        exclude = ("goal", "client")
 
 
 class DomainObjectiveInput(ModelSchema):
 
     class Meta:
         model = DomainObjective
-        exclude = ("created", "updated", "goal", "id")
+        exclude = ("created", "updated", "goal", "client", "id")
 
 
 class DomainGoalSchema(ModelSchema):
     domain_id: int
+    client_id: int
     objectives: list[DomainObjectiveSchema]
     main_goal_rating: float
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain",)
+        exclude = ("domain", "client")
 
     @staticmethod
     def resolve_main_goal_rating(domain_goal: DomainGoal) -> float:
@@ -253,4 +255,4 @@ class DomainGoalInput(ModelSchema):
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain", "created", "updated", "id")
+        exclude = ("domain", "created", "updated", "id", "client")

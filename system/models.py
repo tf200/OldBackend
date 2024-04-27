@@ -200,3 +200,10 @@ class AttachmentFile(models.Model):
     tag = models.CharField(max_length=100, default="", null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+
+class Expence(models.Model):
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    desc = models.TextField(default="", null=True, blank=True)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)

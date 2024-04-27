@@ -778,7 +778,10 @@ class DomainGoal(models.Model):
     title = models.CharField(max_length=255)
     desc = models.TextField(default="", null=True, blank=True)
 
-    domain = models.ForeignKey(AssessmentDomain, related_name="goals", on_delete=models.CASCADE)
+    domain = models.ForeignKey(
+        AssessmentDomain, related_name="goals", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="goals", on_delete=models.CASCADE)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -802,7 +805,10 @@ class DomainObjective(models.Model):
     desc = models.TextField(default="", null=True, blank=True)
     rating = models.FloatField(default=0)
 
-    goal = models.ForeignKey(DomainGoal, related_name="objectives", on_delete=models.CASCADE)
+    goal = models.ForeignKey(
+        DomainGoal, related_name="objectives", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="objectives", on_delete=models.CASCADE)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

@@ -4,6 +4,7 @@ from ninja import Query, Router
 from ninja.pagination import paginate
 
 from client.models import (
+    ClientDetails,
     ClientStatusHistory,
     Contract,
     ContractType,
@@ -266,31 +267,39 @@ def client_profile_status_history(request: HttpRequest, client_id: int):
     return ClientStatusHistory.objects.filter(client=client_id).all()
 
 
-@router.get("/domains/{int:domain_id}/goals", response=list[DomainGoalSchema])
+# @router.get("/{int:client_id}/domains", response=list[DomainGoalSchema])
+# @paginate(NinjaCustomPagination)
+# def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
+#     return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
+
+
+@router.get("/{int:client_id}/domains/{int:domain_id}/goals", response=list[DomainGoalSchema])
 @paginate(NinjaCustomPagination)
-def domain_goals(request: HttpRequest, domain_id: int):
-    return DomainGoal.objects.filter(domain__id=domain_id).all()
+def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
+    return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
 
 
-@router.post("/domains/goals/add", response=DomainGoalSchema)
-def add_domain_goal(request: HttpRequest, domain_goal: DomainGoalInput):
+@router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
+def add_domain_goal(request: HttpRequest, client_id: int, domain_goal: DomainGoalInput):
+    return DomainGoal.objects.create(**domain_goal.dict(), client_id=client_id)
 
-    return DomainGoal.objects.create(**domain_goal.dict())
 
-
-@router.delete("/domains/goals/{int:goal_id}/delete", response={204: EmptyResponseSchema})
+@router.delete("/goals/{int:goal_id}/delete", response={204: EmptyResponseSchema})
 def delete_domain_goal(request: HttpRequest, goal_id: int):
-    return DomainGoal.objects.filter(id=goal_id).delete()
+    DomainGoal.objects.filter(id=goal_id).delete()
+    return 204, {}
 
 
-@router.post("/domains/goals/{int:goal_id}/objective/add", response=DomainObjectiveSchema)
-def add_domain_goal_objective(request: HttpRequest, goal_id: int, objective: DomainObjectiveInput):
+@router.post("/{int:client_id}/goals/{int:goal_id}/objective/add", response=DomainObjectiveSchema)
+def add_domain_goal_objective(
+    request: HttpRequest, client_id: int, goal_id: int, objective: DomainObjectiveInput
+):
+    client = get_object_or_404(ClientDetails, id=client_id)
     goal = get_object_or_404(DomainGoal, id=goal_id)
-    return DomainObjective.objects.create(**objective.dict(), goal=goal)
+    return DomainObjective.objects.create(**objective.dict(), goal=goal, client=client)
 
 
-@router.delete(
-    "/domains/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema}
-)
+@router.delete("/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema})
 def delete_domain_goal_objective(request: HttpRequest, objective_id: int):
-    return DomainObjective.objects.filter(id=objective_id).delete()
+    DomainObjective.objects.filter(id=objective_id).delete()
+    return 204, {}
