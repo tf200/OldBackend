@@ -3,7 +3,10 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
+from assessments.models import AssessmentDomain
+from assessments.schemas import AssessmentDomainSchema
 from client.models import (
+    CarePlan,
     ClientDetails,
     ClientStatusHistory,
     Contract,
@@ -27,6 +30,7 @@ from client.schemas import (
     DomainGoalInput,
     DomainGoalSchema,
     DomainObjectiveInput,
+    DomainObjectivePatch,
     DomainObjectiveSchema,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
@@ -267,16 +271,25 @@ def client_profile_status_history(request: HttpRequest, client_id: int):
     return ClientStatusHistory.objects.filter(client=client_id).all()
 
 
-# @router.get("/{int:client_id}/domains", response=list[DomainGoalSchema])
-# @paginate(NinjaCustomPagination)
-# def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
-#     return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
+@router.get("/{int:client_id}/domains")
+def client_domains(request: HttpRequest, client_id: int):
+    care_plans = CarePlan.objects.filter(client__id=client_id).all()
+    domain_ids: list[int] = []
+    for care_plan in care_plans:
+        domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+    return list(set(domain_ids))
 
 
 @router.get("/{int:client_id}/domains/{int:domain_id}/goals", response=list[DomainGoalSchema])
 @paginate(NinjaCustomPagination)
-def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
+def client_domain_goals(request: HttpRequest, client_id: int, domain_id: int):
     return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
+
+
+@router.get("/{int:client_id}/goals", response=list[DomainGoalSchema])
+@paginate(NinjaCustomPagination)
+def client_goals(request: HttpRequest, client_id: int):
+    return DomainGoal.objects.filter(client__id=client_id).all()
 
 
 @router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
@@ -297,6 +310,12 @@ def add_domain_goal_objective(
     client = get_object_or_404(ClientDetails, id=client_id)
     goal = get_object_or_404(DomainGoal, id=goal_id)
     return DomainObjective.objects.create(**objective.dict(), goal=goal, client=client)
+
+
+@router.patch("/goals/objective/{int:objective_id}/update", response=DomainObjectiveSchema)
+def patch_goal_objective(request: HttpRequest, objective_id: int, objective: DomainObjectivePatch):
+    DomainObjective.objects.filter(id=objective_id).update(**objective.dict(exclude_unset=True))
+    return get_object_or_404(DomainObjective, id=objective_id)
 
 
 @router.delete("/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema})

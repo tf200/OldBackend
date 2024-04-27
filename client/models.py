@@ -6,10 +6,11 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
-from django.db import models
 from django.core.files.base import ContentFile
-from django.template.loader import render_to_string
+from django.db import models
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from loguru import logger
 from weasyprint import HTML
@@ -478,7 +479,11 @@ class Invoice(models.Model):
         ordering = ("-created",)
 
     def total_paid_amount(self) -> float:
-        return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
+        # return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
+        total: float = self.history.aggregate(total=Sum("amount"))["total"]
+        if total:
+            return total
+        return 0
 
     def refresh_total_amount(self, save: bool = True) -> None:
         # recalculating the amount every time/update
@@ -501,18 +506,18 @@ class Invoice(models.Model):
             "used_tax": int,
         }
         """
-        
+
         sender = self.client.sender
         context = {
-                "invoice_contracts": self.invoice_details,
-                "company_name": sender.name if sender else "",
-                "email": sender.email_adress if sender else "",
-                "address": sender.address if sender else "",
-                "total_amount": self.total_amount,
-                "issue_date": self.issue_date,
-                "due_date" : self.due_date,
-                "invoice_number": self.invoice_number,
-            }
+            "invoice_contracts": self.invoice_details,
+            "company_name": sender.name if sender else "",
+            "email": sender.email_adress if sender else "",
+            "address": sender.address if sender else "",
+            "total_amount": self.total_amount,
+            "issue_date": self.issue_date,
+            "due_date": self.due_date,
+            "invoice_number": self.invoice_number,
+        }
         html_string = render_to_string("invoice_template.html", context)
         html = HTML(string=html_string)
         pdf_content = html.write_pdf()
@@ -520,8 +525,8 @@ class Invoice(models.Model):
         new_attachment.name = f"Invoice_{self.invoice_number}.pdf"
         new_attachment.file.save(new_attachment.name, ContentFile(pdf_content))
         new_attachment.size = new_attachment.file.size
-        new_attachment.is_used = True 
-        new_attachment.tag = 'Invoice'  
+        new_attachment.is_used = True
+        new_attachment.tag = "Invoice"
         new_attachment.save()
 
         return new_attachment.file.url

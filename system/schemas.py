@@ -2,7 +2,7 @@ from typing import Any, Generic, TypeAlias, TypeVar, Union
 
 from ninja import ModelSchema, Schema
 
-from system.models import AttachmentFile, DBSettings, Notification
+from system.models import AttachmentFile, DBSettings, Expense, Notification
 
 
 class DBSettingsSchema(Schema):
@@ -47,3 +47,20 @@ class AttachmentFilePatch(Schema):
     size: int | None = None
     is_used: bool | None = None
     tag: str | None
+
+
+class ExpenseSchema(ModelSchema):
+    class Meta:
+        model = Expense
+        fields = "__all__"
+
+
+class ExpenseSchemaInput(ModelSchema):
+    class Meta:
+        model = Expense
+        exclude = ("id", "created", "updated")
+
+
+class ExpenseSchemaPatch(Schema):
+    amount: int | None = None
+    desc: str | None = None

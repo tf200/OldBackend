@@ -202,8 +202,11 @@ class AttachmentFile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
-class Expence(models.Model):
+class Expense(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     desc = models.TextField(default="", null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.desc} ({self.amount})"

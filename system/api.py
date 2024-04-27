@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from django.db.models import Sum
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from loguru import logger
@@ -8,13 +9,16 @@ from ninja.pagination import paginate
 
 from client.models import ClientDetails, Contract, Invoice
 from employees.models import ClientMedication, ClientMedicationRecord
-from system.models import AttachmentFile, DBSettings, Notification
+from system.models import AttachmentFile, DBSettings, Expense, Notification
 from system.schemas import (
     AttachmentFilePatch,
     AttachmentFileSchema,
     DBSettingsSchema,
     EmptyResponseSchema,
     ErrorResponseSchema,
+    ExpenseSchema,
+    ExpenseSchemaInput,
+    ExpenseSchemaPatch,
     NotificationSchema,
 )
 from system.utils import NinjaCustomPagination
@@ -87,6 +91,29 @@ def delete_attachment(request: HttpRequest, uuid: UUID):
 def update_attachment(request: HttpRequest, uuid: UUID, attachment: AttachmentFilePatch):
     AttachmentFile.objects.filter(id=uuid).update(**attachment.dict(exclude_unset=True))
     return get_object_or_404(AttachmentFile, id=uuid)
+
+
+@router.get("/expenses", response=list[ExpenseSchema])
+@paginate(NinjaCustomPagination)
+def expenses(request: HttpRequest):
+    return Expense.objects.all()
+
+
+@router.post("/expenses/add", response=ExpenseSchema)
+def add_expense(request: HttpRequest, expense: ExpenseSchemaInput):
+    return Expense.objects.create(**expense.dict())
+
+
+@router.patch("/expenses/{int:expense_id}", response=ExpenseSchema)
+def patch_expense(request: HttpRequest, expense_id: int, expense: ExpenseSchemaPatch):
+    Expense.objects.filter(id=expense_id).update(**expense.dict(exclude_unset=True))
+    return get_object_or_404(Expense, id=expense_id)
+
+
+@router.delete("/expenses/{int:expense_id}/delete", response={204: EmptyResponseSchema})
+def delete_expense(request: HttpRequest, expense_id: int):
+    Expense.objects.filter(id=expense_id).delete()
+    return 204, {}
 
 
 @router.get("/dashboard/analytics")
@@ -171,6 +198,6 @@ def dashboard(request: HttpRequest):
                 sum([invoice.total_paid_amount() for invoice in Invoice.objects.all()]), 2
             ),
             ## Fetch the costs/charges (outcome)
-            "total_cost": 0,  # TODO: Cost/charges needs to be implemented and calculated
+            "total_expenses": Expense.objects.aggregate(total=Sum("amount"))["total"],
         },
     }

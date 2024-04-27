@@ -235,6 +235,12 @@ class DomainObjectiveInput(ModelSchema):
         exclude = ("created", "updated", "goal", "client", "id")
 
 
+class DomainObjectivePatch(Schema):
+    title: str | None = None
+    desc: str | None = None
+    rating: float | None = None
+
+
 class DomainGoalSchema(ModelSchema):
     domain_id: int
     client_id: int
