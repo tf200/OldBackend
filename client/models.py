@@ -290,6 +290,7 @@ class Contract(models.Model):
         APPROVED = ("approved", "Approved")
         DRAFT = ("draft", "Draft")
         TERMINATED = ("terminated", "Terminated")
+        STOPPED = ("stoped", "Stopped")
 
     class HoursType(models.TextChoices):
         WEEKLY = ("weekly", "Weekly")
@@ -457,7 +458,7 @@ class Invoice(models.Model):
         CONCEPT = ("concept", "Concept")
 
     invoice_number = models.CharField(
-        max_length=10, default=generate_invoice_id, editable=False, unique=True
+        max_length=10, default=generate_invoice_id, editable=False, unique=True, db_index=True
     )
     issue_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
