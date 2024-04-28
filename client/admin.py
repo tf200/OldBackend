@@ -12,9 +12,11 @@ from .models import (
     ContractWorkingHours,
     DomainGoal,
     DomainObjective,
+    GoalHistory,
     Invoice,
     InvoiceContract,
     InvoiceHistory,
+    ObjectiveHistory,
     Sender,
     SenderContactRelation,
     TemporaryFile,
@@ -142,6 +144,15 @@ class DomainGoalAdmin(admin.ModelAdmin):
     inlines = (DomainObjectiveInline,)
 
 
-# @admin.register(DomainObjective)
-# class DomainObjectiveAdmin(admin.ModelAdmin):
-#     list_display = ("title", "rating", "", "updated", "created")
+@admin.register(GoalHistory)
+class GoalHistoryAdmin(admin.ModelAdmin):
+    list_display = ("rating", "goal", "date")
+    list_filter = ("date",)
+    search_fields = ("goal__id",)
+
+
+@admin.register(ObjectiveHistory)
+class ObjectiveHistoryAdmin(admin.ModelAdmin):
+    list_display = ("rating", "objective", "date")
+    list_filter = ("date",)
+    search_fields = ("objective__id",)

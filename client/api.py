@@ -7,6 +7,7 @@ from assessments.models import AssessmentDomain
 from assessments.schemas import AssessmentDomainSchema
 from client.models import (
     CarePlan,
+    ClientCurrentLevel,
     ClientDetails,
     ClientStatusHistory,
     Contract,
@@ -14,10 +15,15 @@ from client.models import (
     ContractWorkingHours,
     DomainGoal,
     DomainObjective,
+    GoalHistory,
     Invoice,
     InvoiceHistory,
+    ObjectiveHistory,
 )
 from client.schemas import (
+    ClientCurrentLevelInput,
+    ClientCurrentLevelPatch,
+    ClientCurrentLevelSchema,
     ClientMedicationSchema,
     ClientStatusHistorySchema,
     ContractSchema,
@@ -28,10 +34,12 @@ from client.schemas import (
     ContractWorkingHoursPatch,
     ContractWorkingHoursSchema,
     DomainGoalInput,
+    DomainGoalPatch,
     DomainGoalSchema,
     DomainObjectiveInput,
     DomainObjectivePatch,
     DomainObjectiveSchema,
+    GoalHistorySchema,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
     InvoiceSchema,
@@ -39,6 +47,7 @@ from client.schemas import (
     MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
+    ObjectiveHistorySchema,
 )
 from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
 from system.schemas import EmptyResponseSchema, ErrorResponseSchema
@@ -303,6 +312,12 @@ def delete_domain_goal(request: HttpRequest, goal_id: int):
     return 204, {}
 
 
+@router.patch("/goals/{int:goal_id}/update", response={204: EmptyResponseSchema})
+def patch_domain_goal(request: HttpRequest, goal_id: int, goal: DomainGoalPatch):
+    DomainGoal.objects.filter(id=goal_id).update(**goal.dict(exclude_unset=True))
+    return 204, {}
+
+
 @router.post("/{int:client_id}/goals/{int:goal_id}/objective/add", response=DomainObjectiveSchema)
 def add_domain_goal_objective(
     request: HttpRequest, client_id: int, goal_id: int, objective: DomainObjectiveInput
@@ -321,4 +336,38 @@ def patch_goal_objective(request: HttpRequest, objective_id: int, objective: Dom
 @router.delete("/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema})
 def delete_domain_goal_objective(request: HttpRequest, objective_id: int):
     DomainObjective.objects.filter(id=objective_id).delete()
+    return 204, {}
+
+
+@router.get("/goals/{int:goal_id}/history", response=list[GoalHistorySchema])
+@paginate(NinjaCustomPagination)
+def goal_history(request: HttpRequest, goal_id: int):
+    return GoalHistory.objects.filter(goal__id=goal_id).all()
+
+
+@router.get("/goals/objectives/{int:objective_id}/history", response=list[ObjectiveHistorySchema])
+@paginate(NinjaCustomPagination)
+def objective_history(request: HttpRequest, objective_id: int):
+    return ObjectiveHistory.objects.filter(objective__id=objective_id).all()
+
+
+@router.get("/{int:client_id}/current-levels", response=list[ClientCurrentLevelSchema])
+def client_current_levels(request: HttpRequest, client_id: int):
+    return ClientCurrentLevel.objects.filter(client__id=client_id).all()
+
+
+@router.post("/{int:client_id}/current-levels/add", response=ClientCurrentLevelSchema)
+def add_client_current_levels(
+    request: HttpRequest, client_id: int, current_level: ClientCurrentLevelInput
+):
+    return ClientCurrentLevel.objects.create(**current_level.dict(), client_id=client_id)
+
+
+@router.patch("/current-levels/{int:current_level_id}/update", response={204: EmptyResponseSchema})
+def patch_client_current_levels(
+    request: HttpRequest, current_level_id: int, current_level: ClientCurrentLevelPatch
+):
+    ClientCurrentLevel.objects.filter(id=current_level_id).update(
+        **current_level.dict(exclude_unset=True)
+    )
     return 204, {}

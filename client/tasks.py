@@ -18,7 +18,15 @@ from employees.models import ClientMedication, ClientMedicationRecord, ProgressR
 from system.models import AttachmentFile, Notification
 from system.utils import send_mail_async
 
-from .models import ClientDetails, ClientEmergencyContact, Contract, Invoice
+from .models import (
+    ClientDetails,
+    ClientEmergencyContact,
+    Contract,
+    DomainGoal,
+    GoalHistory,
+    Invoice,
+    ObjectiveHistory,
+)
 
 
 @shared_task
@@ -308,3 +316,13 @@ def delete_unused_attachments():
     AttachmentFile.objects.filter(
         is_used=False, created__lte=timezone.now() - datetime.timedelta(days=1)
     ).delete()
+
+
+@shared_task
+def record_goals_and_objectives_history():
+    logger.debug("Task: record goals and objectives history.")
+    # this function needs to be dispatched once everyday.
+    for goal in DomainGoal.objects.all():
+        GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
+        for objective in goal.objectives.all():  # type: ignore
+            ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)

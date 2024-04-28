@@ -179,10 +179,35 @@ class ClientDetails(models.Model):
             client_medication__client=self, status=ClientMedicationRecord.Status.NOT_TAKEN
         ).count()
 
+    def get_current_levels(self) -> list[ClientCurrentLevel]:
+        current_levels: list[ClientCurrentLevel] = list(self.current_levels.all())
+        # if not current_levels:
+        #     domains = self.care_plans.all().values_list("domains", flat=True).distinct()
+        #     for domain in domains:
+        #         current_levels.append(
+        #             ClientCurrentLevel.objects.create(
+        #                 client=self, domain=domain
+        #             )  # default level: 1
+        #         )
+        return current_levels
+
     def generate_profile_document_link(self) -> str:
         """Generate a Client profile PDF and return a downloadable link (please see the PDF templete for it)"""
         # Ensure to use "AttachmentFile" (in the system model)
         pass
+
+
+class ClientCurrentLevel(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="current_levels", on_delete=models.CASCADE
+    )
+    domain = models.ForeignKey(
+        AssessmentDomain, related_name="current_levels", on_delete=models.CASCADE
+    )
+    level = models.FloatField(default=1)  # levels 1 - 5
+
+    def __str__(self) -> str:
+        return f"Current level: {self.level}"
 
 
 class ClientStatusHistory(models.Model):
@@ -849,7 +874,9 @@ class InvoiceContract(models.Model):
 
 
 class CarePlan(models.Model):
-    client = models.ForeignKey(ClientDetails, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(
+        ClientDetails, related_name="care_plans", on_delete=models.SET_NULL, null=True
+    )
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
@@ -899,6 +926,20 @@ class DomainObjective(models.Model):
 
     def __str__(self) -> str:
         return f"Objective: {self.title}"
+
+
+class GoalHistory(models.Model):
+    rating = models.FloatField(default=0)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    goal = models.ForeignKey(DomainGoal, related_name="history", on_delete=models.CASCADE)
+
+
+class ObjectiveHistory(models.Model):
+    rating = models.FloatField(default=0)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    objective = models.ForeignKey(
+        DomainObjective, related_name="history", on_delete=models.CASCADE
+    )
 
 
 class CareplanAtachements(models.Model):

@@ -5,6 +5,7 @@ from loguru import logger
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
 from client.models import (
+    ClientCurrentLevel,
     ClientDetails,
     ClientStatusHistory,
     Contract,
@@ -12,8 +13,10 @@ from client.models import (
     ContractWorkingHours,
     DomainGoal,
     DomainObjective,
+    GoalHistory,
     Invoice,
     InvoiceHistory,
+    ObjectiveHistory,
 )
 from employees.models import ClientMedication, ClientMedicationRecord
 from system.models import AttachmentFile
@@ -262,3 +265,38 @@ class DomainGoalInput(ModelSchema):
     class Meta:
         model = DomainGoal
         exclude = ("domain", "created", "updated", "id", "client")
+
+
+class DomainGoalPatch(Schema):
+    title: str | None = None
+    desc: str | None = None
+
+
+class GoalHistorySchema(ModelSchema):
+    class Meta:
+        model = GoalHistory
+        exclude = ("id", "goal")
+
+
+class ObjectiveHistorySchema(ModelSchema):
+    class Meta:
+        model = ObjectiveHistory
+        exclude = ("id", "objective")
+
+
+class ClientCurrentLevelSchema(ModelSchema):
+    domain_id: int
+
+    class Meta:
+        model = ClientCurrentLevel
+        exclude = ("client", "domain")
+
+
+class ClientCurrentLevelInput(Schema):
+    level: float
+    domain_id: int
+
+
+class ClientCurrentLevelPatch(Schema):
+    level: float | None = None
+    domain_id: int | None = None
