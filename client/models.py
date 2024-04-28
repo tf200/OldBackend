@@ -128,7 +128,7 @@ class ClientDetails(models.Model):
             invoice_details.append(
                 {
                     "contract_id": contract.pk,
-                    "item_desc": f"Care: {contract.care_name} (contract id: #{contract.id})",
+                    "item_desc": f"Care: {contract.care_name} (contract: #{contract.id}, {contract.financing_acts}/{contract.financing_options})",
                     "contract_amount": contract_amount,
                     "contract_amount_without_tax": contract_amount_without_tax,
                     "used_tax": contract.used_tax(),
@@ -304,6 +304,17 @@ class Contract(models.Model):
         WEEKLY = ("weekly", "Weekly")
         ALL_PERIOD = ("all_period", "All Period")
 
+    class FinancingActs(models.TextChoices):
+        WMO = ("WMO", "WMO")
+        ZVW = ("ZVW", "ZVW")
+        WLZ = ("WLZ", "WLZ")
+        JW = ("JW", "JW")
+        WPG = ("WPG", "WPG")
+
+    class FinancingOptions(models.TextChoices):
+        ZIN = ("ZIN", "ZIN")
+        PGB = ("PGB", "PGB")
+
     type = models.ForeignKey(ContractType, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(choices=Status.choices, default=Status.DRAFT)
     start_date = models.DateTimeField()
@@ -328,6 +339,11 @@ class Contract(models.Model):
     )
 
     attachment_ids = models.JSONField(default=list, blank=True)
+
+    financing_acts = models.CharField(choices=FinancingActs.choices, default=FinancingActs.WMO)
+    financing_options = models.CharField(
+        choices=FinancingOptions.choices, default=FinancingOptions.PGB
+    )
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
