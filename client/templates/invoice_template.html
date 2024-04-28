@@ -18,41 +18,52 @@
 
 <body>
     <section id="invoice">
-        <div class="container mb-5 pb-5">
+        <div class="container mb-2 pb-2">
             <div class="text-center">
-                <img src="images/logo_dark.png" alt="">
+                <h2 class="display-5 fw-bold">Invoice</h2>
             </div>
-            <div class="text-center border-top border-bottom my-5 py-3">
-                <h2 class="display-5 fw-bold">Invoice V1 </h2>
-                <p class="m-0">Invoice No:<strong>{{invoice_number}}</strong></p>
-
-                <p class="m-0">Invoice Date: {{ issue_date }}</p>
+            <div class="border-top border-bottom my-5 py-3">
+                <table>
+                    <tr>
+                        <td style="width: 70%;">
+                            <b class="text-primary">Company info</b>
+                            <h4><b>{{ invoice_company_name }}</b></h4>
+                            <ul class="list-unstyled">
+                                <li>{{ invoice_email }}</li>
+                                <li>{{ invoice_address }}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <p class="m-0">Invoice No: <strong>#{{invoice_number}}</strong></p>
+                            <p class="m-0">Issue Date: {{ issue_date }}</p>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
             <table>
                 <tr>
-                    <td style="width:100%">
-                        <p class="text-primary">Invoice To</p>
-                        <h4>{{ company_name }}</h4>
+                    <td style="width:70%">
+                        <b class="text-primary">Bill To</b>
+                        <h4><b>{{ company_name }}</b></h4>
                         <ul class="list-unstyled">
-                            <li>{{ company_name }}</li>
-                            <li>{{ email }}</li>
                             <li>{{ address }}</li>
+                            <li>KVK: {{ KVK }}</li>
+                            <li>BTW: {{ BTW }}</li>
                         </ul>
                     </td>
                     <td>
-                        <p class="text-primary">Invoice From</p>
-                        <h4>MaiCare</h4>
+                        <b class="text-primary">Client info</b>
+                        <h4><b>{{ client_full_name }}</b></h4>
                         <ul class="list-unstyled">
-                            <li>Maicare</li>
-                            <li>info@Maicare.com</li>
-                            <li>456 Main Street</li>
+                            <li>Birthday: {{ client_date_of_birth }}</li>
+                            <li>Client id: {{ client_id }}</li>
                         </ul>
                     </td>
                 </tr>
             </table>
 
-            <table class="table border my-5">
+            <table class="table border my-2">
                 <thead>
                     <tr class="bg-primary-subtle">
                         <th scope="col">No.</th>
@@ -67,63 +78,29 @@
                     <tr>
                         <td>{{ ic.contract_id }}</td>
                         <td>{{ ic.item_desc }}</td>
-                        <td>${{ ic.contract_amount_without_tax }}</td>
+                        <td>{{ site_currency_symbol }}{{ ic.contract_amount_without_tax }}</td>
                         <td>{{ ic.used_tax }}%</td>
-                        <td>${{ ic.contract_amount }}</td>
+                        <td>{{ site_currency_symbol }}{{ ic.contract_amount }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
-                        <th></th>
                         <td></td>
                         <td></td>
-                    </tr>
-
-                    <tr>
-                        <th></th>
                         <td></td>
-                        <td></td>
-                        <td class="text-primary fw-bold">Grand-Total</td>
-                        <td class="text-primary fw-bold">${{ total_amount }}</td>
+                        <td class="text-primary fw-bold">Total: </td>
+                        <td class="text-primary fw-bold">{{ site_currency_symbol }}{{ total_amount }}</td>
                     </tr>
                 </tbody>
             </table>
-
-            <div class="d-md-flex justify-content-between my-5">
-                <div>
-                    <h5 class="fw-bold my-4">Contact Us</h5>
-                    <ul class="list-unstyled">
-                        <li><iconify-icon class="social-icon text-primary fs-5 me-2" icon="mdi:location"
-                                style="vertical-align:text-bottom"></iconify-icon> 30 E Lake St, Chicago, USA</li>
-                        <li><iconify-icon class="social-icon text-primary fs-5 me-2" icon="solar:phone-bold"
-                                style="vertical-align:text-bottom"></iconify-icon> (510) 710-3464</li>
-                        <li><iconify-icon class="social-icon text-primary fs-5 me-2" icon="ic:baseline-email"
-                                style="vertical-align:text-bottom"></iconify-icon> info@worldcourse.com</li>
-                    </ul>
-                </div>
-                <div>
-                    <h5 class="fw-bold my-4">Payment Info</h5>
-                    <ul class="list-unstyled">
-                        <li><span class="fw-semibold">Account No: </span> 102 3345 56938</li>
-                        <li><span class="fw-semibold">Account Name: </span> William Peter</li>
-                        <li><span class="fw-semibold">Branch Name: </span> XYZ </li>
-
-                    </ul>
-                </div>
-
-
+            <p class="mb-2"><i>Used currency: {{ site_currency }} ({{ site_currency_symbol }})</i></p>
+            <div class="text-center my-1 mt-5">
+                <p class="text-muted">{{ invoice_footer }}</p>
             </div>
-
-            <div class="text-center my-5">
-                <p class="text-muted"><span class="fw-semibold">NOTICE: </span> A finance charge of 1.5% will be made on
-                    unpaid balances after 30 days.</p>
-            </div>
-
             <div id="footer-bottom">
                 <div class="container border-top">
-                    <div class="row mt-3">
-                        <div class="col-md-6 copyright">
-                            <p>© 2024 Invoice. <a href="#" target="_blank"
-                                    class="text-decoration-none text-black-50">Terms & Conditions</a> </p>
+                    <div class="row mt-1">
+                        <div class="col-md-6 copyright text-center text-muted">
+                            <p>© {% now "Y" %} All right reserved.</p>
                         </div>
                     </div>
                 </div>

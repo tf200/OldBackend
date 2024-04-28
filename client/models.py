@@ -17,7 +17,7 @@ from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from system.models import AttachmentFile, Notification
+from system.models import AttachmentFile, DBSettings, Notification
 
 
 def generate_invoice_id() -> str:
@@ -96,10 +96,12 @@ class ClientDetails(models.Model):
         Location, on_delete=models.SET_NULL, related_name="client_location", null=True
     )
 
+    identity_attachment_ids = models.JSONField(default=list, blank=True)
+
     # class Meta:
     #     verbose_name = "Client"
 
-    def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice:
+    def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice | None:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
         # Get all client approved contracts
         current_date = timezone.now().date()
@@ -133,40 +135,42 @@ class ClientDetails(models.Model):
                 }
             )
 
-        # Create invoice for each all the available contracts
-        invoice = Invoice.objects.create(
-            client=self,
-            total_amount=Decimal(total_amount),
-            invoice_details=invoice_details,
-            due_date=timezone.now() + timedelta(days=30),
-        )
+        if invoice_details:
+            # Create invoice for each all the available contracts
+            invoice = Invoice.objects.create(
+                client=self,
+                total_amount=Decimal(total_amount),
+                invoice_details=invoice_details,
+                due_date=timezone.now() + timedelta(days=30),
+            )
 
-        # Send notifications
-        if send_notifications:
-            for contract in contracts:
-                # Send a notification to the client
-                notification = Notification.objects.create(
-                    title="Invoice created",
-                    event=Notification.EVENTS.INVOICE_CREATED,
-                    content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
-                    receiver=invoice.client.user,
-                    metadata={"invoice_id": invoice.id},  # type: ignore
-                )
-
-                notification.notify()
-
-                # send a notification to sender
-                if contract.sender and contract.sender.email_adress:
+            # Send notifications
+            if send_notifications:
+                for contract in contracts:
+                    # Send a notification to the client
                     notification = Notification.objects.create(
                         title="Invoice created",
                         event=Notification.EVENTS.INVOICE_CREATED,
                         content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
+                        receiver=invoice.client.user,
                         metadata={"invoice_id": invoice.id},  # type: ignore
                     )
 
-                    notification.notify(to=contract.sender.email_adress)
+                    notification.notify()
 
-        return invoice
+                    # send a notification to sender
+                    if contract.sender and contract.sender.email_adress:
+                        notification = Notification.objects.create(
+                            title="Invoice created",
+                            event=Notification.EVENTS.INVOICE_CREATED,
+                            content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
+                            metadata={"invoice_id": invoice.id},  # type: ignore
+                        )
+
+                        notification.notify(to=contract.sender.email_adress)
+
+            return invoice
+        return None
 
     def has_untaken_medications(self) -> int:
         from employees.models import ClientMedicationRecord
@@ -323,7 +327,7 @@ class Contract(models.Model):
         Sender, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
     )
 
-    attachment_ids = models.JSONField(default=list)
+    attachment_ids = models.JSONField(default=list, blank=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -469,6 +473,9 @@ class Invoice(models.Model):
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
 
@@ -494,7 +501,7 @@ class Invoice(models.Model):
         if save:
             self.save()
 
-    def download_link(self) -> str:
+    def download_link(self, refresh=False) -> str:
         """Ensure to generate an invoice PDF and return a link to download it"""
         """
         this is the structure of "self.invoice_details"
@@ -506,28 +513,58 @@ class Invoice(models.Model):
             "used_tax": int,
         }
         """
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
 
         sender = self.client.sender
         context = {
+            "invoice_number": self.invoice_number,
             "invoice_contracts": self.invoice_details,
+            "issue_date": self.issue_date,
+            "due_date": self.due_date,
+            "total_amount": self.total_amount,
+            # Client
+            "client_full_name": f"{self.client.first_name} {self.client.last_name}",
+            "client_id": self.client.id,
+            "client_date_of_birth": self.client.date_of_birth,
+            # Sender
             "company_name": sender.name if sender else "",
             "email": sender.email_adress if sender else "",
             "address": sender.address if sender else "",
-            "total_amount": self.total_amount,
-            "issue_date": self.issue_date,
-            "due_date": self.due_date,
-            "invoice_number": self.invoice_number,
+            "KVK": sender.BTWnumber if sender else "",
+            "BTW": sender.KVKnumber if sender else "",
+            # Site info
+            "site_name": DBSettings.get("SITE_NAME"),
+            "invoice_footer": DBSettings.get("INVOICE_FOOTER"),
+            "site_currency": DBSettings.get("SITE_CURRENCY"),
+            "site_currency_symbol": DBSettings.get("SITE_CURRENCY_SYMBOL"),
+            # Company info
+            "invoice_company_name": DBSettings.get(
+                "CONTACT_COMPANY_NAME", DBSettings.get("SITE_NAME")
+            ),
+            "invoice_email": DBSettings.get("CONTACT_EMAIL"),
+            "invoice_address": DBSettings.get("CONTACT_ADDRESS"),
+            "invoice_phone": DBSettings.get("CONTACT_PHONE"),
         }
         html_string = render_to_string("invoice_template.html", context)
         html = HTML(string=html_string)
         pdf_content = html.write_pdf()
         new_attachment = AttachmentFile()
         new_attachment.name = f"Invoice_{self.invoice_number}.pdf"
-        new_attachment.file.save(new_attachment.name, ContentFile(pdf_content))
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
         new_attachment.size = new_attachment.file.size
         new_attachment.is_used = True
         new_attachment.tag = "Invoice"
         new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
 
         return new_attachment.file.url
 
