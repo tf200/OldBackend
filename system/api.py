@@ -194,10 +194,10 @@ def dashboard(request: HttpRequest):
         },
         ### Total income
         "finance": {
-            "total_paid_amount": round(
-                sum([invoice.total_paid_amount() for invoice in Invoice.objects.all()]), 2
-            ),
-            ## Fetch the costs/charges (outcome)
+            "total_paid_amount": Invoice.objects.values_list(
+                "history__amount", flat=True
+            ).aggregate(total=Sum("history__amount"))["total"],
+            # ## Fetch the costs/charges (outcome)
             "total_expenses": Expense.objects.aggregate(total=Sum("amount"))["total"],
         },
     }

@@ -528,9 +528,14 @@ class Invoice(models.Model):
 
     def total_paid_amount(self) -> float:
         # return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
-        total: float = self.history.aggregate(total=Sum("amount"))["total"]
+        total: None | Decimal = (
+            self.__class__.objects.filter(id=self.pk)
+            .values_list("history__amount", flat=True)
+            .aggregate(total=Sum("history__amount"))["total"]
+        )
+
         if total:
-            return total
+            return float(total)
         return 0
 
     def refresh_total_amount(self, save: bool = True) -> None:
