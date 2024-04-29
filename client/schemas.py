@@ -34,6 +34,20 @@ class ContractSchema(ModelSchema):
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["ambulante", "accommodation"]
     status: Literal["approved", "draft", "terminated"] = "draft"
+    sender_id: int | None
+    sender_name: str
+
+    @staticmethod
+    def resolve_sender_name(contract: Contract) -> str:
+        if contract.sender and contract.sender.name:
+            return contract.sender.name
+        return ""
+
+    @staticmethod
+    def resolve_sender_id(contract: Contract) -> str:
+        if contract.sender:
+            return contract.sender.id
+        return ""
 
     @staticmethod
     def resolve_client_first_name(contract: Contract) -> str | None:

@@ -133,6 +133,34 @@ class ClientEmployeeAssignment(models.Model):
 
 
 class ProgressReport(models.Model):
+    class Types(models.TextChoices):
+        MORNING_REPORT = (
+            "morning_report",
+            "Morning report",
+        )
+        EVENING_REPORT = (
+            "evening_report",
+            "Evening report",
+        )
+        NIGHT_REPORT = (
+            "night_report",
+            "Night report",
+        )
+        SHIFT_REPORT = (
+            "shift_report",
+            "Intermediate shift report",
+        )
+        ONE_TO_ONE_REPORT = (
+            "one_to_one_report",
+            "1 on 1 Reporting",
+        )
+        PROCESS_REPORT = (
+            "process_report",
+            "Process Reporting",
+        )
+        CONTACT_JOURNAL = "contact_journal", "Contact Journal"
+        OTHER = "other", "Other"
+
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -144,6 +172,9 @@ class ProgressReport(models.Model):
         blank=True,
         null=True,
     )
+
+    type = models.CharField(choices=Types.choices, default=Types.OTHER)
+
     created = models.DateTimeField(blank=True, null=True)
 
 

@@ -138,6 +138,7 @@ class InvoiceFilter(filters.FilterSet):
 class ContractFilterSchema(FilterSchema):
     sender: Optional[int] = None
     client: Optional[int] = None
+    status: Optional[Literal["approved", "draft", "terminated", "stopped"]] = None
     type_id: Optional[int] = Field(None, q="type__id")
     price_frequency: Optional[Literal["minute", "hourly", "daily", "weekly", "monthly"]] = None
     care_type: Optional[Literal["ambulante", "accommodation"]] = None

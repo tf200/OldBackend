@@ -323,7 +323,7 @@ class Contract(models.Model):
         APPROVED = ("approved", "Approved")
         DRAFT = ("draft", "Draft")
         TERMINATED = ("terminated", "Terminated")
-        STOPPED = ("stoped", "Stopped")
+        STOPPED = ("stopped", "Stopped")
 
     class HoursType(models.TextChoices):
         WEEKLY = ("weekly", "Weekly")
