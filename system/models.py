@@ -215,5 +215,34 @@ class Expense(models.Model):
     def __str__(self):
         return f"{self.desc} ({self.amount})"
 
-    def __add__(self, other: Expense) -> Decimal:
-        return self.amount + other.amount
+    def __add__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount + other.amount
+        if isinstance(other, (int, float)):
+            return self.amount + Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount + other
+
+    def __sub__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount - other.amount
+        if isinstance(other, (int, float)):
+            return self.amount - Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount - other
+
+    def __mul__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount * other.amount
+        if isinstance(other, (int, float)):
+            return self.amount * Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount * other
+
+    def __div__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount / other.amount
+        if isinstance(other, (int, float)):
+            return self.amount / Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount / other
