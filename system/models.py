@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import uuid
+from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
@@ -201,6 +202,9 @@ class AttachmentFile(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def download_link(self) -> str:
+        return self.file.url
+
 
 class Expense(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=2)
@@ -210,3 +214,6 @@ class Expense(models.Model):
 
     def __str__(self):
         return f"{self.desc} ({self.amount})"
+
+    def __add__(self, other: Expense) -> Decimal:
+        return self.amount + other.amount

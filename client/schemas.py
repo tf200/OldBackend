@@ -34,19 +34,12 @@ class ContractSchema(ModelSchema):
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["ambulante", "accommodation"]
     status: Literal["approved", "draft", "terminated"] = "draft"
-    sender_id: int | None
     sender_name: str
 
     @staticmethod
     def resolve_sender_name(contract: Contract) -> str:
         if contract.sender and contract.sender.name:
             return contract.sender.name
-        return ""
-
-    @staticmethod
-    def resolve_sender_id(contract: Contract) -> str:
-        if contract.sender:
-            return contract.sender.id
         return ""
 
     @staticmethod
@@ -116,6 +109,8 @@ class InvoiceSchema(ModelSchema):
     client_id: int
     history: list[InvoiceHistorySchema] = []
     total_paid_amount: float = 0
+    sender_id: int | None
+    sender_name: str
 
     class Meta:
         model = Invoice
@@ -124,6 +119,18 @@ class InvoiceSchema(ModelSchema):
     @staticmethod
     def resolve_total_paid_amount(invoice: Invoice) -> float:
         return invoice.total_paid_amount()
+
+    @staticmethod
+    def resolve_sender_name(invoice: Invoice) -> str:
+        if invoice.client.sender and invoice.client.sender.name:
+            return invoice.client.sender.name
+        return ""
+
+    @staticmethod
+    def resolve_sender_id(invoice: Invoice) -> int:
+        if invoice.client.sender:
+            return invoice.client.sender.pk
+        return 0
 
 
 class InvoiceHistoryInput(ModelSchema):
