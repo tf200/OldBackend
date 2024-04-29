@@ -6,10 +6,13 @@ from employees.models import ClientMedication
 from planning.serializers import move_file_s3
 
 from .models import *
+from system.models import AttachmentFile
+from system.serializers import AttchementFileSerialize
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
+    attachments = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientDetails
@@ -39,6 +42,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "created",
             "sender",
             "location",
+            "attachments"
         ]
         extra_kwargs = {
             "user": {"read_only": True},
@@ -54,6 +58,11 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation["has_untaken_medications"] = instance.has_untaken_medications()
         return representation
+    
+    def get_attachments(self, obj):
+        attachment_ids = obj.identity_attachment_ids
+        attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)
+        return AttchementFileSerialize(attachments, many=True).data
 
 
 class ClientDetailsNestedSerializer(serializers.ModelSerializer):
