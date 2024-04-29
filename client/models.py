@@ -365,8 +365,8 @@ class Contract(models.Model):
 
     attachment_ids = models.JSONField(default=list, blank=True)
 
-    financing_acts = models.CharField(choices=FinancingActs.choices, default=FinancingActs.WMO)
-    financing_options = models.CharField(
+    financing_act = models.CharField(choices=FinancingActs.choices, default=FinancingActs.WMO)
+    financing_option = models.CharField(
         choices=FinancingOptions.choices, default=FinancingOptions.PGB
     )
 
@@ -541,6 +541,9 @@ class Invoice(models.Model):
 
         if save:
             self.save()
+            # delete the old pdf attachment
+            if self.pdf_attachment:
+                self.pdf_attachment.delete()
 
     def download_link(self, refresh=False) -> str:
         """Ensure to generate an invoice PDF and return a link to download it"""

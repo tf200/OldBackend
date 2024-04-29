@@ -4,10 +4,10 @@ from rest_framework import serializers
 from authentication.serializers import CustomUserSerializer
 from employees.models import ClientMedication
 from planning.serializers import move_file_s3
-
-from .models import *
 from system.models import AttachmentFile
 from system.serializers import AttchementFileSerialize
+
+from .models import *
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
@@ -42,7 +42,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "created",
             "sender",
             "location",
-            "attachments"
+            "attachments",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
@@ -58,7 +58,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation["has_untaken_medications"] = instance.has_untaken_medications()
         return representation
-    
+
     def get_attachments(self, obj):
         attachment_ids = obj.identity_attachment_ids
         attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)

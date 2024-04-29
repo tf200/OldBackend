@@ -5,6 +5,7 @@ from ninja.pagination import paginate
 
 from assessments.models import AssessmentDomain
 from assessments.schemas import AssessmentDomainSchema
+from client.filters import ContractFilterSchema, DateFilterSchema, InvoiceFilterSchema
 from client.models import (
     CarePlan,
     ClientCurrentLevel,
@@ -58,8 +59,8 @@ router = Router()
 
 @router.get("/contracts", response=list[ContractSchema])
 @paginate(NinjaCustomPagination)
-def contracts(request: HttpRequest):
-    return Contract.objects.all()
+def contracts(request: HttpRequest, filter: ContractFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(Contract.objects.all())
 
 
 @router.get("/contracts/{int:contract_id}", response=ContractSchema)
@@ -124,13 +125,20 @@ def update_client_contract(request: HttpRequest, id: int, contract: ContractSche
 
 @router.get("/invoices", response=list[InvoiceSchema])
 @paginate(NinjaCustomPagination)
-def all_invoices(request: HttpRequest):
-    return Invoice.objects.all()
+def all_invoices(request: HttpRequest, filter: InvoiceFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(Invoice.objects.all())
 
 
 @router.get("/invoices/{int:invoice_id}", response=InvoiceSchema)
 def invoice_details(request: HttpRequest, invoice_id: int):
     return get_object_or_404(Invoice, id=invoice_id)
+
+
+@router.get("/invoices/{int:invoice_id}/download-link")
+def invoice_download_as_pdf(request: HttpRequest, invoice_id: int):
+    """Download invoice as PDF"""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    return {"download_link": invoice.download_link()}
 
 
 @router.patch("/invoices/{int:invoice_id}/update", response=InvoiceSchema)
@@ -275,7 +283,6 @@ def patch_medication_record(
 
 
 @router.get("/{int:client_id}/profile-status-history", response=list[ClientStatusHistorySchema])
-@paginate(NinjaCustomPagination)
 def client_profile_status_history(request: HttpRequest, client_id: int):
     return ClientStatusHistory.objects.filter(client=client_id).all()
 
@@ -340,15 +347,13 @@ def delete_domain_goal_objective(request: HttpRequest, objective_id: int):
 
 
 @router.get("/goals/{int:goal_id}/history", response=list[GoalHistorySchema])
-@paginate(NinjaCustomPagination)
-def goal_history(request: HttpRequest, goal_id: int):
-    return GoalHistory.objects.filter(goal__id=goal_id).all()
+def goal_history(request: HttpRequest, goal_id: int, filter: DateFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(GoalHistory.objects.filter(goal__id=goal_id).all())
 
 
 @router.get("/goals/objectives/{int:objective_id}/history", response=list[ObjectiveHistorySchema])
-@paginate(NinjaCustomPagination)
-def objective_history(request: HttpRequest, objective_id: int):
-    return ObjectiveHistory.objects.filter(objective__id=objective_id).all()
+def objective_history(request: HttpRequest, objective_id: int, filter: DateFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(ObjectiveHistory.objects.filter(objective__id=objective_id).all())
 
 
 @router.get("/{int:client_id}/current-levels", response=list[ClientCurrentLevelSchema])

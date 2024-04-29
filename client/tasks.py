@@ -322,7 +322,10 @@ def delete_unused_attachments():
 def record_goals_and_objectives_history():
     logger.debug("Task: record goals and objectives history.")
     # this function needs to be dispatched once everyday.
+    now = timezone.now()
     for goal in DomainGoal.objects.all():
-        GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
-        for objective in goal.objectives.all():  # type: ignore
-            ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)
+        # check if the current date has a record or not, if not then create one
+        if not GoalHistory.objects.filter(date=now.date(), goal=goal).exists():
+            GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
+            for objective in goal.objectives.all():  # type: ignore
+                ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)
