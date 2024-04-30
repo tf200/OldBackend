@@ -7,6 +7,7 @@ from ninja import Field, FilterSchema, ModelSchema, Schema
 from client.models import (
     ClientCurrentLevel,
     ClientDetails,
+    ClientState,
     ClientStatusHistory,
     Contract,
     ContractType,
@@ -321,3 +322,27 @@ class ClientCurrentLevelInput(Schema):
 class ClientCurrentLevelPatch(Schema):
     level: float | None = None
     domain_id: int | None = None
+
+
+class ClientStateSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ClientState
+        exclude = ("client",)
+
+
+class ClientStateSchemaInput(ModelSchema):
+    client_id: int
+    type: Literal["emotional", "physical"]
+    created: Optional[datetime] = None
+
+    class Meta:
+        model = ClientState
+        exclude = ("client", "updated", "id")
+
+
+class ClientStateSchemaPatch(Schema):
+    value: Optional[int] = None
+    content: Optional[str] = None
+    created: Optional[datetime] = None

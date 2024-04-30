@@ -58,7 +58,7 @@ class ExpenseSchema(ModelSchema):
 class ExpenseSchemaInput(ModelSchema):
     class Meta:
         model = Expense
-        exclude = ("id", "created", "updated")
+        exclude = ("id", "updated")
 
 
 class ExpenseSchemaPatch(Schema):

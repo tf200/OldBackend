@@ -224,6 +224,23 @@ class ClientStatusHistory(models.Model):
         return f"{self.status} (since: {self.start_date})"
 
 
+class ClientState(models.Model):
+    class Types(models.TextChoices):
+        EMOTIONAL = ("emotional", "Emotional")
+        PHYSICAL = ("physical", "Physical")
+
+    value = models.IntegerField(default=0)
+    type = models.CharField(choices=Types.choices)
+    content = models.TextField(default="", null=True)
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="client_states", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 class ClientDiagnosis(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="diagnoses")

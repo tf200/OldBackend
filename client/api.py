@@ -10,6 +10,7 @@ from client.models import (
     CarePlan,
     ClientCurrentLevel,
     ClientDetails,
+    ClientState,
     ClientStatusHistory,
     Contract,
     ContractType,
@@ -26,6 +27,9 @@ from client.schemas import (
     ClientCurrentLevelPatch,
     ClientCurrentLevelSchema,
     ClientMedicationSchema,
+    ClientStateSchema,
+    ClientStateSchemaInput,
+    ClientStateSchemaPatch,
     ClientStatusHistorySchema,
     ContractSchema,
     ContractSchemaInput,
@@ -375,4 +379,28 @@ def patch_client_current_levels(
     ClientCurrentLevel.objects.filter(id=current_level_id).update(
         **current_level.dict(exclude_unset=True)
     )
+    return 204, {}
+
+
+@router.get("/{int:client_id}/states", response=list[ClientStateSchema])
+@paginate(NinjaCustomPagination)
+def client_states(request: HttpRequest, client_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    return client.client_states.all()  # type: ignore
+
+
+@router.post("/states/add", response=ClientStateSchema)
+def add_client_states(request: HttpRequest, client_state: ClientStateSchemaInput):
+    return ClientState.objects.create(**client_state.dict(exclude_unset=True))
+
+
+@router.patch("/states/{int:state_id}/update", response=ClientStateSchema)
+def patch_client_states(request: HttpRequest, state_id: int, client_state: ClientStateSchemaPatch):
+    ClientState.objects.filter(id=state_id).update(**client_state.dict(exclude_unset=True))
+    return get_object_or_404(ClientState, id=state_id)
+
+
+@router.delete("/states/{int:state_id}/delete", response={204: EmptyResponseSchema})
+def delete_client_states(request: HttpRequest, state_id: int):
+    ClientState.objects.filter(id=state_id).delete()
     return 204, {}
