@@ -44,6 +44,7 @@ from client.schemas import (
     DomainObjectiveInput,
     DomainObjectivePatch,
     DomainObjectiveSchema,
+    DownloadLinkSchema,
     GoalHistorySchema,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
@@ -138,7 +139,7 @@ def invoice_details(request: HttpRequest, invoice_id: int):
     return get_object_or_404(Invoice, id=invoice_id)
 
 
-@router.get("/invoices/{int:invoice_id}/download-link")
+@router.get("/invoices/{int:invoice_id}/download-link", response=DownloadLinkSchema)
 def invoice_download_as_pdf(request: HttpRequest, invoice_id: int):
     """Download invoice as PDF"""
     invoice = get_object_or_404(Invoice, id=invoice_id)

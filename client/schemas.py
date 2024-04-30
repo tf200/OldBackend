@@ -158,6 +158,10 @@ class InvoiceSchemaPatch(Schema):
     invoice_details: list[dict[str, Any]] | None = None
 
 
+class DownloadLinkSchema(Schema):
+    download_link: str
+
+
 class ContractTypeSchema(ModelSchema):
     class Meta:
         model = ContractType
