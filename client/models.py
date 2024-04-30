@@ -204,7 +204,7 @@ class ClientCurrentLevel(models.Model):
     domain = models.ForeignKey(
         AssessmentDomain, related_name="current_levels", on_delete=models.CASCADE
     )
-    level = models.FloatField(default=1)  # levels 1 - 5
+    level = models.IntegerField(default=1)  # levels 1 - 5
 
     def __str__(self) -> str:
         return f"Current level: {self.level}"
