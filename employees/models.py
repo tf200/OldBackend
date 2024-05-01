@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 
@@ -7,6 +9,7 @@ from django.db import models
 from django.utils import timezone
 from loguru import logger
 
+from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
 from system.models import Notification
@@ -413,3 +416,60 @@ class Incident(models.Model):
 
     def __str__(self):
         return f"Incident on {self.date_of_incident} at {self.location}"
+
+
+class DomainGoal(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+
+    domain = models.ForeignKey(
+        AssessmentDomain, related_name="goals", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="goals", on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Main Goal: {self.title}"
+
+    def total_objectives(self) -> int:
+        return self.objectives.count()
+
+    def main_goal_rating(self) -> float:
+        """This average is calculated based on Objectives"""
+        objectives = self.objectives.all()
+        if objectives:
+            return round(sum([objective.rating for objective in objectives]) / len(objectives), 1)
+        return 0
+
+
+class DomainObjective(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+    rating = models.FloatField(default=0)
+
+    goal = models.ForeignKey(
+        DomainGoal, related_name="objectives", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="objectives", on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Objective: {self.title}"
+
+
+class ObjectiveHistory(models.Model):
+    rating = models.FloatField(default=0)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    objective = models.ForeignKey(
+        DomainObjective, related_name="history", on_delete=models.CASCADE
+    )
+
+
+class GoalHistory(models.Model):
+    rating = models.FloatField(default=0)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    goal = models.ForeignKey(DomainGoal, related_name="history", on_delete=models.CASCADE)

@@ -12,14 +12,11 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
-    GoalHistory,
     Invoice,
     InvoiceHistory,
-    ObjectiveHistory,
 )
-from employees.models import ClientMedication, ClientMedicationRecord
+from employees.models import ClientMedication, ClientMedicationRecord, DomainGoal, DomainObjective, ObjectiveHistory, \
+    GoalHistory
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
 

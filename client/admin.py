@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from employees.models import ClientMedicationRecord
+from employees.models import ClientMedicationRecord, DomainGoal, DomainObjective, ObjectiveHistory, GoalHistory
 
 from .models import (
     CarePlan,
@@ -10,13 +10,9 @@ from .models import (
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
-    GoalHistory,
     Invoice,
     InvoiceContract,
     InvoiceHistory,
-    ObjectiveHistory,
     Sender,
     SenderContactRelation,
     TemporaryFile,

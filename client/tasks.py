@@ -14,7 +14,8 @@ from rest_framework.response import Response
 from weasyprint import HTML
 
 from celery import shared_task
-from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport
+from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport, DomainGoal, ObjectiveHistory, \
+    GoalHistory
 from system.models import AttachmentFile, Notification
 from system.utils import send_mail_async
 
@@ -22,10 +23,7 @@ from .models import (
     ClientDetails,
     ClientEmergencyContact,
     Contract,
-    DomainGoal,
-    GoalHistory,
     Invoice,
-    ObjectiveHistory,
 )
 
 

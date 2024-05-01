@@ -15,12 +15,8 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
-    GoalHistory,
     Invoice,
     InvoiceHistory,
-    ObjectiveHistory,
 )
 from client.schemas import (
     ClientCurrentLevelInput,
@@ -55,7 +51,8 @@ from client.schemas import (
     MedicationRecordSchema,
     ObjectiveHistorySchema,
 )
-from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
+from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile, DomainGoal, DomainObjective, \
+    ObjectiveHistory, GoalHistory
 from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
 
