@@ -6,6 +6,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from loguru import logger
 
@@ -426,6 +427,19 @@ class DomainGoal(models.Model):
         AssessmentDomain, related_name="goals", on_delete=models.SET_NULL, null=True
     )
     client = models.ForeignKey(ClientDetails, related_name="goals", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        EmployeeProfile,
+        related_name="goals",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    reviewed_by = models.ForeignKey(
+        EmployeeProfile,
+        related_name="reviewed_goals",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    is_approved = models.BooleanField(default=False)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -442,6 +456,18 @@ class DomainGoal(models.Model):
         if objectives:
             return round(sum([objective.rating for objective in objectives]) / len(objectives), 1)
         return 0
+
+    def save(self, *args, **kwargs):
+        # if not self.id:
+        #     # creating
+        #     self.created_by = self.request.user
+        # else:
+        #     # updating
+        #     old_goal = get_object_or_404(self.__class__, id=self.id)
+        #     if old_goal.is_approved != self.is_approved:
+        #         self.reviewed_by = self.request.user
+
+        return super(self.__class__, self).save(*args, **kwargs)
 
 
 class DomainObjective(models.Model):

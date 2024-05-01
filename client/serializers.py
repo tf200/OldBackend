@@ -59,7 +59,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         representation["has_untaken_medications"] = instance.has_untaken_medications()
         return representation
 
-    def get_attachments(self, obj):
+    def get_attachments(self, obj: ClientDetails):
         attachment_ids = obj.identity_attachment_ids
         attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)
         return AttchementFileSerialize(attachments, many=True).data

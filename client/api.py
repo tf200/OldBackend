@@ -36,6 +36,7 @@ from client.schemas import (
     ContractWorkingHoursSchema,
     DomainGoalInput,
     DomainGoalPatch,
+    DomainGoalPatchApproval,
     DomainGoalSchema,
     DomainObjectiveInput,
     DomainObjectivePatch,
@@ -51,8 +52,16 @@ from client.schemas import (
     MedicationRecordSchema,
     ObjectiveHistorySchema,
 )
-from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile, DomainGoal, DomainObjective, \
-    ObjectiveHistory, GoalHistory
+from client.utils import get_employee
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    DomainObjective,
+    EmployeeProfile,
+    GoalHistory,
+    ObjectiveHistory,
+)
 from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
 
@@ -312,7 +321,10 @@ def client_goals(request: HttpRequest, client_id: int):
 
 @router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
 def add_domain_goal(request: HttpRequest, client_id: int, domain_goal: DomainGoalInput):
-    return DomainGoal.objects.create(**domain_goal.dict(), client_id=client_id)
+    created_by = get_employee(request.user)  # Get Employee profile
+    return DomainGoal.objects.create(
+        **domain_goal.dict(), client_id=client_id, created_by=created_by
+    )
 
 
 @router.delete("/goals/{int:goal_id}/delete", response={204: EmptyResponseSchema})
@@ -324,6 +336,14 @@ def delete_domain_goal(request: HttpRequest, goal_id: int):
 @router.patch("/goals/{int:goal_id}/update", response={204: EmptyResponseSchema})
 def patch_domain_goal(request: HttpRequest, goal_id: int, goal: DomainGoalPatch):
     DomainGoal.objects.filter(id=goal_id).update(**goal.dict(exclude_unset=True))
+    return 204, {}
+
+
+@router.patch("/goals/{int:goal_id}/approval", response={204: EmptyResponseSchema})
+def domain_goal_approval(request: HttpRequest, goal_id: int):
+    reviewed_by = get_employee(request.user)
+
+    DomainGoal.objects.filter(id=goal_id).update(is_approved=True, reviewed_by=reviewed_by)
     return 204, {}
 
 

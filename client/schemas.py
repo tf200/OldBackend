@@ -15,8 +15,14 @@ from client.models import (
     Invoice,
     InvoiceHistory,
 )
-from employees.models import ClientMedication, ClientMedicationRecord, DomainGoal, DomainObjective, ObjectiveHistory, \
-    GoalHistory
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    DomainObjective,
+    GoalHistory,
+    ObjectiveHistory,
+)
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
 
@@ -153,6 +159,7 @@ class InvoiceSchemaPatch(Schema):
         | None
     ) = None
     invoice_details: list[dict[str, Any]] | None = None
+    extra_content: str | None = None
 
 
 class DownloadLinkSchema(Schema):
@@ -272,6 +279,8 @@ class DomainGoalSchema(ModelSchema):
     client_id: int
     objectives: list[DomainObjectiveSchema]
     main_goal_rating: float
+    created_by_name: str | None = None
+    reviewed_by_name: str | None = None
 
     class Meta:
         model = DomainGoal
@@ -281,18 +290,43 @@ class DomainGoalSchema(ModelSchema):
     def resolve_main_goal_rating(domain_goal: DomainGoal) -> float:
         return domain_goal.main_goal_rating()
 
+    @staticmethod
+    def resolve_created_by_name(domain_goal: DomainGoal) -> str | None:
+        if domain_goal.created_by:
+            return f"{domain_goal.created_by.first_name} {domain_goal.created_by.last_name}"
+        return None
+
+    @staticmethod
+    def resolve_reviewed_by_name(domain_goal: DomainGoal) -> str | None:
+        if domain_goal.reviewed_by:
+            return f"{domain_goal.reviewed_by.first_name} {domain_goal.reviewed_by.last_name}"
+        return None
+
 
 class DomainGoalInput(ModelSchema):
     domain_id: int
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain", "created", "updated", "id", "client")
+        exclude = (
+            "domain",
+            "created",
+            "updated",
+            "id",
+            "client",
+            "created_by",
+            "reviewed_by",
+            "is_approved",
+        )
 
 
 class DomainGoalPatch(Schema):
     title: str | None = None
     desc: str | None = None
+
+
+class DomainGoalPatchApproval(Schema):
+    is_approved: bool = False
 
 
 class GoalHistorySchema(ModelSchema):

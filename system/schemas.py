@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeAlias, TypeVar, Union
+from typing import Any, Generic, Optional, TypeAlias, TypeVar, Union
 
 from ninja import ModelSchema, Schema
 
@@ -50,9 +50,15 @@ class AttachmentFilePatch(Schema):
 
 
 class ExpenseSchema(ModelSchema):
+    attachments: Optional[list[AttachmentFileSchema]]
+
     class Meta:
         model = Expense
         fields = "__all__"
+
+    @staticmethod
+    def resolve_attachments(expense: Expense):
+        return AttachmentFile.objects.filter(id__in=expense.attachment_ids).all()
 
 
 class ExpenseSchemaInput(ModelSchema):

@@ -197,10 +197,13 @@ class AttachmentFile(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to=get_directory_path)
     size = models.IntegerField(default=0)
-    is_used = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False, db_index=True)
     tag = models.CharField(max_length=100, default="", null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created",)
 
     def download_link(self) -> str:
         return self.file.url
@@ -209,6 +212,7 @@ class AttachmentFile(models.Model):
 class Expense(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     desc = models.TextField(default="", null=True, blank=True)
+    attachment_ids = models.JSONField(default=list, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

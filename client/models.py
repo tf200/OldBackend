@@ -195,6 +195,10 @@ class ClientDetails(models.Model):
         # Ensure to use "AttachmentFile" (in the system model)
         pass
 
+    def save(self, *args, **kwargs):
+        AttachmentFile.objects.filter(id__in=self.identity_attachment_ids).update(is_used=True)
+        return super().save(*args, **kwargs)
+
 
 class ClientCurrentLevel(models.Model):
     client = models.ForeignKey(
@@ -533,6 +537,7 @@ class Invoice(models.Model):
     pdf_attachment = models.OneToOneField(
         AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True
     )
+    extra_content = models.TextField(default="", null=True, blank=True)
 
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
 
@@ -589,6 +594,8 @@ class Invoice(models.Model):
             "issue_date": self.issue_date,
             "due_date": self.due_date,
             "total_amount": self.total_amount,
+            "prefix_content": "",
+            "extra_content": self.extra_content,
             # Client
             "client_full_name": f"{self.client.first_name} {self.client.last_name}",
             "client_id": self.client.id,
