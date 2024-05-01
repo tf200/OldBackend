@@ -16,7 +16,6 @@ from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from employees.models import DomainGoal, DomainObjective
 from system.models import AttachmentFile, DBSettings, Notification
 
 
