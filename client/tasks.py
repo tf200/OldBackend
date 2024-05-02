@@ -14,17 +14,18 @@ from rest_framework.response import Response
 from weasyprint import HTML
 
 from celery import shared_task
-from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport, DomainGoal, ObjectiveHistory, \
-    GoalHistory
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    GoalHistory,
+    ObjectiveHistory,
+    ProgressReport,
+)
 from system.models import AttachmentFile, Notification
 from system.utils import send_mail_async
 
-from .models import (
-    ClientDetails,
-    ClientEmergencyContact,
-    Contract,
-    Invoice,
-)
+from .models import ClientDetails, ClientEmergencyContact, Contract, Invoice
 
 
 @shared_task
@@ -65,7 +66,7 @@ def invoice_creation_per_month():
     clients = ClientDetails.objects.filter(status="In Care").all()
 
     for client in clients:
-        invoice = client.generate_the_monthly_invoice(send_notifications=True)
+        invoice = client.generate_the_monthly_invoice()
 
 
 # @shared_task

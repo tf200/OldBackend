@@ -12,6 +12,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
+from loguru import logger
 from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
@@ -100,7 +101,7 @@ class ClientDetails(models.Model):
     # class Meta:
     #     verbose_name = "Client"
 
-    def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice | None:
+    def generate_the_monthly_invoice(self, send_notifications=False) -> Invoice | None:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
         # Get all client approved contracts
         current_date = timezone.now().date()
@@ -127,7 +128,7 @@ class ClientDetails(models.Model):
             invoice_details.append(
                 {
                     "contract_id": contract.pk,
-                    "item_desc": f"Care: {contract.care_name} (contract: #{contract.id}, {contract.financing_acts}/{contract.financing_options})",
+                    "item_desc": f"Care: {contract.care_name} (contract: #{contract.id}, {contract.financing_act}/{contract.financing_option})",
                     "contract_amount": contract_amount,
                     "contract_amount_without_tax": contract_amount_without_tax,
                     "used_tax": contract.used_tax(),
@@ -145,28 +146,7 @@ class ClientDetails(models.Model):
 
             # Send notifications
             if send_notifications:
-                for contract in contracts:
-                    # Send a notification to the client
-                    notification = Notification.objects.create(
-                        title="Invoice created",
-                        event=Notification.EVENTS.INVOICE_CREATED,
-                        content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
-                        receiver=invoice.client.user,
-                        metadata={"invoice_id": invoice.id},  # type: ignore
-                    )
-
-                    notification.notify()
-
-                    # send a notification to sender
-                    if contract.sender and contract.sender.email_adress:
-                        notification = Notification.objects.create(
-                            title="Invoice created",
-                            event=Notification.EVENTS.INVOICE_CREATED,
-                            content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
-                            metadata={"invoice_id": invoice.id},  # type: ignore
-                        )
-
-                        notification.notify(to=contract.sender.email_adress)
+                invoice.send_notification()
 
             return invoice
         return None
@@ -546,6 +526,41 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ("-created",)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_invoice = self.__class__.objects.get(id=self.pk)
+            if self.status == self.Status.OUTSTANDING and old_invoice.status == self.Status.CONCEPT:
+                # Send notifications
+                self.send_notification()
+
+        return super().save(*args, **kwargs)
+
+    def send_notification(self) -> None:
+        logger.debug("Send invoice notification")
+        # Send a notification to the client
+        notification = Notification.objects.create(
+            title="Invoice created",
+            event=Notification.EVENTS.INVOICE_CREATED,
+            content=f"You have a new invoice #{self.id} to be paid/resolved.",  # type: ignore
+            receiver=self.client.user,
+            metadata={"invoice_id": self.id},  # type: ignore
+        )
+
+        notification.notify()
+
+        # TODO: Send a notification to the admin as well
+
+        # send a notification to sender
+        # if contract.sender and contract.sender.email_adress:
+        #     notification = Notification.objects.create(
+        #         title="Invoice created",
+        #         event=Notification.EVENTS.INVOICE_CREATED,
+        #         content=f"You have a new invoice #{self.id} to be paid/resolved.",  # type: ignore
+        #         metadata={"invoice_id": self.id},  # type: ignore
+        #     )
+
+        #     notification.notify(to=contract.sender.email_adress)
 
     def total_paid_amount(self) -> float:
         # return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)

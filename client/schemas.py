@@ -340,7 +340,7 @@ class GoalHistorySchema(ModelSchema):
 class ObjectiveHistorySchema(ModelSchema):
     class Meta:
         model = ObjectiveHistory
-        exclude = ("id", "objective")
+        exclude = ("objective",)
 
 
 class ObjectiveHistorySchemaInput(ModelSchema):
