@@ -379,9 +379,11 @@ def objective_history(request: HttpRequest, objective_id: int, filter: DateFilte
     return filter.filter(ObjectiveHistory.objects.filter(objective__id=objective_id).all())
 
 
-@router.post("/goals/objectives/history/add", response=list[ObjectiveHistorySchema])
-def add_objective_history(request: HttpRequest, objective_history: ObjectiveHistorySchemaInput):
-    return ObjectiveHistory.objects.create(**objective_history.dict())
+@router.post("/goals/objectives/{int:objective_id}/history/add", response=ObjectiveHistorySchema)
+def add_objective_history(
+    request: HttpRequest, objective_id: int, objective_history: ObjectiveHistorySchemaInput
+):
+    return ObjectiveHistory.objects.create(**objective_history.dict(), objective_id=objective_id)
 
 
 @router.patch("/goals/objectives/history/{int:history_id}/update", response=ObjectiveHistorySchema)

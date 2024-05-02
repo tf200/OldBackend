@@ -344,8 +344,6 @@ class ObjectiveHistorySchema(ModelSchema):
 
 
 class ObjectiveHistorySchemaInput(ModelSchema):
-    objective_id: int
-
     class Meta:
         model = ObjectiveHistory
         exclude = ("id", "objective")
