@@ -353,6 +353,7 @@ class ObjectiveHistorySchemaPatch(Schema):
     rating: Optional[float] = None
     date: Optional[str] = None
     content: Optional[str] = None
+    week: Optional[int] = None
 
 
 class ClientCurrentLevelSchema(ModelSchema):

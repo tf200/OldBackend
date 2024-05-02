@@ -530,7 +530,10 @@ class Invoice(models.Model):
     def save(self, *args, **kwargs):
         if self.pk:
             old_invoice = self.__class__.objects.get(id=self.pk)
-            if self.status == self.Status.OUTSTANDING and old_invoice.status == self.Status.CONCEPT:
+            if (
+                self.status == self.Status.OUTSTANDING
+                and old_invoice.status == self.Status.CONCEPT
+            ):
                 # Send notifications
                 self.send_notification()
 
@@ -603,9 +606,10 @@ class Invoice(models.Model):
             return self.pdf_attachment.file.url
 
         sender = self.client.sender
-        prefix_content: str = f"The {DBSettings.get(
-                'CONTACT_COMPANY_NAME', DBSettings.get('SITE_NAME')
-            )} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('%m/%Y')}). if the care process is terminated permaturely, billing will stop as of the end date of care."
+        company_name: str = DBSettings.get("CONTACT_COMPANY_NAME", DBSettings.get("SITE_NAME"))
+        prefix_content: str = (
+            f"The {company_name} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('%m/%Y')}). if the care process is terminated permaturely, billing will stop as of the end date of care."
+        )
 
         context = {
             "invoice_number": self.invoice_number,
@@ -631,9 +635,7 @@ class Invoice(models.Model):
             "site_currency": DBSettings.get("SITE_CURRENCY"),
             "site_currency_symbol": DBSettings.get("SITE_CURRENCY_SYMBOL"),
             # Company info
-            "invoice_company_name": DBSettings.get(
-                "CONTACT_COMPANY_NAME", DBSettings.get("SITE_NAME")
-            ),
+            "invoice_company_name": company_name,
             "invoice_email": DBSettings.get("CONTACT_EMAIL"),
             "invoice_address": DBSettings.get("CONTACT_ADDRESS"),
             "invoice_phone": DBSettings.get("CONTACT_PHONE"),

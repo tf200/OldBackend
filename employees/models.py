@@ -492,11 +492,15 @@ class DomainObjective(models.Model):
 
 class ObjectiveHistory(models.Model):
     rating = models.FloatField(default=0)
+    week = models.IntegerField(db_index=True)
     date = models.DateField(auto_now_add=True, db_index=True)
     objective = models.ForeignKey(
         DomainObjective, related_name="history", on_delete=models.CASCADE
     )
     content = models.TextField(default="", null=True, blank=True)
+
+    class Meta:
+        unique_together = ["week", "objective"]
 
     def save(self, *args, **kwargs):
         if not self.pk:
