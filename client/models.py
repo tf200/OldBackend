@@ -588,13 +588,19 @@ class Invoice(models.Model):
             return self.pdf_attachment.file.url
 
         sender = self.client.sender
+        # prefix_content: str = f"The {DBSettings.get(
+        #         'CONTACT_COMPANY_NAME', DBSettings.get('SITE_NAME')
+        #     )} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('m/Y')})"
+
+        prefix_content = ""
+
         context = {
             "invoice_number": self.invoice_number,
             "invoice_contracts": self.invoice_details,
             "issue_date": self.issue_date,
             "due_date": self.due_date,
             "total_amount": self.total_amount,
-            "prefix_content": "",
+            "prefix_content": prefix_content,
             "extra_content": self.extra_content,
             # Client
             "client_full_name": f"{self.client.first_name} {self.client.last_name}",

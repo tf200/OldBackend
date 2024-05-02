@@ -444,6 +444,9 @@ class DomainGoal(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ("-created",)
+
     def __str__(self) -> str:
         return f"Main Goal: {self.title}"
 
@@ -493,6 +496,26 @@ class ObjectiveHistory(models.Model):
     objective = models.ForeignKey(
         DomainObjective, related_name="history", on_delete=models.CASCADE
     )
+    content = models.TextField(default="", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # create
+            # Let's update the objective rating
+            objective = self.objective
+            objective.rating = self.rating
+            objective.save()
+        else:
+            # Updating
+            # get the latest report/evaluation
+            latest_objective_history = self.__class__.objects.first()  # Get the latest evaluation
+            if latest_objective_history.id == self.id:
+                objective = self.objective
+                objective.rating = self.rating  # the new rating
+                objective.save()
+
+        result = super().save(*args, **kwargs)
+        return result
 
 
 class GoalHistory(models.Model):

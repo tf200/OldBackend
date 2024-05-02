@@ -282,10 +282,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "client.tasks.delete_unused_attachments",
         "schedule": crontab(minute="0", hour="*"),  # hour
     },
-    "record_goals_and_objectives_history": {
-        "task": "client.tasks.record_goals_and_objectives_history",
-        "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
-    },
+    # "record_goals_and_objectives_history": {
+    #     "task": "client.tasks.record_goals_and_objectives_history",
+    #     "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
+    # },
 }
 
 DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")

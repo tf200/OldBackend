@@ -51,6 +51,8 @@ from client.schemas import (
     MedicationRecordInput,
     MedicationRecordSchema,
     ObjectiveHistorySchema,
+    ObjectiveHistorySchemaInput,
+    ObjectiveHistorySchemaPatch,
 )
 from client.utils import get_employee
 from employees.models import (
@@ -58,7 +60,6 @@ from employees.models import (
     ClientMedicationRecord,
     DomainGoal,
     DomainObjective,
-    EmployeeProfile,
     GoalHistory,
     ObjectiveHistory,
 )
@@ -376,6 +377,30 @@ def goal_history(request: HttpRequest, goal_id: int, filter: DateFilterSchema = 
 @router.get("/goals/objectives/{int:objective_id}/history", response=list[ObjectiveHistorySchema])
 def objective_history(request: HttpRequest, objective_id: int, filter: DateFilterSchema = Query(...)):  # type: ignore
     return filter.filter(ObjectiveHistory.objects.filter(objective__id=objective_id).all())
+
+
+@router.post("/goals/objectives/history/add", response=list[ObjectiveHistorySchema])
+def add_objective_history(request: HttpRequest, objective_history: ObjectiveHistorySchemaInput):
+    return ObjectiveHistory.objects.create(**objective_history.dict())
+
+
+@router.patch("/goals/objectives/history/{int:history_id}/update", response=ObjectiveHistorySchema)
+def patch_objective_history(
+    request: HttpRequest, history_id: int, objective_history: ObjectiveHistorySchemaPatch
+):
+    ObjectiveHistory.objects.filter(id=history_id).update(
+        **objective_history.dict(exclude_unset=True)
+    )
+
+    return get_object_or_404(ObjectiveHistory, id=history_id)
+
+
+@router.delete(
+    "/goals/objectives/history/{int:history_id}/delete", response={204: EmptyResponseSchema}
+)
+def delete_objective_history(request: HttpRequest, history_id: int):
+    ObjectiveHistory.objects.filter(id=history_id).delete()
+    return 204, {}
 
 
 @router.get("/{int:client_id}/current-levels", response=list[ClientCurrentLevelSchema])

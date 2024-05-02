@@ -70,3 +70,4 @@ class ExpenseSchemaInput(ModelSchema):
 class ExpenseSchemaPatch(Schema):
     amount: int | None = None
     desc: str | None = None
+    attachment_ids: list[str] | None = None

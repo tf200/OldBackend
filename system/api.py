@@ -104,7 +104,7 @@ def add_expense(request: HttpRequest, expense: ExpenseSchemaInput):
     return Expense.objects.create(**expense.dict())
 
 
-@router.patch("/expenses/{int:expense_id}", response=ExpenseSchema)
+@router.patch("/expenses/{int:expense_id}/update", response=ExpenseSchema)
 def patch_expense(request: HttpRequest, expense_id: int, expense: ExpenseSchemaPatch):
     Expense.objects.filter(id=expense_id).update(**expense.dict(exclude_unset=True))
     return get_object_or_404(Expense, id=expense_id)

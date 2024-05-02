@@ -279,12 +279,14 @@ class DomainGoalSchema(ModelSchema):
     client_id: int
     objectives: list[DomainObjectiveSchema]
     main_goal_rating: float
+    created_by_id: int | None
+    reviewed_by_id: int | None
     created_by_name: str | None = None
     reviewed_by_name: str | None = None
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain", "client")
+        exclude = ("domain", "client", "created_by", "reviewed_by")
 
     @staticmethod
     def resolve_main_goal_rating(domain_goal: DomainGoal) -> float:
@@ -339,6 +341,20 @@ class ObjectiveHistorySchema(ModelSchema):
     class Meta:
         model = ObjectiveHistory
         exclude = ("id", "objective")
+
+
+class ObjectiveHistorySchemaInput(ModelSchema):
+    objective_id: int
+
+    class Meta:
+        model = ObjectiveHistory
+        exclude = ("id", "objective")
+
+
+class ObjectiveHistorySchemaPatch(Schema):
+    rating: Optional[float] = None
+    date: Optional[str] = None
+    content: Optional[str] = None
 
 
 class ClientCurrentLevelSchema(ModelSchema):
