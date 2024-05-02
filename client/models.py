@@ -590,7 +590,7 @@ class Invoice(models.Model):
         sender = self.client.sender
         prefix_content: str = f"The {DBSettings.get(
                 'CONTACT_COMPANY_NAME', DBSettings.get('SITE_NAME')
-            )} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('%m/%Y')})"
+            )} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('%m/%Y')}). if the care process is terminated permaturely, billing will stop as of the end date of care."
 
         context = {
             "invoice_number": self.invoice_number,
