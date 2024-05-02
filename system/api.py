@@ -3,6 +3,7 @@ from uuid import UUID
 from django.db.models import Sum
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from easyaudit.models import CRUDEvent
 from loguru import logger
 from ninja import Router, UploadedFile
 from ninja.pagination import paginate
@@ -11,6 +12,7 @@ from client.models import ClientDetails, Contract, Invoice
 from employees.models import ClientMedication, ClientMedicationRecord
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 from system.schemas import (
+    ActivityLogSchema,
     AttachmentFilePatch,
     AttachmentFileSchema,
     DBSettingsSchema,
@@ -201,3 +203,9 @@ def dashboard(request: HttpRequest):
             "total_expenses": Expense.objects.aggregate(total=Sum("amount"))["total"],
         },
     }
+
+
+# Activity Log
+@router.get("/logs/activities", response=list[ActivityLogSchema])
+def activity_logs(request: HttpRequest):
+    return CRUDEvent.objects.all()

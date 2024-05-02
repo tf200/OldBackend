@@ -1,5 +1,6 @@
 from typing import Any, Generic, Optional, TypeAlias, TypeVar, Union
 
+from easyaudit.models import CRUDEvent
 from ninja import ModelSchema, Schema
 
 from system.models import AttachmentFile, DBSettings, Expense, Notification
@@ -71,3 +72,9 @@ class ExpenseSchemaPatch(Schema):
     amount: int | None = None
     desc: str | None = None
     attachment_ids: list[str] | None = None
+
+
+class ActivityLogSchema(ModelSchema):
+    class Meta:
+        model = CRUDEvent
+        fields = "__all__"

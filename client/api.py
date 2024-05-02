@@ -413,11 +413,13 @@ def client_current_levels(request: HttpRequest, client_id: int):
     # fetch latest domain levels
     domain_levels = []
     for domain_id in domain_ids:
-        domain_levels.append(
+        level = (
             ClientCurrentLevel.objects.filter(domain__id=domain_id, client__id=client_id)
             .order_by("-created")
             .first()
         )
+        if level:
+            domain_levels.append(level)
 
     return [ClientCurrentLevelSchema.from_orm(domain_level) for domain_level in domain_levels]
 
