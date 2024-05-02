@@ -179,6 +179,13 @@ class ClientDetails(models.Model):
         AttachmentFile.objects.filter(id__in=self.identity_attachment_ids).update(is_used=True)
         return super().save(*args, **kwargs)
 
+    def get_domain_ids(self) -> list[int]:
+        care_plans = CarePlan.objects.filter(client__id=self.pk).all()
+        domain_ids: list[int] = []
+        for care_plan in care_plans:
+            domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+        return list(set(domain_ids))
+
 
 class ClientCurrentLevel(models.Model):
     client = models.ForeignKey(
@@ -188,6 +195,9 @@ class ClientCurrentLevel(models.Model):
         AssessmentDomain, related_name="current_levels", on_delete=models.CASCADE
     )
     level = models.IntegerField(default=1)  # levels 1 - 5
+
+    content = models.TextField(default="", null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return f"Current level: {self.level}"

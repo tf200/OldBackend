@@ -407,23 +407,38 @@ def delete_objective_history(request: HttpRequest, history_id: int):
 
 @router.get("/{int:client_id}/current-levels", response=list[ClientCurrentLevelSchema])
 def client_current_levels(request: HttpRequest, client_id: int):
+    # get client domains
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain_ids: list[int] = client.get_domain_ids()
+    # fetch latest domain levels
+    domain_levels = []
+    for domain_id in domain_ids:
+        domain_levels.append(
+            ClientCurrentLevel.objects.filter(domain__id=domain_id, client__id=client_id)
+            .order_by("-created")
+            .first()
+        )
+
+    return [ClientCurrentLevelSchema.from_orm(domain_level) for domain_level in domain_levels]
+
+
+@router.get("/{int:client_id}/levels", response=list[ClientCurrentLevelSchema])
+def client_levels_history(request: HttpRequest, client_id: int):
     return ClientCurrentLevel.objects.filter(client__id=client_id).all()
 
 
-@router.post("/{int:client_id}/current-levels/add", response=ClientCurrentLevelSchema)
+@router.post("/{int:client_id}/levels/add", response=ClientCurrentLevelSchema)
 def add_client_current_levels(
     request: HttpRequest, client_id: int, current_level: ClientCurrentLevelInput
 ):
     return ClientCurrentLevel.objects.create(**current_level.dict(), client_id=client_id)
 
 
-@router.patch("/current-levels/{int:current_level_id}/update", response={204: EmptyResponseSchema})
+@router.patch("/levels/{int:level_id}/update", response={204: EmptyResponseSchema})
 def patch_client_current_levels(
-    request: HttpRequest, current_level_id: int, current_level: ClientCurrentLevelPatch
+    request: HttpRequest, level_id: int, current_level: ClientCurrentLevelPatch
 ):
-    ClientCurrentLevel.objects.filter(id=current_level_id).update(
-        **current_level.dict(exclude_unset=True)
-    )
+    ClientCurrentLevel.objects.filter(id=level_id).update(**current_level.dict(exclude_unset=True))
     return 204, {}
 
 

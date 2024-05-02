@@ -501,6 +501,7 @@ class ObjectiveHistory(models.Model):
 
     class Meta:
         unique_together = ["week", "objective"]
+        ordering = ("week",)
 
     def save(self, *args, **kwargs):
         if not self.pk:

@@ -344,6 +344,8 @@ class ObjectiveHistorySchema(ModelSchema):
 
 
 class ObjectiveHistorySchemaInput(ModelSchema):
+    date: Optional[str] = None
+
     class Meta:
         model = ObjectiveHistory
         exclude = ("id", "objective")
@@ -367,11 +369,13 @@ class ClientCurrentLevelSchema(ModelSchema):
 class ClientCurrentLevelInput(Schema):
     level: float
     domain_id: int
+    content: str
 
 
 class ClientCurrentLevelPatch(Schema):
     level: float | None = None
     domain_id: int | None = None
+    content: str | None = None
 
 
 class ClientStateSchema(ModelSchema):
