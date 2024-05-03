@@ -211,7 +211,7 @@ class AttachmentFile(models.Model):
 
 class Expense(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=2)  # amount without TAX
-    tax = models.IntegerField(default=0)
+    tax = models.FloatField(default=0)
     desc = models.TextField(default="", null=True, blank=True)
     attachment_ids = models.JSONField(default=list, blank=True)
     updated = models.DateTimeField(auto_now=True)

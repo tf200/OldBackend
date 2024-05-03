@@ -6,10 +6,12 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from loguru import logger
 
+from adminmodif.models import Group, Permission
 from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
@@ -35,6 +37,8 @@ class EmployeeProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     home_telephone_number = models.CharField(max_length=100, null=True, blank=True)
 
+    groups = models.ManyToManyField(Group)
+
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     is_subcontractor = models.BooleanField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
@@ -42,6 +46,22 @@ class EmployeeProfile(models.Model):
         Location, on_delete=models.SET_NULL, null=True, related_name="employee_location"
     )
     has_borrowed = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"Employee: {self.first_name} ({self.pk})"
+
+    def get_permissions(self) -> QuerySet[Permission]:
+        return Permission.objects.filter(id__in=self.get_permission_ids())
+
+    def get_permission_ids(self) -> list[int]:
+        return list(
+            filter(
+                lambda a: a, EmployeeProfile.objects.values_list("groups__permissions", flat=True)
+            )
+        )
+
+    def has_permission(self, permission_name: str) -> bool:
+        return self.__class__.objects.filter(groups__permissions__name=permission_name).exists()
 
 
 class Certification(models.Model):

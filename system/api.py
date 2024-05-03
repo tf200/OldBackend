@@ -8,8 +8,9 @@ from loguru import logger
 from ninja import Router, UploadedFile
 from ninja.pagination import paginate
 
+from adminmodif.models import Group, Permission
 from client.models import ClientDetails, Contract, Invoice
-from employees.models import ClientMedication, ClientMedicationRecord
+from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 from system.schemas import (
     ActivityLogSchema,
@@ -21,6 +22,10 @@ from system.schemas import (
     ExpenseSchema,
     ExpenseSchemaInput,
     ExpenseSchemaPatch,
+    GroupSchema,
+    GroupSchemaInput,
+    GroupSchemaPatch,
+    GroupsListSchema,
     NotificationSchema,
 )
 from system.utils import NinjaCustomPagination
@@ -209,3 +214,75 @@ def dashboard(request: HttpRequest):
 @router.get("/logs/activities", response=list[ActivityLogSchema])
 def activity_logs(request: HttpRequest):
     return CRUDEvent.objects.all()
+
+
+# Permissions
+
+
+@router.get("/administration/permissions")
+def all_permissions(request: HttpRequest):
+    return [perm.name for perm in Permission.objects.all()]
+
+
+@router.get("/administration/permissions/{int:employee_id}")
+def employee_permissions(request: HttpRequest, employee_id: int):
+    employee = get_object_or_404(EmployeeProfile, id=employee_id)
+    return [perm.name for perm in employee.get_permissions()]
+
+
+@router.get("/administration/groups/{int:employee_id}", response=list[GroupSchema])
+def employee_groups(request: HttpRequest, employee_id: int):
+    employee = get_object_or_404(EmployeeProfile, id=employee_id)
+    return employee.groups.all()
+
+
+@router.post("/administration/groups/{int:group_id}", response=GroupSchema)
+def group_details(request: HttpRequest, group_id: int):
+    return get_object_or_404(Group, id=group_id)
+
+
+@router.post("/administration/groups/add", response=GroupSchema)
+def add_group(request: HttpRequest, group: GroupSchemaInput):
+    permissions: list[str] = group.permissions
+    new_group = Group.objects.create(name=group.name)
+    for perm in Permission.objects.filter(name__in=permissions).all():
+        new_group.permissions.add(perm)
+    return new_group
+
+
+@router.patch("/administration/groups/{int:group_id}/update", response=GroupSchema)
+def patch_group(request: HttpRequest, group_id: int, paylaod: GroupSchemaPatch):
+    group = get_object_or_404(Group, id=group_id)
+
+    # Update name
+    if paylaod.name:
+        group.name = paylaod.name
+        group.save()
+
+    # Delete all permissions
+    group.permissions.clear()
+
+    for perm in Permission.objects.filter(name__in=paylaod.permissions).all():
+        group.permissions.add(perm)
+    return group
+
+
+@router.delete("/administration/groups/{int:group_id}/delete", response={204: EmptyResponseSchema})
+def delete_group(request: HttpRequest, group_id: int):
+    Group.objects.filter(id=group_id).delete()
+    return 204, {}
+
+
+@router.post(
+    "/administration/groups/assign/{int:employee_id}",
+    response={204: EmptyResponseSchema},
+)
+def assign_group_to_employee(request: HttpRequest, employee_id: int, payload: GroupsListSchema):
+    employee = get_object_or_404(EmployeeProfile, id=employee_id)
+    # Remove old groups
+    employee.groups.clear()
+
+    for group in Group.objects.filter(id__in=payload.groups).all():
+        employee.groups.add(group)
+
+    return 204, {}

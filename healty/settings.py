@@ -290,6 +290,9 @@ CELERY_BEAT_SCHEDULE = {
     # },
 }
 
+# for easyaudit
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
+
 DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")
 EMAIL_HOST: str = os.getenv("EMAIL_HOST", "")
 EMAIL_PORT: int = int(os.getenv("EMAIL_PORT", 587))

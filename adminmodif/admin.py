@@ -5,10 +5,20 @@ from django.utils import timezone
 from .models import (  # Adjust the import path according to your app structure and model location
     Group,
     GroupMembership,
+    Permission,
 )
 
+
 # Register your models here.
-admin.site.register(Group)
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("name", "id", "permissions_count")
+    filter_horizontal = ("permissions",)
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ("name",)
 
 
 class IsActiveFilter(admin.SimpleListFilter):
