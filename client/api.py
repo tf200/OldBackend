@@ -5,7 +5,12 @@ from ninja.pagination import paginate
 
 from assessments.models import AssessmentDomain
 from assessments.schemas import AssessmentDomainSchema
-from client.filters import ContractFilterSchema, DateFilterSchema, InvoiceFilterSchema
+from client.filters import (
+    ClientStateFilter,
+    ContractFilterSchema,
+    DateFilterSchema,
+    InvoiceFilterSchema,
+)
 from client.models import (
     CarePlan,
     ClientCurrentLevel,
@@ -446,9 +451,9 @@ def patch_client_current_levels(
 
 @router.get("/{int:client_id}/states", response=list[ClientStateSchema])
 @paginate(NinjaCustomPagination)
-def client_states(request: HttpRequest, client_id: int):
+def client_states(request: HttpRequest, client_id: int, filters: ClientStateFilter = Query()):  # type: ignore
     client = get_object_or_404(ClientDetails, id=client_id)
-    return client.client_states.all()  # type: ignore
+    return filters.filter(client.client_states.all())  # type: ignore
 
 
 @router.post("/states/add", response=ClientStateSchema)

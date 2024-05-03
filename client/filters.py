@@ -155,3 +155,7 @@ class InvoiceFilterSchema(FilterSchema):
     status: Optional[str] = Field(None)
     client: Optional[int] = Field(None)
     sender: Optional[int] = Field(None, q="client__sender__id")
+
+
+class ClientStateFilter(FilterSchema):
+    type: Optional[Literal["emotional", "physical"]] = None
