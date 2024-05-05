@@ -50,13 +50,19 @@ class EmployeeProfile(models.Model):
     def __str__(self) -> str:
         return f"Employee: {self.first_name} ({self.pk})"
 
+    def __repr__(self) -> str:
+        return f"Employee: {self.first_name} ({self.pk})"
+
     def get_permissions(self) -> QuerySet[Permission]:
         return Permission.objects.filter(id__in=self.get_permission_ids())
 
     def get_permission_ids(self) -> list[int]:
         return list(
             filter(
-                lambda a: a, EmployeeProfile.objects.values_list("groups__permissions", flat=True)
+                lambda a: a,
+                EmployeeProfile.objects.filter(id=self.pk).values_list(
+                    "groups__permissions", flat=True
+                ),
             )
         )
 

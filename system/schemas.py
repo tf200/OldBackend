@@ -80,10 +80,24 @@ class ExpenseSchemaPatch(Schema):
     location_id: int | None = None
 
 
+EVENT_TYPES = dict(CRUDEvent.TYPES)
+
+
 class ActivityLogSchema(ModelSchema):
+    event_type_name: str
+    content_type_name: str
+
     class Meta:
         model = CRUDEvent
         fields = "__all__"
+
+    @staticmethod
+    def resolve_event_type_name(log_record: CRUDEvent) -> str:
+        return str(EVENT_TYPES.get(log_record.event_type, ""))
+
+    @staticmethod
+    def resolve_content_type_name(log_record: CRUDEvent) -> str:
+        return str(log_record.content_type)
 
 
 class GroupSchema(ModelSchema):
@@ -115,10 +129,15 @@ class GroupsListSchema(Schema):
 class GroupAccessSchema(ModelSchema):
     employee_id: int
     group_id: int
+    group_name: str
 
     class Meta:
         model = GroupAccess
         exclude = ("employee", "group")
+
+    @staticmethod
+    def resolve_group_name(group_aceess: GroupAccess) -> str:
+        return group_aceess.group.name
 
 
 class GroupAccessInput(ModelSchema):

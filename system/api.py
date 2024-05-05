@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from django.db.models import Sum
+from django.db.models import ExpressionWrapper, F, FloatField, Sum
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from easyaudit.models import CRUDEvent
@@ -215,7 +215,13 @@ def dashboard(request: HttpRequest):
                 "history__amount", flat=True
             ).aggregate(total=Sum("history__amount"))["total"],
             # ## Fetch the costs/charges (outcome)
-            "total_expenses": Expense.objects.aggregate(total=Sum("amount"))["total"],
+            "total_expenses": Expense.objects.aggregate(
+                total=Sum(
+                    ExpressionWrapper(
+                        F("amount") * (1 + F("tax") / 100), output_field=FloatField()
+                    )
+                )
+            )["total"],
         },
     }
 
@@ -236,6 +242,8 @@ def locations_stats(request: HttpRequest):
                 "total_clients": location.client_location.filter(
                     contracts__care_type=Contract.CareTypes.ACCOMMODATION
                 ).count(),
+                "total_expenses": location.get_total_expenses(),
+                "total_revenue": location.get_total_revenue(),
             }
         )
 
@@ -249,6 +257,7 @@ def locations_stats(request: HttpRequest):
 
 # Activity Log
 @router.get("/logs/activities", response=list[ActivityLogSchema])
+@paginate(NinjaCustomPagination)
 def activity_logs(request: HttpRequest):
     return CRUDEvent.objects.all()
 

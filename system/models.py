@@ -224,6 +224,9 @@ class Expense(models.Model):
     def __str__(self):
         return f"{self.desc} ({self.amount})"
 
+    def total_paid_amount(self) -> Decimal:
+        return self.amount * Decimal(1 + self.tax / 100)
+
     def __add__(self, other: Expense | int | float | Decimal) -> Decimal:
         if isinstance(other, Expense):
             return self.amount + other.amount

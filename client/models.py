@@ -186,6 +186,9 @@ class ClientDetails(models.Model):
             domain_ids.extend([domain.id for domain in care_plan.domains.all()])
         return list(set(domain_ids))
 
+    def __repr__(self) -> str:
+        return f"Client: {self.first_name} {self.last_name} ({self.pk})"
+
 
 class ClientCurrentLevel(models.Model):
     client = models.ForeignKey(
