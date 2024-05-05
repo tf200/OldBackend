@@ -16,6 +16,9 @@ class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
     permissions = models.ManyToManyField(Permission, blank=True)
 
+    class Meta:
+        ordering = ("-id",)
+
     def __str__(self):
         return self.name
 

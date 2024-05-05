@@ -559,8 +559,17 @@ class GoalHistory(models.Model):
 class GroupAccess(models.Model):
     employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    start_date = models.DateTimeField(null=True)
-    end_date = models.DateTimeField(null=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self) -> str:
+        return f'GroupAccess: "{self.group.name} ({self.pk})"'
+
+    def __repr__(self) -> str:
+        return f'GroupAccess: "{self.group.name} ({self.pk})"'
