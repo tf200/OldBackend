@@ -64,9 +64,11 @@ class ExpenseSchema(ModelSchema):
 
 
 class ExpenseSchemaInput(ModelSchema):
+    location_id: int
+
     class Meta:
         model = Expense
-        exclude = ("id", "updated")
+        exclude = ("id", "updated", "location")
 
 
 class ExpenseSchemaPatch(Schema):
@@ -74,6 +76,7 @@ class ExpenseSchemaPatch(Schema):
     tax: float | None = None
     desc: str | None = None
     attachment_ids: list[str] | None = None
+    location_id: int | None = None
 
 
 class ActivityLogSchema(ModelSchema):

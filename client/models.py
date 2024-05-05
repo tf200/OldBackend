@@ -380,6 +380,9 @@ class Contract(models.Model):
         choices=FinancingOptions.choices, default=FinancingOptions.PGB
     )
 
+    departure_reason = models.CharField(max_length=255, null=True)
+    departure_report = models.TextField(null=True)
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

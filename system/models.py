@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db import models
 from loguru import logger
 
+from authentication.models import Location
 from system.utils import send_mail_async
 
 
@@ -214,6 +215,9 @@ class Expense(models.Model):
     tax = models.FloatField(default=0)
     desc = models.TextField(default="", null=True, blank=True)
     attachment_ids = models.JSONField(default=list, blank=True)
+    location = models.ForeignKey(
+        Location, related_name="expenses", on_delete=models.SET_NULL, null=True
+    )
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
