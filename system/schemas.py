@@ -4,6 +4,7 @@ from easyaudit.models import CRUDEvent
 from ninja import Field, ModelSchema, Schema
 
 from adminmodif.models import Group
+from employees.models import GroupAccess
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 
 
@@ -109,3 +110,25 @@ class GroupSchemaPatch(Schema):
 
 class GroupsListSchema(Schema):
     groups: list[int]
+
+
+class GroupAccessSchema(ModelSchema):
+    employee_id: int
+    group_id: int
+
+    class Meta:
+        model = GroupAccess
+        exclude = ("employee", "group")
+
+
+class GroupAccessInput(ModelSchema):
+    employee_id: int
+    group_id: int
+
+    class Meta:
+        model = GroupAccess
+        exclude = ("employee", "group", "id", "updated", "created")
+
+
+class GroupAccessDelete(Schema):
+    group_access_id: int

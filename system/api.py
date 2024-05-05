@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from django.db.models import Sum
@@ -9,8 +10,14 @@ from ninja import Router, UploadedFile
 from ninja.pagination import paginate
 
 from adminmodif.models import Group, Permission
+from authentication.models import Location
 from client.models import ClientDetails, Contract, Invoice
-from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    EmployeeProfile,
+    GroupAccess,
+)
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 from system.schemas import (
     ActivityLogSchema,
@@ -22,6 +29,9 @@ from system.schemas import (
     ExpenseSchema,
     ExpenseSchemaInput,
     ExpenseSchemaPatch,
+    GroupAccessDelete,
+    GroupAccessInput,
+    GroupAccessSchema,
     GroupSchema,
     GroupSchemaInput,
     GroupSchemaPatch,
@@ -123,7 +133,7 @@ def delete_expense(request: HttpRequest, expense_id: int):
     return 204, {}
 
 
-@router.get("/dashboard/analytics")
+@router.get("/dashboard/analytics", tags=["analytics"])
 def dashboard(request: HttpRequest):
     """
     Ensure to return all the needed info:
@@ -210,6 +220,33 @@ def dashboard(request: HttpRequest):
     }
 
 
+@router.get("/dashboard/analytics/locations", response=list[dict[str, Any]], tags=["analytics"])
+def locations_stats(request: HttpRequest):
+    locations = Location.objects.all()
+
+    location_stats = []
+
+    for location in locations:
+        location_stats.append(
+            {
+                "location_name": location.name,
+                "location_id": location.id,
+                "location_capacity": location.capacity,
+                "total_employees": location.employee_location.count(),
+                "total_clients": location.client_location.filter(
+                    contracts__care_type=Contract.CareTypes.ACCOMMODATION
+                ).count(),
+            }
+        )
+
+    return location_stats
+
+
+# @router.get("/dashboard/analytics/expenses")
+# def expense_graphs(request: HttpRequest):
+#     Expense.objects.cr
+
+
 # Activity Log
 @router.get("/logs/activities", response=list[ActivityLogSchema])
 def activity_logs(request: HttpRequest):
@@ -219,29 +256,38 @@ def activity_logs(request: HttpRequest):
 # Permissions
 
 
-@router.get("/administration/permissions")
+@router.get("/administration/permissions", tags=["permissions"])
 def all_permissions(request: HttpRequest):
     return [perm.name for perm in Permission.objects.all()]
 
 
-@router.get("/administration/permissions/{int:employee_id}")
+@router.get("/administration/groups", response=list[GroupSchema], tags=["permissions"])
+def all_groups(request: HttpRequest):
+    return Group.objects.all()
+
+
+@router.get("/administration/permissions/{int:employee_id}", tags=["permissions"])
 def employee_permissions(request: HttpRequest, employee_id: int):
     employee = get_object_or_404(EmployeeProfile, id=employee_id)
     return [perm.name for perm in employee.get_permissions()]
 
 
-@router.get("/administration/groups/{int:employee_id}", response=list[GroupSchema])
+@router.get(
+    "/administration/groups/employee/{int:employee_id}",
+    response=list[GroupSchema],
+    tags=["permissions"],
+)
 def employee_groups(request: HttpRequest, employee_id: int):
     employee = get_object_or_404(EmployeeProfile, id=employee_id)
     return employee.groups.all()
 
 
-@router.post("/administration/groups/{int:group_id}", response=GroupSchema)
+@router.get("/administration/groups/{int:group_id}", response=GroupSchema, tags=["permissions"])
 def group_details(request: HttpRequest, group_id: int):
     return get_object_or_404(Group, id=group_id)
 
 
-@router.post("/administration/groups/add", response=GroupSchema)
+@router.post("/administration/groups/add", response=GroupSchema, tags=["permissions"])
 def add_group(request: HttpRequest, group: GroupSchemaInput):
     permissions: list[str] = group.permissions
     new_group = Group.objects.create(name=group.name)
@@ -250,7 +296,9 @@ def add_group(request: HttpRequest, group: GroupSchemaInput):
     return new_group
 
 
-@router.patch("/administration/groups/{int:group_id}/update", response=GroupSchema)
+@router.patch(
+    "/administration/groups/{int:group_id}/update", response=GroupSchema, tags=["permissions"]
+)
 def patch_group(request: HttpRequest, group_id: int, paylaod: GroupSchemaPatch):
     group = get_object_or_404(Group, id=group_id)
 
@@ -267,22 +315,65 @@ def patch_group(request: HttpRequest, group_id: int, paylaod: GroupSchemaPatch):
     return group
 
 
-@router.delete("/administration/groups/{int:group_id}/delete", response={204: EmptyResponseSchema})
+@router.delete(
+    "/administration/groups/{int:group_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["permissions"],
+)
 def delete_group(request: HttpRequest, group_id: int):
     Group.objects.filter(id=group_id).delete()
     return 204, {}
 
 
+# @router.post(
+#     "/administration/groups/assign/{int:employee_id}",
+#     response={204: EmptyResponseSchema},
+#     tags=["permissions"],
+# )
+# def assign_group_to_employee(request: HttpRequest, employee_id: int, payload: GroupsListSchema):
+#     employee = get_object_or_404(EmployeeProfile, id=employee_id)
+#     # Remove old groups
+#     employee.groups.clear()
+
+#     for group in Group.objects.filter(id__in=payload.groups).all():
+#         employee.groups.add(group)
+
+#     return 204, {}
+
+
 @router.post(
-    "/administration/groups/assign/{int:employee_id}",
-    response={204: EmptyResponseSchema},
+    "/administration/group-access/assign-group", response=GroupAccessSchema, tags=["permissions"]
 )
-def assign_group_to_employee(request: HttpRequest, employee_id: int, payload: GroupsListSchema):
+def add_group_access_to_an_employee(request: HttpRequest, group: GroupAccessInput):
+    return GroupAccess.objects.create(**group.dict())
+
+
+@router.get(
+    "/administration/group-access/employee/{int:employee_id}",
+    response=list[GroupAccessSchema],
+    tags=["permissions"],
+)
+def employee_group_access(request: HttpRequest, employee_id: int):
     employee = get_object_or_404(EmployeeProfile, id=employee_id)
-    # Remove old groups
-    employee.groups.clear()
+    return GroupAccess.objects.filter(employee=employee).all()
 
-    for group in Group.objects.filter(id__in=payload.groups).all():
-        employee.groups.add(group)
 
+@router.delete(
+    "/administration/group-access/{int:group_access_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["permissions"],
+)
+def delete_employee_group_access_by_id(request: HttpRequest, group_access_id: int):
+    # employee = get_object_or_404(EmployeeProfile, id=employee_id)
+    GroupAccess.objects.filter(id=group_access_id).delete()
+    return 204, {}
+
+
+@router.delete(
+    "/administration/group-access/employee/{int:employee_id}/group/{int:group_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["permissions"],
+)
+def delete_employee_group_access(request: HttpRequest, employee_id: int, group_id: int):
+    GroupAccess.objects.filter(employee__id=employee_id, group__id=group_id).delete()
     return 204, {}

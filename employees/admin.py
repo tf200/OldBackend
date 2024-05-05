@@ -22,7 +22,7 @@ class EmployeeProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "position", "department")
     search_fields = ("user__username", "position", "department")
     list_filter = ("position", "department")
-    filter_horizontal = ("groups",)
+    # filter_horizontal = ("groups",)
 
 
 # Optional: Define a custom admin class to customize the admin interface

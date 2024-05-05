@@ -23,7 +23,7 @@ class Group(models.Model):
         return self.permissions.count()
 
 
-class GroupMembership(models.Model):
+class GroupMembership(models.Model):  # this exists just for backward compatibility
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     start_date = models.DateField(null=True, blank=True)  # Can be null for immediate effect

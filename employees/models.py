@@ -37,7 +37,7 @@ class EmployeeProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     home_telephone_number = models.CharField(max_length=100, null=True, blank=True)
 
-    groups = models.ManyToManyField(Group)
+    groups = models.ManyToManyField(Group, through="GroupAccess")
 
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     is_subcontractor = models.BooleanField(null=True, blank=True)
@@ -64,6 +64,7 @@ class EmployeeProfile(models.Model):
         return self.__class__.objects.filter(groups__permissions__name=permission_name).exists()
 
 
+# this is a Group Access
 class Certification(models.Model):
     employee = models.ForeignKey(
         EmployeeProfile, on_delete=models.CASCADE, related_name="certifications"
@@ -547,3 +548,13 @@ class GoalHistory(models.Model):
     rating = models.FloatField(default=0)
     date = models.DateField(auto_now_add=True, db_index=True)
     goal = models.ForeignKey(DomainGoal, related_name="history", on_delete=models.CASCADE)
+
+
+class GroupAccess(models.Model):
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    start_date = models.DateTimeField(null=True)
+    end_date = models.DateTimeField(null=True)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
