@@ -35,3 +35,6 @@ class AIGeneratedReport(models.Model):
 
     updated = models.DateTimeField(auto_now=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created",)

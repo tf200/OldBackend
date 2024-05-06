@@ -44,6 +44,8 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "location",
             "attachments",
             "identity_attachment_ids",
+            "departure_reason",
+            "departure_report",
         ]
         extra_kwargs = {
             "user": {"read_only": True},

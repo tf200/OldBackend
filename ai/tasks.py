@@ -44,8 +44,6 @@ def summarize_client_reports():
         for report in client_reports:
             concatenated_reports += f"#Report ({report.pk}):\n#title: {report.title}\n#date: {report.date.date()}\n<content>{report.report_text}</content>\n\n---\n"
 
-        print(client_info + concatenated_reports)
-
         summary: str = ai_summarize.delay(client_info + concatenated_reports)
         # Create a summary report
         AIGeneratedReport.objects.create(
