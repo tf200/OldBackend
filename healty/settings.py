@@ -255,9 +255,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "planning.tasks.clear_temporary_files",
         "schedule": crontab(minute="0", hour="0"),  # Runs daily at midnight
     },
-    "summarize_weekly_reports": {
-        "task": "employees.tasks.summarize_weekly_reports",
-        "schedule": crontab(minute="0", hour="0", day_of_week="6"),
+    # "summarize_weekly_reports": {
+    #     "task": "employees.tasks.summarize_weekly_reports",
+    #     "schedule": crontab(minute="0", hour="0", day_of_week="6"),
+    # },
+    "summarize_client_reports": {
+        "task": "ai.tasks.summarize_client_reports",
+        "schedule": crontab(minute="0", hour="0", month_of_year="*/2"),
     },
     "invoice_creation_per_month": {
         "task": "client.tasks.invoice_creation_per_month",
@@ -309,4 +313,4 @@ OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 # Default tax
 DEFAULT_TAX: int = 0  # 0%
 
-VERSION: str = "0.0.1.a41"
+VERSION: str = "0.0.1.a42"

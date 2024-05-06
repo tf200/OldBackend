@@ -25,7 +25,7 @@ def enhance_reports(request: HttpRequest, report: ReportSchema):
 
 @router.get("/generated_summaries", response=list[AIGeneratedReportSchema])
 @paginate(NinjaCustomPagination)
-def get_all_generated_client_reports(request: HttpRequest, filters: AIGeneratedReportSchemaFilter = Query()):  # type: ignore
+def get_all_generated_reports(request: HttpRequest, filters: AIGeneratedReportSchemaFilter = Query()):  # type: ignore
     return filters.filter(AIGeneratedReport.objects.all())
 
 
