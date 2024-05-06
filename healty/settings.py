@@ -289,10 +289,6 @@ CELERY_BEAT_SCHEDULE = {
     #     "task": "client.tasks.record_goals_and_objectives_history",
     #     "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
     # },
-    "test_task": {
-        "task": "client.tasks.test_task",
-        "schedule": crontab(minute="*", hour="*", day_of_month="*"),  # everyday minute
-    },
 }
 
 # for easyaudit
@@ -313,4 +309,4 @@ OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 # Default tax
 DEFAULT_TAX: int = 0  # 0%
 
-VERSION: str = "0.0.1.a39"
+VERSION: str = "0.0.1.a40"

@@ -98,6 +98,9 @@ class ClientDetails(models.Model):
 
     identity_attachment_ids = models.JSONField(default=list, blank=True)
 
+    departure_reason = models.CharField(max_length=255, null=True)
+    departure_report = models.TextField(null=True)
+
     # class Meta:
     #     verbose_name = "Client"
 

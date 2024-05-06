@@ -6,7 +6,7 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from easyaudit.models import CRUDEvent
 from loguru import logger
-from ninja import Router, UploadedFile
+from ninja import Query, Router, UploadedFile
 from ninja.pagination import paginate
 
 from adminmodif.models import Group, Permission
@@ -18,6 +18,7 @@ from employees.models import (
     EmployeeProfile,
     GroupAccess,
 )
+from system.filters import ExpenseSchemaFilter
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 from system.schemas import (
     ActivityLogSchema,
@@ -112,8 +113,8 @@ def update_attachment(request: HttpRequest, uuid: UUID, attachment: AttachmentFi
 
 @router.get("/expenses", response=list[ExpenseSchema])
 @paginate(NinjaCustomPagination)
-def expenses(request: HttpRequest):
-    return Expense.objects.all()
+def expenses(request: HttpRequest, filter: ExpenseSchemaFilter = Query()):  # type: ignore
+    return filter.filter(Expense.objects.all())
 
 
 @router.post("/expenses/add", response=ExpenseSchema)

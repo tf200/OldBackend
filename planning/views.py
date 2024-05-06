@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from authentication.models import CustomUser
 from employees.models import EmployeeProfile
+from planning.filters import AppointmentFilter
 
 from .models import Appointment
 from .serializers import (
@@ -22,6 +23,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filterset_class = AppointmentFilter
 
     def perform_update(self, serializer):
         employee_profile = get_object_or_404(EmployeeProfile, user=self.request.user)
@@ -32,6 +34,7 @@ class AppointmentListView(generics.ListAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializerGet
     pagination_class = None
+    filterset_class = AppointmentFilter
 
 
 class AppointmentRUDView(generics.RetrieveUpdateDestroyAPIView):

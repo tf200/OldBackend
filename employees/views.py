@@ -22,7 +22,7 @@ from client.tasks import send_progress_report_email
 from .filters import EmployeeProfileFilter
 from .models import *
 from .serializers import *
-from .tasks import send_login_credentials, summarize_weekly_reports
+from .tasks import send_login_credentials
 from .utils import generate_unique_username
 
 
@@ -724,9 +724,3 @@ class WeeklyReportSummaryListAll(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsMemberOfAuthorizedGroup]
     serializer_class = WeeklyReportSummarySerializer
     queryset = WeeklyReportSummary.objects.all()
-
-
-@api_view(["GET"])
-def generate_ai_reports(req):
-    summarize_weekly_reports.delay()
-    return Response({"status": "success", "message": "finished successfully"})
