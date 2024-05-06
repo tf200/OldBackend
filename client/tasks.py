@@ -328,3 +328,9 @@ def record_goals_and_objectives_history():
             GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
             for objective in goal.objectives.all():  # type: ignore
                 ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)
+
+
+@shared_task
+def test_task():
+    logger.debug("Test Task is running :D")
+    print("> Task is running :D")

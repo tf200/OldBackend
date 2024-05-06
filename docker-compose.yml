@@ -21,7 +21,7 @@ services:
   celery:
     image: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/my_celery:latest
     working_dir: /healthy
-    command: celery -A healty.celery worker -l info
+    command: celery -A healty.celery worker --beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
       - .env
     environment:
