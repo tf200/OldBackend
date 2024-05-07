@@ -98,8 +98,8 @@ class ClientDetails(models.Model):
 
     identity_attachment_ids = models.JSONField(default=list, blank=True)
 
-    departure_reason = models.CharField(max_length=255, null=True)
-    departure_report = models.TextField(null=True)
+    departure_reason = models.CharField(max_length=255, null=True, blank=True)
+    departure_report = models.TextField(null=True, blank=True)
 
     # class Meta:
     #     verbose_name = "Client"
@@ -188,6 +188,9 @@ class ClientDetails(models.Model):
         for care_plan in care_plans:
             domain_ids.extend([domain.id for domain in care_plan.domains.all()])
         return list(set(domain_ids))
+
+    def __str__(self) -> str:
+        return f"Client: {self.first_name} {self.last_name} ({self.pk})"
 
     def __repr__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"
@@ -386,8 +389,8 @@ class Contract(models.Model):
         choices=FinancingOptions.choices, default=FinancingOptions.PGB
     )
 
-    departure_reason = models.CharField(max_length=255, null=True)
-    departure_report = models.TextField(null=True)
+    departure_reason = models.CharField(max_length=255, null=True, blank=True)
+    departure_report = models.TextField(null=True, blank=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

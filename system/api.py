@@ -240,9 +240,10 @@ def locations_stats(request: HttpRequest):
                 "location_id": location.id,
                 "location_capacity": location.capacity,
                 "total_employees": location.employee_location.count(),
-                "total_clients": location.client_location.filter(
-                    contracts__care_type=Contract.CareTypes.ACCOMMODATION
-                ).count(),
+                # "total_clients": ClientDetails.objects.filter(
+                #     location__id=location.pk, contracts__care_type=Contract.CareTypes.ACCOMMODATION
+                # ).count(),
+                "total_clients": location.client_location.count(),
                 "total_expenses": location.get_total_expenses(),
                 "total_revenue": location.get_total_revenue(),
             }
@@ -260,7 +261,7 @@ def locations_stats(request: HttpRequest):
 @router.get("/logs/activities", response=list[ActivityLogSchema])
 @paginate(NinjaCustomPagination)
 def activity_logs(request: HttpRequest):
-    return CRUDEvent.objects.all()
+    return CRUDEvent.objects.filter(user__isnull=False).all()
 
 
 # Permissions

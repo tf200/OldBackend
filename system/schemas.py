@@ -1,9 +1,11 @@
 from typing import Any, Generic, Optional, TypeAlias, TypeVar, Union
 
+from django.shortcuts import get_object_or_404
 from easyaudit.models import CRUDEvent
 from ninja import Field, ModelSchema, Schema
 
 from adminmodif.models import Group
+from authentication.models import CustomUser
 from employees.models import GroupAccess
 from system.models import AttachmentFile, DBSettings, Expense, Notification
 
@@ -86,6 +88,7 @@ EVENT_TYPES = dict(CRUDEvent.TYPES)
 class ActivityLogSchema(ModelSchema):
     event_type_name: str
     content_type_name: str
+    user_name: str
 
     class Meta:
         model = CRUDEvent
@@ -98,6 +101,14 @@ class ActivityLogSchema(ModelSchema):
     @staticmethod
     def resolve_content_type_name(log_record: CRUDEvent) -> str:
         return str(log_record.content_type)
+
+    @staticmethod
+    def resolve_user_name(log_record: CRUDEvent) -> str:
+        user: CustomUser = log_record.user  # type: ignore
+        employee = user.get_employee_profile()
+        if employee:
+            return f"{employee.first_name} {employee.last_name}"
+        return ""
 
 
 class GroupSchema(ModelSchema):
