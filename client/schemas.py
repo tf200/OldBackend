@@ -400,3 +400,8 @@ class ClientStateSchemaPatch(Schema):
     value: Optional[int] = None
     content: Optional[str] = None
     created: Optional[datetime] = None
+
+
+class GPSPositionSchemaInput(Schema):
+    latitude: str
+    longitude: str

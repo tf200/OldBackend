@@ -100,7 +100,7 @@ class ClientDetails(models.Model):
 
     departure_reason = models.CharField(max_length=255, null=True, blank=True)
     departure_report = models.TextField(null=True, blank=True)
-
+    gps_position = models.JSONField(default=list)
     # class Meta:
     #     verbose_name = "Client"
 

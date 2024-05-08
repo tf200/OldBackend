@@ -48,6 +48,7 @@ from client.schemas import (
     DomainObjectiveSchema,
     DownloadLinkSchema,
     GoalHistorySchema,
+    GPSPositionSchemaInput,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
     InvoiceSchema,
@@ -471,3 +472,12 @@ def patch_client_states(request: HttpRequest, state_id: int, client_state: Clien
 def delete_client_states(request: HttpRequest, state_id: int):
     ClientState.objects.filter(id=state_id).delete()
     return 204, {}
+
+
+@router.post("/{int:client_id}/gps/update", response={204: EmptyResponseSchema})
+def update_client_gps_location(
+    request: HttpRequest, client_id: int, gps_position: GPSPositionSchemaInput
+):
+    ClientDetails.objects.filter(id=client_id).update(
+        gps_position=[gps_position.latitude, gps_position.longitude]
+    )
