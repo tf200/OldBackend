@@ -46,10 +46,12 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "identity_attachment_ids",
             "departure_reason",
             "departure_report",
+            "gps_position",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
             "profile_picture": {"required": False},
+            "gps_position": {"read_only": True},
         }
 
     def get_location(self, obj):

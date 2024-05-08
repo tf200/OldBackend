@@ -481,3 +481,4 @@ def update_client_gps_location(
     ClientDetails.objects.filter(id=client_id).update(
         gps_position=[gps_position.latitude, gps_position.longitude]
     )
+    return 204, {}
