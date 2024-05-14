@@ -84,10 +84,11 @@ class ContractSchemaInput(ModelSchema):
     care_type: Literal["ambulante", "accommodation"]
     attachment_ids: list[str] = []
     status: Literal["approved", "draft", "terminated"] = "draft"
+    hours: Optional[int] = None
 
     class Meta:
         model = Contract
-        exclude = ("id", "type", "sender", "client", "updated", "created")
+        exclude = ("id", "type", "sender", "client", "updated", "created", "hours")
 
 
 # class ContractSchemaPatch(ModelSchema):

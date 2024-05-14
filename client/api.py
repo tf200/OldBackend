@@ -131,6 +131,8 @@ def client_contracts(request: HttpRequest, client_id: int):
 
 @router.post("/contracts/add", response=ContractSchema)
 def add_client_contract(request: HttpRequest, contract: ContractSchemaInput):
+    if contract.hours is None:
+        contract.hours = 0
     return Contract.objects.create(**contract.dict())
 
 

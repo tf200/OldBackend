@@ -371,7 +371,7 @@ class Contract(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     price_frequency = models.CharField(choices=Frequency.choices, default=Frequency.WEEKLY)
 
-    hours = models.IntegerField(default=0)
+    hours = models.IntegerField(default=0, null=True, blank=True)
     hours_type = models.CharField(choices=HoursType.choices, default=HoursType.ALL_PERIOD)
 
     care_name = models.CharField(max_length=255)

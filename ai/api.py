@@ -42,8 +42,8 @@ def get_all_generated_client_reports(request: HttpRequest, client_id: int, filte
 )
 def generate_report_summary(request: HttpRequest, client_id: int, start_date: str, end_date: str):
     client = get_object_or_404(ClientDetails, id=client_id)
-    start = datetime.datetime.strptime(start_date, "%Y-%d-%m").date()
-    end = datetime.datetime.strptime(end_date, "%Y-%d-%m").date()
+    start = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+    end = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
 
     client_reports = ProgressReport.objects.filter(
         client=client, created__gte=start, created__lte=end
