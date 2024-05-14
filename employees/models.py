@@ -6,6 +6,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -57,12 +58,18 @@ class EmployeeProfile(models.Model):
         return Permission.objects.filter(id__in=self.get_permission_ids())
 
     def get_permission_ids(self) -> list[int]:
+        today = timezone.now()
         return list(
             filter(
                 lambda a: a,
-                EmployeeProfile.objects.filter(id=self.pk).values_list(
-                    "groups__permissions", flat=True
-                ),
+                EmployeeProfile.objects.filter(id=self.pk)
+                .filter(
+                    Q(groups__groupaccess__start_date__lte=today)
+                    | Q(groups__groupaccess__start_date__isnull=True),
+                    Q(groups__groupaccess__end_date__gte=today)
+                    | Q(groups__groupaccess__end_date__isnull=True),
+                )
+                .values_list("groups__permissions", flat=True),
             )
         )
 
