@@ -3,19 +3,34 @@ from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
+from assessments.models import AssessmentDomain
+from assessments.schemas import AssessmentDomainSchema
+from client.filters import (
+    ClientStateFilter,
+    ContractFilterSchema,
+    DateFilterSchema,
+    InvoiceFilterSchema,
+)
 from client.models import (
+    CarePlan,
+    ClientCurrentLevel,
     ClientDetails,
+    ClientState,
     ClientStatusHistory,
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
     Invoice,
     InvoiceHistory,
 )
 from client.schemas import (
+    ClientCurrentLevelInput,
+    ClientCurrentLevelPatch,
+    ClientCurrentLevelSchema,
     ClientMedicationSchema,
+    ClientStateSchema,
+    ClientStateSchemaInput,
+    ClientStateSchemaPatch,
     ClientStatusHistorySchema,
     ContractSchema,
     ContractSchemaInput,
@@ -25,9 +40,15 @@ from client.schemas import (
     ContractWorkingHoursPatch,
     ContractWorkingHoursSchema,
     DomainGoalInput,
+    DomainGoalPatch,
+    DomainGoalPatchApproval,
     DomainGoalSchema,
     DomainObjectiveInput,
+    DomainObjectivePatch,
     DomainObjectiveSchema,
+    DownloadLinkSchema,
+    GoalHistorySchema,
+    GPSPositionSchemaInput,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
     InvoiceSchema,
@@ -35,8 +56,19 @@ from client.schemas import (
     MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
+    ObjectiveHistorySchema,
+    ObjectiveHistorySchemaInput,
+    ObjectiveHistorySchemaPatch,
 )
-from employees.models import ClientMedication, ClientMedicationRecord, EmployeeProfile
+from client.utils import get_employee
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    DomainObjective,
+    GoalHistory,
+    ObjectiveHistory,
+)
 from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
 
@@ -45,8 +77,8 @@ router = Router()
 
 @router.get("/contracts", response=list[ContractSchema])
 @paginate(NinjaCustomPagination)
-def contracts(request: HttpRequest):
-    return Contract.objects.all()
+def contracts(request: HttpRequest, filter: ContractFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(Contract.objects.all())
 
 
 @router.get("/contracts/{int:contract_id}", response=ContractSchema)
@@ -99,6 +131,8 @@ def client_contracts(request: HttpRequest, client_id: int):
 
 @router.post("/contracts/add", response=ContractSchema)
 def add_client_contract(request: HttpRequest, contract: ContractSchemaInput):
+    if contract.hours is None:
+        contract.hours = 0
     return Contract.objects.create(**contract.dict())
 
 
@@ -111,13 +145,20 @@ def update_client_contract(request: HttpRequest, id: int, contract: ContractSche
 
 @router.get("/invoices", response=list[InvoiceSchema])
 @paginate(NinjaCustomPagination)
-def all_invoices(request: HttpRequest):
-    return Invoice.objects.all()
+def all_invoices(request: HttpRequest, filter: InvoiceFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(Invoice.objects.all())
 
 
 @router.get("/invoices/{int:invoice_id}", response=InvoiceSchema)
 def invoice_details(request: HttpRequest, invoice_id: int):
     return get_object_or_404(Invoice, id=invoice_id)
+
+
+@router.get("/invoices/{int:invoice_id}/download-link", response=DownloadLinkSchema)
+def invoice_download_as_pdf(request: HttpRequest, invoice_id: int):
+    """Download invoice as PDF"""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    return {"download_link": invoice.download_link()}
 
 
 @router.patch("/invoices/{int:invoice_id}/update", response=InvoiceSchema)
@@ -262,31 +303,56 @@ def patch_medication_record(
 
 
 @router.get("/{int:client_id}/profile-status-history", response=list[ClientStatusHistorySchema])
-@paginate(NinjaCustomPagination)
 def client_profile_status_history(request: HttpRequest, client_id: int):
     return ClientStatusHistory.objects.filter(client=client_id).all()
 
 
-# @router.get("/{int:client_id}/domains", response=list[DomainGoalSchema])
-# @paginate(NinjaCustomPagination)
-# def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
-#     return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
+@router.get("/{int:client_id}/domains")
+def client_domains(request: HttpRequest, client_id: int):
+    care_plans = CarePlan.objects.filter(client__id=client_id).all()
+    domain_ids: list[int] = []
+    for care_plan in care_plans:
+        domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+    return list(set(domain_ids))
 
 
 @router.get("/{int:client_id}/domains/{int:domain_id}/goals", response=list[DomainGoalSchema])
 @paginate(NinjaCustomPagination)
-def domain_goals(request: HttpRequest, client_id: int, domain_id: int):
+def client_domain_goals(request: HttpRequest, client_id: int, domain_id: int):
     return DomainGoal.objects.filter(client__id=client_id, domain__id=domain_id).all()
+
+
+@router.get("/{int:client_id}/goals", response=list[DomainGoalSchema])
+@paginate(NinjaCustomPagination)
+def client_goals(request: HttpRequest, client_id: int):
+    return DomainGoal.objects.filter(client__id=client_id).all()
 
 
 @router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
 def add_domain_goal(request: HttpRequest, client_id: int, domain_goal: DomainGoalInput):
-    return DomainGoal.objects.create(**domain_goal.dict(), client_id=client_id)
+    created_by = get_employee(request.user)  # Get Employee profile
+    return DomainGoal.objects.create(
+        **domain_goal.dict(), client_id=client_id, created_by=created_by
+    )
 
 
 @router.delete("/goals/{int:goal_id}/delete", response={204: EmptyResponseSchema})
 def delete_domain_goal(request: HttpRequest, goal_id: int):
     DomainGoal.objects.filter(id=goal_id).delete()
+    return 204, {}
+
+
+@router.patch("/goals/{int:goal_id}/update", response={204: EmptyResponseSchema})
+def patch_domain_goal(request: HttpRequest, goal_id: int, goal: DomainGoalPatch):
+    DomainGoal.objects.filter(id=goal_id).update(**goal.dict(exclude_unset=True))
+    return 204, {}
+
+
+@router.patch("/goals/{int:goal_id}/approval", response={204: EmptyResponseSchema})
+def domain_goal_approval(request: HttpRequest, goal_id: int):
+    reviewed_by = get_employee(request.user)
+
+    DomainGoal.objects.filter(id=goal_id).update(is_approved=True, reviewed_by=reviewed_by)
     return 204, {}
 
 
@@ -299,7 +365,122 @@ def add_domain_goal_objective(
     return DomainObjective.objects.create(**objective.dict(), goal=goal, client=client)
 
 
+@router.patch("/goals/objective/{int:objective_id}/update", response=DomainObjectiveSchema)
+def patch_goal_objective(request: HttpRequest, objective_id: int, objective: DomainObjectivePatch):
+    DomainObjective.objects.filter(id=objective_id).update(**objective.dict(exclude_unset=True))
+    return get_object_or_404(DomainObjective, id=objective_id)
+
+
 @router.delete("/goals/objective/{int:objective_id}/delete", response={204: EmptyResponseSchema})
 def delete_domain_goal_objective(request: HttpRequest, objective_id: int):
     DomainObjective.objects.filter(id=objective_id).delete()
+    return 204, {}
+
+
+@router.get("/goals/{int:goal_id}/history", response=list[GoalHistorySchema])
+def goal_history(request: HttpRequest, goal_id: int, filter: DateFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(GoalHistory.objects.filter(goal__id=goal_id).all())
+
+
+@router.get("/goals/objectives/{int:objective_id}/history", response=list[ObjectiveHistorySchema])
+def objective_history(request: HttpRequest, objective_id: int, filter: DateFilterSchema = Query(...)):  # type: ignore
+    return filter.filter(ObjectiveHistory.objects.filter(objective__id=objective_id).all())
+
+
+@router.post("/goals/objectives/{int:objective_id}/history/add", response=ObjectiveHistorySchema)
+def add_objective_history(
+    request: HttpRequest, objective_id: int, objective_history: ObjectiveHistorySchemaInput
+):
+    return ObjectiveHistory.objects.create(**objective_history.dict(), objective_id=objective_id)
+
+
+@router.patch("/goals/objectives/history/{int:history_id}/update", response=ObjectiveHistorySchema)
+def patch_objective_history(
+    request: HttpRequest, history_id: int, objective_history: ObjectiveHistorySchemaPatch
+):
+    ObjectiveHistory.objects.filter(id=history_id).update(
+        **objective_history.dict(exclude_unset=True)
+    )
+
+    return get_object_or_404(ObjectiveHistory, id=history_id)
+
+
+@router.delete(
+    "/goals/objectives/history/{int:history_id}/delete", response={204: EmptyResponseSchema}
+)
+def delete_objective_history(request: HttpRequest, history_id: int):
+    ObjectiveHistory.objects.filter(id=history_id).delete()
+    return 204, {}
+
+
+@router.get("/{int:client_id}/current-levels", response=list[ClientCurrentLevelSchema])
+def client_current_levels(request: HttpRequest, client_id: int):
+    # get client domains
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain_ids: list[int] = client.get_domain_ids()
+    # fetch latest domain levels
+    domain_levels = []
+    for domain_id in domain_ids:
+        level = (
+            ClientCurrentLevel.objects.filter(domain__id=domain_id, client__id=client_id)
+            .order_by("-created")
+            .first()
+        )
+        if level:
+            domain_levels.append(level)
+
+    return [ClientCurrentLevelSchema.from_orm(domain_level) for domain_level in domain_levels]
+
+
+@router.get("/{int:client_id}/levels", response=list[ClientCurrentLevelSchema])
+def client_levels_history(request: HttpRequest, client_id: int):
+    return ClientCurrentLevel.objects.filter(client__id=client_id).all()
+
+
+@router.post("/{int:client_id}/levels/add", response=ClientCurrentLevelSchema)
+def add_client_current_levels(
+    request: HttpRequest, client_id: int, current_level: ClientCurrentLevelInput
+):
+    return ClientCurrentLevel.objects.create(**current_level.dict(), client_id=client_id)
+
+
+@router.patch("/levels/{int:level_id}/update", response={204: EmptyResponseSchema})
+def patch_client_current_levels(
+    request: HttpRequest, level_id: int, current_level: ClientCurrentLevelPatch
+):
+    ClientCurrentLevel.objects.filter(id=level_id).update(**current_level.dict(exclude_unset=True))
+    return 204, {}
+
+
+@router.get("/{int:client_id}/states", response=list[ClientStateSchema])
+@paginate(NinjaCustomPagination)
+def client_states(request: HttpRequest, client_id: int, filters: ClientStateFilter = Query()):  # type: ignore
+    client = get_object_or_404(ClientDetails, id=client_id)
+    return filters.filter(client.client_states.all())  # type: ignore
+
+
+@router.post("/states/add", response=ClientStateSchema)
+def add_client_states(request: HttpRequest, client_state: ClientStateSchemaInput):
+    return ClientState.objects.create(**client_state.dict(exclude_unset=True))
+
+
+@router.patch("/states/{int:state_id}/update", response=ClientStateSchema)
+def patch_client_states(request: HttpRequest, state_id: int, client_state: ClientStateSchemaPatch):
+    ClientState.objects.filter(id=state_id).update(**client_state.dict(exclude_unset=True))
+    return get_object_or_404(ClientState, id=state_id)
+
+
+@router.delete("/states/{int:state_id}/delete", response={204: EmptyResponseSchema})
+def delete_client_states(request: HttpRequest, state_id: int):
+    ClientState.objects.filter(id=state_id).delete()
+    return 204, {}
+
+
+@router.post("/{int:client_id}/gps/update", response={204: EmptyResponseSchema})
+def update_client_gps_location(
+    request: HttpRequest, client_id: int, gps_position: GPSPositionSchemaInput
+):
+    ClientDetails.objects.filter(id=client_id).update(
+        gps_position=[gps_position.latitude, gps_position.longitude]
+    )
     return 204, {}

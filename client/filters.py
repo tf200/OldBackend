@@ -1,8 +1,11 @@
+from datetime import datetime
+from typing import Literal, Optional
+
 import django_filters
 from django.db.models import Q
 from django_filters import rest_framework as filters
 from django_filters.filters import CharFilter, DateFilter, DateFromToRangeFilter
-from ninja import FilterSchema
+from ninja import Field, FilterSchema
 
 from employees.models import ClientMedication
 
@@ -132,9 +135,27 @@ class InvoiceFilter(filters.FilterSet):
         ]
 
 
-# class ContractFilterSchema(FilterSchema):
-#     sender: int
-#     client: int
-#     type_id: int
-#     price_frequency: Literal["hourly", "daily", "weekly", "monthly"]
-#     care_type: Literal["​ambulante", "accommodation"]
+class ContractFilterSchema(FilterSchema):
+    sender: Optional[int] = None
+    client: Optional[int] = None
+    status: Optional[Literal["approved", "draft", "terminated", "stopped"]] = None
+    type_id: Optional[int] = Field(None, q="type__id")
+    price_frequency: Optional[Literal["minute", "hourly", "daily", "weekly", "monthly"]] = None
+    care_type: Optional[Literal["ambulante", "accommodation"]] = None
+    financing_act: Optional[Literal["WMO", "ZVW", "WLZ", "JW", "WPG"]] = None
+    financing_option: Optional[Literal["ZIN", "PGB"]] = None
+
+
+class DateFilterSchema(FilterSchema):
+    start_date: Optional[datetime] = Field(None, q="date__gte")
+    end_date: Optional[datetime] = Field(None, q="date__lte")
+
+
+class InvoiceFilterSchema(FilterSchema):
+    status: Optional[str] = Field(None)
+    client: Optional[int] = Field(None)
+    sender: Optional[int] = Field(None, q="client__sender__id")
+
+
+class ClientStateFilter(FilterSchema):
+    type: Optional[Literal["emotional", "physical"]] = None

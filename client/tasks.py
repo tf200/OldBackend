@@ -14,7 +14,14 @@ from rest_framework.response import Response
 from weasyprint import HTML
 
 from celery import shared_task
-from employees.models import ClientMedication, ClientMedicationRecord, ProgressReport
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    GoalHistory,
+    ObjectiveHistory,
+    ProgressReport,
+)
 from system.models import AttachmentFile, Notification
 from system.utils import send_mail_async
 
@@ -59,7 +66,7 @@ def invoice_creation_per_month():
     clients = ClientDetails.objects.filter(status="In Care").all()
 
     for client in clients:
-        invoice = client.generate_the_monthly_invoice(send_notifications=True)
+        invoice = client.generate_the_monthly_invoice()
 
 
 # @shared_task
@@ -308,3 +315,16 @@ def delete_unused_attachments():
     AttachmentFile.objects.filter(
         is_used=False, created__lte=timezone.now() - datetime.timedelta(days=1)
     ).delete()
+
+
+@shared_task
+def record_goals_and_objectives_history():
+    logger.debug("Task: record goals and objectives history.")
+    # this function needs to be dispatched once everyday.
+    now = timezone.now()
+    for goal in DomainGoal.objects.all():
+        # check if the current date has a record or not, if not then create one
+        if not GoalHistory.objects.filter(date=now.date(), goal=goal).exists():
+            GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
+            for objective in goal.objectives.all():  # type: ignore
+                ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)

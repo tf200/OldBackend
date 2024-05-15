@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from employees.models import ClientMedicationRecord
+from employees.models import ClientMedicationRecord, DomainGoal, DomainObjective, ObjectiveHistory, GoalHistory
 
 from .models import (
     CarePlan,
@@ -10,8 +10,6 @@ from .models import (
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
     Invoice,
     InvoiceContract,
     InvoiceHistory,
@@ -142,6 +140,15 @@ class DomainGoalAdmin(admin.ModelAdmin):
     inlines = (DomainObjectiveInline,)
 
 
-# @admin.register(DomainObjective)
-# class DomainObjectiveAdmin(admin.ModelAdmin):
-#     list_display = ("title", "rating", "", "updated", "created")
+@admin.register(GoalHistory)
+class GoalHistoryAdmin(admin.ModelAdmin):
+    list_display = ("rating", "goal", "date")
+    list_filter = ("date",)
+    search_fields = ("goal__id",)
+
+
+@admin.register(ObjectiveHistory)
+class ObjectiveHistoryAdmin(admin.ModelAdmin):
+    list_display = ("rating", "objective", "date")
+    list_filter = ("date",)
+    search_fields = ("objective__id",)

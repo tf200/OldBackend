@@ -6,14 +6,18 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from loguru import logger
+from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from system.models import AttachmentFile, Notification
+from system.models import AttachmentFile, DBSettings, Notification
 
 
 def generate_invoice_id() -> str:
@@ -92,10 +96,15 @@ class ClientDetails(models.Model):
         Location, on_delete=models.SET_NULL, related_name="client_location", null=True
     )
 
+    identity_attachment_ids = models.JSONField(default=list, blank=True)
+
+    departure_reason = models.CharField(max_length=255, null=True, blank=True)
+    departure_report = models.TextField(null=True, blank=True)
+    gps_position = models.JSONField(default=list)
     # class Meta:
     #     verbose_name = "Client"
 
-    def generate_the_monthly_invoice(self, send_notifications=True) -> Invoice:
+    def generate_the_monthly_invoice(self, send_notifications=False) -> Invoice | None:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
         # Get all client approved contracts
         current_date = timezone.now().date()
@@ -122,47 +131,28 @@ class ClientDetails(models.Model):
             invoice_details.append(
                 {
                     "contract_id": contract.pk,
-                    "item_desc": f"Care: {contract.care_name} (contract id: #{contract.id})",
+                    "item_desc": f"Care: {contract.care_name} (contract: #{contract.id}, {contract.financing_act}/{contract.financing_option})",
                     "contract_amount": contract_amount,
                     "contract_amount_without_tax": contract_amount_without_tax,
                     "used_tax": contract.used_tax(),
                 }
             )
 
-        # Create invoice for each all the available contracts
-        invoice = Invoice.objects.create(
-            client=self,
-            total_amount=Decimal(total_amount),
-            invoice_details=invoice_details,
-            due_date=timezone.now() + timedelta(days=30),
-        )
+        if invoice_details:
+            # Create invoice for each all the available contracts
+            invoice = Invoice.objects.create(
+                client=self,
+                total_amount=Decimal(total_amount),
+                invoice_details=invoice_details,
+                due_date=timezone.now() + timedelta(days=30),
+            )
 
-        # Send notifications
-        if send_notifications:
-            for contract in contracts:
-                # Send a notification to the client
-                notification = Notification.objects.create(
-                    title="Invoice created",
-                    event=Notification.EVENTS.INVOICE_CREATED,
-                    content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
-                    receiver=invoice.client.user,
-                    metadata={"invoice_id": invoice.id},  # type: ignore
-                )
+            # Send notifications
+            if send_notifications:
+                invoice.send_notification()
 
-                notification.notify()
-
-                # send a notification to sender
-                if contract.sender and contract.sender.email_adress:
-                    notification = Notification.objects.create(
-                        title="Invoice created",
-                        event=Notification.EVENTS.INVOICE_CREATED,
-                        content=f"You have a new invoice #{invoice.id} to be paid/resolved.",  # type: ignore
-                        metadata={"invoice_id": invoice.id},  # type: ignore
-                    )
-
-                    notification.notify(to=contract.sender.email_adress)
-
-        return invoice
+            return invoice
+        return None
 
     def has_untaken_medications(self) -> int:
         from employees.models import ClientMedicationRecord
@@ -171,10 +161,55 @@ class ClientDetails(models.Model):
             client_medication__client=self, status=ClientMedicationRecord.Status.NOT_TAKEN
         ).count()
 
+    def get_current_levels(self) -> list[ClientCurrentLevel]:
+        current_levels: list[ClientCurrentLevel] = list(self.current_levels.all())
+        # if not current_levels:
+        #     domains = self.care_plans.all().values_list("domains", flat=True).distinct()
+        #     for domain in domains:
+        #         current_levels.append(
+        #             ClientCurrentLevel.objects.create(
+        #                 client=self, domain=domain
+        #             )  # default level: 1
+        #         )
+        return current_levels
+
     def generate_profile_document_link(self) -> str:
         """Generate a Client profile PDF and return a downloadable link (please see the PDF templete for it)"""
         # Ensure to use "AttachmentFile" (in the system model)
         pass
+
+    def save(self, *args, **kwargs):
+        AttachmentFile.objects.filter(id__in=self.identity_attachment_ids).update(is_used=True)
+        return super().save(*args, **kwargs)
+
+    def get_domain_ids(self) -> list[int]:
+        care_plans = CarePlan.objects.filter(client__id=self.pk).all()
+        domain_ids: list[int] = []
+        for care_plan in care_plans:
+            domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+        return list(set(domain_ids))
+
+    def __str__(self) -> str:
+        return f"Client: {self.first_name} {self.last_name} ({self.pk})"
+
+    def __repr__(self) -> str:
+        return f"Client: {self.first_name} {self.last_name} ({self.pk})"
+
+
+class ClientCurrentLevel(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="current_levels", on_delete=models.CASCADE
+    )
+    domain = models.ForeignKey(
+        AssessmentDomain, related_name="current_levels", on_delete=models.CASCADE
+    )
+    level = models.IntegerField(default=1)  # levels 1 - 5
+
+    content = models.TextField(default="", null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Current level: {self.level}"
 
 
 class ClientStatusHistory(models.Model):
@@ -189,6 +224,23 @@ class ClientStatusHistory(models.Model):
 
     def __str__(self):
         return f"{self.status} (since: {self.start_date})"
+
+
+class ClientState(models.Model):
+    class Types(models.TextChoices):
+        EMOTIONAL = ("emotional", "Emotional")
+        PHYSICAL = ("physical", "Physical")
+
+    value = models.IntegerField(default=0)
+    type = models.CharField(choices=Types.choices)
+    content = models.TextField(default="", null=True)
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="client_states", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
 
 class ClientDiagnosis(models.Model):
@@ -290,11 +342,22 @@ class Contract(models.Model):
         APPROVED = ("approved", "Approved")
         DRAFT = ("draft", "Draft")
         TERMINATED = ("terminated", "Terminated")
-        STOPPED = ("stoped", "Stopped")
+        STOPPED = ("stopped", "Stopped")
 
     class HoursType(models.TextChoices):
         WEEKLY = ("weekly", "Weekly")
         ALL_PERIOD = ("all_period", "All Period")
+
+    class FinancingActs(models.TextChoices):
+        WMO = ("WMO", "WMO")
+        ZVW = ("ZVW", "ZVW")
+        WLZ = ("WLZ", "WLZ")
+        JW = ("JW", "JW")
+        WPG = ("WPG", "WPG")
+
+    class FinancingOptions(models.TextChoices):
+        ZIN = ("ZIN", "ZIN")
+        PGB = ("PGB", "PGB")
 
     type = models.ForeignKey(ContractType, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(choices=Status.choices, default=Status.DRAFT)
@@ -308,7 +371,7 @@ class Contract(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     price_frequency = models.CharField(choices=Frequency.choices, default=Frequency.WEEKLY)
 
-    hours = models.IntegerField(default=0)
+    hours = models.IntegerField(default=0, null=True, blank=True)
     hours_type = models.CharField(choices=HoursType.choices, default=HoursType.ALL_PERIOD)
 
     care_name = models.CharField(max_length=255)
@@ -319,7 +382,15 @@ class Contract(models.Model):
         Sender, related_name="contracts", on_delete=models.SET_NULL, null=True, blank=True
     )
 
-    attachment_ids = models.JSONField(default=list)
+    attachment_ids = models.JSONField(default=list, blank=True)
+
+    financing_act = models.CharField(choices=FinancingActs.choices, default=FinancingActs.WMO)
+    financing_option = models.CharField(
+        choices=FinancingOptions.choices, default=FinancingOptions.PGB
+    )
+
+    departure_reason = models.CharField(max_length=255, null=True, blank=True)
+    departure_report = models.TextField(null=True, blank=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -465,6 +536,10 @@ class Invoice(models.Model):
     status = models.CharField(choices=Status.choices, default=Status.CONCEPT)
     invoice_details = models.JSONField(default=list, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0))
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    extra_content = models.TextField(default="", null=True, blank=True)
 
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
 
@@ -474,8 +549,55 @@ class Invoice(models.Model):
     class Meta:
         ordering = ("-created",)
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_invoice = self.__class__.objects.get(id=self.pk)
+            if (
+                self.status == self.Status.OUTSTANDING
+                and old_invoice.status == self.Status.CONCEPT
+            ):
+                # Send notifications
+                self.send_notification()
+
+        return super().save(*args, **kwargs)
+
+    def send_notification(self) -> None:
+        logger.debug("Send invoice notification")
+        # Send a notification to the client
+        notification = Notification.objects.create(
+            title="Invoice created",
+            event=Notification.EVENTS.INVOICE_CREATED,
+            content=f"You have a new invoice #{self.id} to be paid/resolved.",  # type: ignore
+            receiver=self.client.user,
+            metadata={"invoice_id": self.id},  # type: ignore
+        )
+
+        notification.notify()
+
+        # TODO: Send a notification to the admin as well
+
+        # send a notification to sender
+        # if contract.sender and contract.sender.email_adress:
+        #     notification = Notification.objects.create(
+        #         title="Invoice created",
+        #         event=Notification.EVENTS.INVOICE_CREATED,
+        #         content=f"You have a new invoice #{self.id} to be paid/resolved.",  # type: ignore
+        #         metadata={"invoice_id": self.id},  # type: ignore
+        #     )
+
+        #     notification.notify(to=contract.sender.email_adress)
+
     def total_paid_amount(self) -> float:
-        return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
+        # return round(sum([invoice_history.amount for invoice_history in self.history.all()]), 2)
+        total: None | Decimal = (
+            self.__class__.objects.filter(id=self.pk)
+            .values_list("history__amount", flat=True)
+            .aggregate(total=Sum("history__amount"))["total"]
+        )
+
+        if total:
+            return float(total)
+        return 0
 
     def refresh_total_amount(self, save: bool = True) -> None:
         # recalculating the amount every time/update
@@ -485,8 +607,11 @@ class Invoice(models.Model):
 
         if save:
             self.save()
+            # delete the old pdf attachment
+            if self.pdf_attachment:
+                self.pdf_attachment.delete()
 
-    def download_link(self) -> str:
+    def download_link(self, refresh=False) -> str:
         """Ensure to generate an invoice PDF and return a link to download it"""
         """
         this is the structure of "self.invoice_details"
@@ -498,7 +623,65 @@ class Invoice(models.Model):
             "used_tax": int,
         }
         """
-        pass
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        sender = self.client.sender
+        company_name: str = DBSettings.get("CONTACT_COMPANY_NAME", DBSettings.get("SITE_NAME"))
+        prefix_content: str = (
+            f"The {company_name} provides care to the above-mentioned client, at a price of {DBSettings.get('SITE_CURRENCY_SYMBOL')} within this month ({self.due_date.strftime('%m/%Y')}). if the care process is terminated permaturely, billing will stop as of the end date of care."
+        )
+
+        context = {
+            "invoice_number": self.invoice_number,
+            "invoice_contracts": self.invoice_details,
+            "issue_date": self.issue_date,
+            "due_date": self.due_date,
+            "total_amount": self.total_amount,
+            "prefix_content": prefix_content,
+            "extra_content": self.extra_content,
+            # Client
+            "client_full_name": f"{self.client.first_name} {self.client.last_name}",
+            "client_id": self.client.id,
+            "client_date_of_birth": self.client.date_of_birth,
+            # Sender
+            "company_name": sender.name if sender else "",
+            "email": sender.email_adress if sender else "",
+            "address": sender.address if sender else "",
+            "KVK": sender.BTWnumber if sender else "",
+            "BTW": sender.KVKnumber if sender else "",
+            # Site info
+            "site_name": DBSettings.get("SITE_NAME"),
+            "invoice_footer": DBSettings.get("INVOICE_FOOTER"),
+            "site_currency": DBSettings.get("SITE_CURRENCY"),
+            "site_currency_symbol": DBSettings.get("SITE_CURRENCY_SYMBOL"),
+            # Company info
+            "invoice_company_name": company_name,
+            "invoice_email": DBSettings.get("CONTACT_EMAIL"),
+            "invoice_address": DBSettings.get("CONTACT_ADDRESS"),
+            "invoice_phone": DBSettings.get("CONTACT_PHONE"),
+        }
+        html_string = render_to_string("invoice_template.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = f"Invoice_{self.invoice_number}.pdf"
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Invoice"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
 
 
 class InvoiceHistory(models.Model):
@@ -765,56 +948,15 @@ class InvoiceContract(models.Model):
 
 
 class CarePlan(models.Model):
-    client = models.ForeignKey(ClientDetails, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(
+        ClientDetails, related_name="care_plans", on_delete=models.SET_NULL, null=True
+    )
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
     status = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     domains = models.ManyToManyField(AssessmentDomain, related_name="care_plans")
-
-
-class DomainGoal(models.Model):
-    title = models.CharField(max_length=255)
-    desc = models.TextField(default="", null=True, blank=True)
-
-    domain = models.ForeignKey(
-        AssessmentDomain, related_name="goals", on_delete=models.SET_NULL, null=True
-    )
-    client = models.ForeignKey(ClientDetails, related_name="goals", on_delete=models.CASCADE)
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        return f"Main Goal: {self.title}"
-
-    def total_objectives(self) -> int:
-        return self.objectives.count()
-
-    def main_goal_rating(self) -> float:
-        """This average is calculated based on Objectives"""
-        objectives = self.objectives.all()
-        if objectives:
-            return round(sum([objective.rating for objective in objectives]) / len(objectives), 1)
-        return 0
-
-
-class DomainObjective(models.Model):
-    title = models.CharField(max_length=255)
-    desc = models.TextField(default="", null=True, blank=True)
-    rating = models.FloatField(default=0)
-
-    goal = models.ForeignKey(
-        DomainGoal, related_name="objectives", on_delete=models.SET_NULL, null=True
-    )
-    client = models.ForeignKey(ClientDetails, related_name="objectives", on_delete=models.CASCADE)
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        return f"Objective: {self.title}"
 
 
 class CareplanAtachements(models.Model):

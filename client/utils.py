@@ -1,7 +1,7 @@
 import os
 
 from celery import shared_task
-from employees.models import ProgressReport
+from employees.models import EmployeeProfile, ProgressReport
 from system.utils import send_mail_async
 
 from .models import ClientEmergencyContact
@@ -24,3 +24,7 @@ def send_progress_report_email(progress_report_id):
             )
     except ProgressReport.DoesNotExist:
         pass
+
+
+def get_employee(user) -> EmployeeProfile | None:
+    return user.profile if hasattr(user, "profile") else None

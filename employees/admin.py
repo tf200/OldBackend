@@ -10,6 +10,7 @@ from .models import (
     EmployeeProfile,
     Feedback,
     GoalsReport,
+    GroupAccess,
     Observations,
     PhysicalState,
     ProgressReport,
@@ -17,11 +18,17 @@ from .models import (
 )
 
 
+class GroupAccessModel(admin.TabularInline):
+    model = GroupAccess
+    extra = 0
+
+
 @admin.register(EmployeeProfile)
 class EmployeeProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "position", "department")
     search_fields = ("user__username", "position", "department")
     list_filter = ("position", "department")
+    inlines = (GroupAccessModel,)
 
 
 # Optional: Define a custom admin class to customize the admin interface

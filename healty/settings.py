@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "storages",
     "corsheaders",
+    "django_celery_beat",
     "django_celery_results",
     "system",
     "assessments",
@@ -69,6 +70,7 @@ INSTALLED_APPS = [
     "planning",
     "channels",
     "chat",
+    "easyaudit",
 ]
 
 
@@ -90,6 +92,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "easyaudit.middleware.easyaudit.EasyAuditMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -252,9 +255,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "planning.tasks.clear_temporary_files",
         "schedule": crontab(minute="0", hour="0"),  # Runs daily at midnight
     },
-    "summarize_weekly_reports": {
-        "task": "employees.tasks.summarize_weekly_reports",
-        "schedule": crontab(minute="0", hour="0", day_of_week="6"),
+    # "summarize_weekly_reports": {
+    #     "task": "employees.tasks.summarize_weekly_reports",
+    #     "schedule": crontab(minute="0", hour="0", day_of_week="6"),
+    # },
+    "summarize_client_reports": {
+        "task": "ai.tasks.summarize_client_reports",
+        "schedule": crontab(minute="0", hour="0", month_of_year="*/2"),
     },
     "invoice_creation_per_month": {
         "task": "client.tasks.invoice_creation_per_month",
@@ -282,7 +289,14 @@ CELERY_BEAT_SCHEDULE = {
         "task": "client.tasks.delete_unused_attachments",
         "schedule": crontab(minute="0", hour="*"),  # hour
     },
+    # "record_goals_and_objectives_history": {
+    #     "task": "client.tasks.record_goals_and_objectives_history",
+    #     "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
+    # },
 }
+
+# for easyaudit
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
 
 DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "")
 EMAIL_HOST: str = os.getenv("EMAIL_HOST", "")
@@ -299,4 +313,4 @@ OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 # Default tax
 DEFAULT_TAX: int = 0  # 0%
 
-VERSION: str = "0.0.1.a25"
+VERSION: str = "0.0.1.a45"

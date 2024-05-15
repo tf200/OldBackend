@@ -22,7 +22,7 @@ class Assessment(models.Model):
         AssessmentDomain, related_name="assessments", on_delete=models.CASCADE, null=True
     )
 
-    level = models.IntegerField(choices=LEVELS)
+    level = models.IntegerField(choices=LEVELS.choices)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

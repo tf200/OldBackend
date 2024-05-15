@@ -5,17 +5,24 @@ from loguru import logger
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
 from client.models import (
+    ClientCurrentLevel,
     ClientDetails,
+    ClientState,
     ClientStatusHistory,
     Contract,
     ContractType,
     ContractWorkingHours,
-    DomainGoal,
-    DomainObjective,
     Invoice,
     InvoiceHistory,
 )
-from employees.models import ClientMedication, ClientMedicationRecord
+from employees.models import (
+    ClientMedication,
+    ClientMedicationRecord,
+    DomainGoal,
+    DomainObjective,
+    GoalHistory,
+    ObjectiveHistory,
+)
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
 
@@ -31,6 +38,13 @@ class ContractSchema(ModelSchema):
     price_frequency: Literal["minute", "hourly", "daily", "weekly", "monthly"]
     care_type: Literal["ambulante", "accommodation"]
     status: Literal["approved", "draft", "terminated"] = "draft"
+    sender_name: str
+
+    @staticmethod
+    def resolve_sender_name(contract: Contract) -> str:
+        if contract.sender and contract.sender.name:
+            return contract.sender.name
+        return ""
 
     @staticmethod
     def resolve_client_first_name(contract: Contract) -> str | None:
@@ -70,10 +84,11 @@ class ContractSchemaInput(ModelSchema):
     care_type: Literal["ambulante", "accommodation"]
     attachment_ids: list[str] = []
     status: Literal["approved", "draft", "terminated"] = "draft"
+    hours: Optional[int] = None
 
     class Meta:
         model = Contract
-        exclude = ("id", "type", "sender", "client", "updated", "created")
+        exclude = ("id", "type", "sender", "client", "updated", "created", "hours")
 
 
 # class ContractSchemaPatch(ModelSchema):
@@ -99,6 +114,8 @@ class InvoiceSchema(ModelSchema):
     client_id: int
     history: list[InvoiceHistorySchema] = []
     total_paid_amount: float = 0
+    sender_id: int | None
+    sender_name: str
 
     class Meta:
         model = Invoice
@@ -107,6 +124,18 @@ class InvoiceSchema(ModelSchema):
     @staticmethod
     def resolve_total_paid_amount(invoice: Invoice) -> float:
         return invoice.total_paid_amount()
+
+    @staticmethod
+    def resolve_sender_name(invoice: Invoice) -> str:
+        if invoice.client.sender and invoice.client.sender.name:
+            return invoice.client.sender.name
+        return ""
+
+    @staticmethod
+    def resolve_sender_id(invoice: Invoice) -> int:
+        if invoice.client.sender:
+            return invoice.client.sender.pk
+        return 0
 
 
 class InvoiceHistoryInput(ModelSchema):
@@ -131,6 +160,11 @@ class InvoiceSchemaPatch(Schema):
         | None
     ) = None
     invoice_details: list[dict[str, Any]] | None = None
+    extra_content: str | None = None
+
+
+class DownloadLinkSchema(Schema):
+    download_link: str
 
 
 class ContractTypeSchema(ModelSchema):
@@ -235,19 +269,41 @@ class DomainObjectiveInput(ModelSchema):
         exclude = ("created", "updated", "goal", "client", "id")
 
 
+class DomainObjectivePatch(Schema):
+    title: str | None = None
+    desc: str | None = None
+    rating: float | None = None
+
+
 class DomainGoalSchema(ModelSchema):
     domain_id: int
     client_id: int
     objectives: list[DomainObjectiveSchema]
     main_goal_rating: float
+    created_by_id: int | None
+    reviewed_by_id: int | None
+    created_by_name: str | None = None
+    reviewed_by_name: str | None = None
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain", "client")
+        exclude = ("domain", "client", "created_by", "reviewed_by")
 
     @staticmethod
     def resolve_main_goal_rating(domain_goal: DomainGoal) -> float:
         return domain_goal.main_goal_rating()
+
+    @staticmethod
+    def resolve_created_by_name(domain_goal: DomainGoal) -> str | None:
+        if domain_goal.created_by:
+            return f"{domain_goal.created_by.first_name} {domain_goal.created_by.last_name}"
+        return None
+
+    @staticmethod
+    def resolve_reviewed_by_name(domain_goal: DomainGoal) -> str | None:
+        if domain_goal.reviewed_by:
+            return f"{domain_goal.reviewed_by.first_name} {domain_goal.reviewed_by.last_name}"
+        return None
 
 
 class DomainGoalInput(ModelSchema):
@@ -255,4 +311,98 @@ class DomainGoalInput(ModelSchema):
 
     class Meta:
         model = DomainGoal
-        exclude = ("domain", "created", "updated", "id", "client")
+        exclude = (
+            "domain",
+            "created",
+            "updated",
+            "id",
+            "client",
+            "created_by",
+            "reviewed_by",
+            "is_approved",
+        )
+
+
+class DomainGoalPatch(Schema):
+    title: str | None = None
+    desc: str | None = None
+
+
+class DomainGoalPatchApproval(Schema):
+    is_approved: bool = False
+
+
+class GoalHistorySchema(ModelSchema):
+    class Meta:
+        model = GoalHistory
+        exclude = ("id", "goal")
+
+
+class ObjectiveHistorySchema(ModelSchema):
+    class Meta:
+        model = ObjectiveHistory
+        exclude = ("objective",)
+
+
+class ObjectiveHistorySchemaInput(ModelSchema):
+    date: Optional[str] = None
+
+    class Meta:
+        model = ObjectiveHistory
+        exclude = ("id", "objective")
+
+
+class ObjectiveHistorySchemaPatch(Schema):
+    rating: Optional[float] = None
+    date: Optional[str] = None
+    content: Optional[str] = None
+    week: Optional[int] = None
+
+
+class ClientCurrentLevelSchema(ModelSchema):
+    domain_id: int
+
+    class Meta:
+        model = ClientCurrentLevel
+        exclude = ("client", "domain")
+
+
+class ClientCurrentLevelInput(Schema):
+    level: float
+    domain_id: int
+    content: str
+
+
+class ClientCurrentLevelPatch(Schema):
+    level: float | None = None
+    domain_id: int | None = None
+    content: str | None = None
+
+
+class ClientStateSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ClientState
+        exclude = ("client",)
+
+
+class ClientStateSchemaInput(ModelSchema):
+    client_id: int
+    type: Literal["emotional", "physical"]
+    created: Optional[datetime] = None
+
+    class Meta:
+        model = ClientState
+        exclude = ("client", "updated", "id")
+
+
+class ClientStateSchemaPatch(Schema):
+    value: Optional[int] = None
+    content: Optional[str] = None
+    created: Optional[datetime] = None
+
+
+class GPSPositionSchemaInput(Schema):
+    latitude: str
+    longitude: str

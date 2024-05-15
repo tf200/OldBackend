@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from system.models import AttachmentFile, DBSettings, Notification
+from system.models import AttachmentFile, DBSettings, Expense, Notification
 
 
 @admin.register(DBSettings)
@@ -20,3 +20,10 @@ class AttachmentFileAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "size", "file", "is_used", "created")
     list_filter = ("is_used", "created", "updated")
     search_fields = ("id", "name")
+
+
+@admin.register(Expense)
+class ExpenseAdmin(admin.ModelAdmin):
+    list_display = ("id", "amount", "desc", "created")
+    list_filter = ("created",)
+    search_fields = ("id",)

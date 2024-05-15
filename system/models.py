@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import os
 import uuid
+from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
 from django.db import models
 from loguru import logger
 
+from authentication.models import Location
 from system.utils import send_mail_async
 
 
@@ -196,14 +198,63 @@ class AttachmentFile(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to=get_directory_path)
     size = models.IntegerField(default=0)
-    is_used = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False, db_index=True)
     tag = models.CharField(max_length=100, default="", null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def download_link(self) -> str:
+        return self.file.url
 
 
-class Expence(models.Model):
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
+class Expense(models.Model):
+    amount = models.DecimalField(max_digits=20, decimal_places=2)  # amount without TAX
+    tax = models.FloatField(default=0)
     desc = models.TextField(default="", null=True, blank=True)
+    attachment_ids = models.JSONField(default=list, blank=True)
+    location = models.ForeignKey(
+        Location, related_name="expenses", on_delete=models.SET_NULL, null=True
+    )
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.desc} ({self.amount})"
+
+    def total_paid_amount(self) -> Decimal:
+        return self.amount * Decimal(1 + self.tax / 100)
+
+    def __add__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount + other.amount
+        if isinstance(other, (int, float)):
+            return self.amount + Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount + other
+
+    def __sub__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount - other.amount
+        if isinstance(other, (int, float)):
+            return self.amount - Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount - other
+
+    def __mul__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount * other.amount
+        if isinstance(other, (int, float)):
+            return self.amount * Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount * other
+
+    def __div__(self, other: Expense | int | float | Decimal) -> Decimal:
+        if isinstance(other, Expense):
+            return self.amount / other.amount
+        if isinstance(other, (int, float)):
+            return self.amount / Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount / other

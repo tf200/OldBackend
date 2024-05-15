@@ -4,12 +4,15 @@ from rest_framework import serializers
 from authentication.serializers import CustomUserSerializer
 from employees.models import ClientMedication
 from planning.serializers import move_file_s3
+from system.models import AttachmentFile
+from system.serializers import AttchementFileSerialize
 
 from .models import *
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
+    attachments = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientDetails
@@ -39,10 +42,16 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "created",
             "sender",
             "location",
+            "attachments",
+            "identity_attachment_ids",
+            "departure_reason",
+            "departure_report",
+            "gps_position",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
             "profile_picture": {"required": False},
+            "gps_position": {"read_only": True},
         }
 
     def get_location(self, obj):
@@ -54,6 +63,11 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation["has_untaken_medications"] = instance.has_untaken_medications()
         return representation
+
+    def get_attachments(self, obj: ClientDetails):
+        attachment_ids = obj.identity_attachment_ids
+        attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)
+        return AttchementFileSerialize(attachments, many=True).data
 
 
 class ClientDetailsNestedSerializer(serializers.ModelSerializer):

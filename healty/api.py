@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI
 from ninja.security import HttpBearer
@@ -24,7 +25,7 @@ class TokenAuth(HttpBearer):
             pass
 
 
-api = NinjaAPI(auth=TokenAuth())
+api = NinjaAPI(auth=TokenAuth(), version=settings.VERSION)
 
 api.add_router("/system", system_router, tags=["system"])
 api.add_router("/assessments", assessment_router, tags=["assessments"])

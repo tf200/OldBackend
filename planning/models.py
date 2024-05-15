@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.utils.timezone import now
 
+from authentication.models import Location
 from client.models import ClientDetails
 from employees.models import EmployeeProfile
 
@@ -12,6 +13,7 @@ class Appointment(models.Model):
     TYPE_CHOICES = (
         ("meeting", "Meeting"),
         ("work", "Work with Client"),
+        ("home_care", "Home Care"),
         ("other", "Other"),
     )
 
@@ -31,7 +33,7 @@ class Appointment(models.Model):
     clients = models.ManyToManyField(
         ClientDetails, related_name="client_appointments", blank=True
     )  # Reference to your Client model
-    location = models.CharField(max_length=255, blank=True, null=True)
+    location = models.ForeignKey(Location, related_name="appointments", on_delete=models.CASCADE)
     created_by = models.ForeignKey(
         EmployeeProfile, related_name="created_appointments", on_delete=models.SET_NULL, null=True
     )

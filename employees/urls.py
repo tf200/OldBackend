@@ -204,9 +204,4 @@ urlpatterns = [
         WeeklyReportSummaryRUD.as_view(),
         name="weekly-report-summary-detail",
     ),
-    path(
-        "weekly-report-summaries/run",
-        generate_ai_reports,
-        name="weekly-report-summary-run",
-    ),
 ]

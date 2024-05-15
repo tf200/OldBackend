@@ -1,12 +1,19 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
+from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from loguru import logger
 
+from adminmodif.models import Group, Permission
+from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
 from system.models import Notification
@@ -31,6 +38,8 @@ class EmployeeProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     home_telephone_number = models.CharField(max_length=100, null=True, blank=True)
 
+    groups = models.ManyToManyField(Group, through="GroupAccess")
+
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     is_subcontractor = models.BooleanField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
@@ -39,7 +48,36 @@ class EmployeeProfile(models.Model):
     )
     has_borrowed = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"Employee: {self.first_name} ({self.pk})"
 
+    def __repr__(self) -> str:
+        return f"Employee: {self.first_name} ({self.pk})"
+
+    def get_permissions(self) -> QuerySet[Permission]:
+        return Permission.objects.filter(id__in=self.get_permission_ids())
+
+    def get_permission_ids(self) -> list[int]:
+        today = timezone.now()
+        return list(
+            filter(
+                lambda a: a,
+                EmployeeProfile.objects.filter(id=self.pk)
+                .filter(
+                    Q(groups__groupaccess__start_date__lte=today)
+                    | Q(groups__groupaccess__start_date__isnull=True),
+                    Q(groups__groupaccess__end_date__gte=today)
+                    | Q(groups__groupaccess__end_date__isnull=True),
+                )
+                .values_list("groups__permissions", flat=True),
+            )
+        )
+
+    def has_permission(self, permission_name: str) -> bool:
+        return self.__class__.objects.filter(groups__permissions__name=permission_name).exists()
+
+
+# this is a Group Access
 class Certification(models.Model):
     employee = models.ForeignKey(
         EmployeeProfile, on_delete=models.CASCADE, related_name="certifications"
@@ -133,6 +171,34 @@ class ClientEmployeeAssignment(models.Model):
 
 
 class ProgressReport(models.Model):
+    class Types(models.TextChoices):
+        MORNING_REPORT = (
+            "morning_report",
+            "Morning report",
+        )
+        EVENING_REPORT = (
+            "evening_report",
+            "Evening report",
+        )
+        NIGHT_REPORT = (
+            "night_report",
+            "Night report",
+        )
+        SHIFT_REPORT = (
+            "shift_report",
+            "Intermediate shift report",
+        )
+        ONE_TO_ONE_REPORT = (
+            "one_to_one_report",
+            "1 on 1 Reporting",
+        )
+        PROCESS_REPORT = (
+            "process_report",
+            "Process Reporting",
+        )
+        CONTACT_JOURNAL = "contact_journal", "Contact Journal"
+        OTHER = "other", "Other"
+
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -144,6 +210,9 @@ class ProgressReport(models.Model):
         blank=True,
         null=True,
     )
+
+    type = models.CharField(choices=Types.choices, default=Types.OTHER)
+
     created = models.DateTimeField(blank=True, null=True)
 
 
@@ -382,3 +451,132 @@ class Incident(models.Model):
 
     def __str__(self):
         return f"Incident on {self.date_of_incident} at {self.location}"
+
+
+class DomainGoal(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+
+    domain = models.ForeignKey(
+        AssessmentDomain, related_name="goals", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="goals", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        EmployeeProfile,
+        related_name="goals",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    reviewed_by = models.ForeignKey(
+        EmployeeProfile,
+        related_name="reviewed_goals",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    is_approved = models.BooleanField(default=False)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self) -> str:
+        return f"Main Goal: {self.title}"
+
+    def total_objectives(self) -> int:
+        return self.objectives.count()
+
+    def main_goal_rating(self) -> float:
+        """This average is calculated based on Objectives"""
+        objectives = self.objectives.all()
+        if objectives:
+            return round(sum([objective.rating for objective in objectives]) / len(objectives), 1)
+        return 0
+
+    def save(self, *args, **kwargs):
+        # if not self.id:
+        #     # creating
+        #     self.created_by = self.request.user
+        # else:
+        #     # updating
+        #     old_goal = get_object_or_404(self.__class__, id=self.id)
+        #     if old_goal.is_approved != self.is_approved:
+        #         self.reviewed_by = self.request.user
+
+        return super(self.__class__, self).save(*args, **kwargs)
+
+
+class DomainObjective(models.Model):
+    title = models.CharField(max_length=255)
+    desc = models.TextField(default="", null=True, blank=True)
+    rating = models.FloatField(default=0)
+
+    goal = models.ForeignKey(
+        DomainGoal, related_name="objectives", on_delete=models.SET_NULL, null=True
+    )
+    client = models.ForeignKey(ClientDetails, related_name="objectives", on_delete=models.CASCADE)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"Objective: {self.title}"
+
+
+class ObjectiveHistory(models.Model):
+    rating = models.FloatField(default=0)
+    week = models.IntegerField(db_index=True)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    objective = models.ForeignKey(
+        DomainObjective, related_name="history", on_delete=models.CASCADE
+    )
+    content = models.TextField(default="", null=True, blank=True)
+
+    class Meta:
+        unique_together = ["week", "objective"]
+        ordering = ("week",)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # create
+            # Let's update the objective rating
+            objective = self.objective
+            objective.rating = self.rating
+            objective.save()
+        else:
+            # Updating
+            # get the latest report/evaluation
+            latest_objective_history = self.__class__.objects.first()  # Get the latest evaluation
+            if latest_objective_history.id == self.id:
+                objective = self.objective
+                objective.rating = self.rating  # the new rating
+                objective.save()
+
+        result = super().save(*args, **kwargs)
+        return result
+
+
+class GoalHistory(models.Model):
+    rating = models.FloatField(default=0)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    goal = models.ForeignKey(DomainGoal, related_name="history", on_delete=models.CASCADE)
+
+
+class GroupAccess(models.Model):
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self) -> str:
+        return f'GroupAccess: "{self.group.name} ({self.pk})"'
+
+    def __repr__(self) -> str:
+        return f'GroupAccess: "{self.group.name} ({self.pk})"'
