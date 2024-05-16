@@ -163,7 +163,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Africa/Casablanca"
+TIME_ZONE: str = os.getenv("TZ", "UTC")
 
 USE_I18N = True
 
