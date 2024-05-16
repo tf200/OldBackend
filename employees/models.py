@@ -48,6 +48,12 @@ class EmployeeProfile(models.Model):
     )
     has_borrowed = models.BooleanField(default=False)
 
+    out_of_service = models.BooleanField(default=False, null=True, blank=True)
+    is_archived = models.BooleanField(default=False, null=True, blank=True)
+
+    class Meta:
+        ordering = ("-id",)
+
     def __str__(self) -> str:
         return f"Employee: {self.first_name} ({self.pk})"
 

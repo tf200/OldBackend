@@ -401,6 +401,8 @@ class EmployeeProfileCreateView(APIView):
             last_name = employee_data.get("last_name", "")
             email = employee_data.get("private_email_address", "")
             username = generate_unique_username(first_name, last_name)
+            location = get_object_or_404(Location, id=employee_data["location"])
+            employee_data.pop("location")
 
             # Generate a plain text password
             plain_text_password = (
@@ -416,8 +418,8 @@ class EmployeeProfileCreateView(APIView):
                 # Now, send the plain text password via email
                 send_login_credentials(user, username, plain_text_password)
 
-                default_group, group_created = Group.objects.get_or_create(name="Default")
-                default_group.user_set.add(user)
+                # default_group, group_created = Group.objects.get_or_create(name="Default")
+                # default_group.user_set.add(user)
             else:
                 if hasattr(user, "profile"):
                     return Response(
@@ -426,7 +428,9 @@ class EmployeeProfileCreateView(APIView):
                     )
 
             try:
-                employee_profile = EmployeeProfile.objects.create(user=user, **employee_data)
+                employee_profile = EmployeeProfile.objects.create(
+                    user=user, **employee_data, location=location
+                )
                 serializer = EmployeeCRUDSerializer(employee_profile)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except IntegrityError as e:

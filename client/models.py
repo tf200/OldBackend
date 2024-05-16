@@ -101,8 +101,10 @@ class ClientDetails(models.Model):
     departure_reason = models.CharField(max_length=255, null=True, blank=True)
     departure_report = models.TextField(null=True, blank=True)
     gps_position = models.JSONField(default=list)
-    # class Meta:
-    #     verbose_name = "Client"
+
+    class Meta:
+        ordering = ("-id",)
+        verbose_name = "Client"
 
     def generate_the_monthly_invoice(self, send_notifications=False) -> Invoice | None:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
@@ -842,6 +844,9 @@ class Contact(models.Model):
 class SenderContactRelation(models.Model):
     client_type = models.ForeignKey(Sender, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+
+
+ClientTypeContactRelation = SenderContactRelation  # an alias for backward compatibility
 
 
 class TemporaryFile(models.Model):

@@ -22,6 +22,8 @@ class EmployeeProfileFilter(filters.FilterSet):
             "home_telephone_number",
             "gender",
             "location",
+            "out_of_service",
+            "is_archived",
             # Note: 'groups' is handled separately via a method filter
         ]
 
