@@ -322,9 +322,11 @@ class ClientMedication(models.Model):
 
         for slot in self.slots:
             day = datetime.fromisoformat(slot["date"].split(".")[0])
+
             for time in slot["times"]:
-                hours, minutes = [int(value) for value in time.split(":")]
-                available_datetime.append(day.replace(hour=hours, minute=minutes))
+                if time:
+                    hours, minutes = [int(value) for value in time.split(":")]
+                    available_datetime.append(day.replace(hour=hours, minute=minutes))
 
         return available_datetime
 

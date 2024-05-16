@@ -238,6 +238,7 @@ def invoice_send_notification_3_months_before():
 
 @shared_task
 def create_and_send_medication_record_notification():
+    print("create_and_send_medication_record_notification is RUNNING!")
     current_date = timezone.now()
     ahead_datetime = current_date + datetime.timedelta(
         minutes=settings.MEDICATION_RECORDS_CREATATION

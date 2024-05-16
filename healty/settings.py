@@ -248,7 +248,7 @@ broker_connection_retry = True
 CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
-MEDICATION_RECORDS_CREATATION: int = 60  # in minutes
+MEDICATION_RECORDS_CREATATION: int = 1  # in minutes
 
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
