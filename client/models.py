@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import calendar
 import os
+import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -850,7 +851,7 @@ ClientTypeContactRelation = SenderContactRelation  # an alias for backward compa
 
 
 class TemporaryFile(models.Model):
-    id = models.CharField(primary_key=True, default=generate_invoice_id, editable=False)
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False)
     file = models.FileField(upload_to="temporary_files/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -962,6 +963,9 @@ class CarePlan(models.Model):
     status = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     domains = models.ManyToManyField(AssessmentDomain, related_name="care_plans")
+
+    class Meta:
+        ordering = ("-id",)
 
 
 class CareplanAtachements(models.Model):

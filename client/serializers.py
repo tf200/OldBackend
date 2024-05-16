@@ -424,7 +424,8 @@ class CarePlanSerializer(serializers.ModelSerializer):
             instance.save()
 
             # Delete all previous domains
-            instance.domains.clear()
+            if domain_ids:
+                instance.domains.clear()
 
             # register the new domains
             for domain_id in domain_ids:
