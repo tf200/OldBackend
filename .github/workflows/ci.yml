@@ -100,7 +100,7 @@ jobs:
             docker image prune -f
 
             # Restart the celery beat tasks
-            sleep 5 && docker exec -it -u root core_celery_1 python3 manage.py refresh_celery_beat_tasks
+            sleep 5 && docker exec -u root core_celery_1 python3 manage.py refresh_celery_beat_tasks
 
             # Inform me/us
             # nothing yet
