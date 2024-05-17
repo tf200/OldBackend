@@ -217,7 +217,7 @@ def invoice_mark_as_expired():
 @shared_task
 def invoice_send_notification_3_months_before():
     # Get all "outstanding" invoices more than 1 month
-    three_months_before = timezone.now() - datetime.timedelta(months=3)
+    three_months_before = timezone.now() - datetime.timedelta(days=30)
     invoices: list[Invoice] = list(
         Invoice.objects.filter(status="outstanding", due_date__gt=three_months_before).all()
     )
@@ -228,9 +228,9 @@ def invoice_send_notification_3_months_before():
             notification = Notification.objects.create(
                 title="Invoice notification",
                 event=Notification.EVENTS.INVOICE_EXPIRED,
-                content=f"You have an invoice to pay (#{invoice.id}).",
+                content=f"You have an invoice to pay (#{invoice.pk}).",
                 receiver=invoice.client.user,
-                metadata={"invoice_id": invoice.id},
+                metadata={"invoice_id": invoice.pk},
             )
 
             notification.notify()
@@ -238,7 +238,6 @@ def invoice_send_notification_3_months_before():
 
 @shared_task
 def create_and_send_medication_record_notification():
-    print("create_and_send_medication_record_notification is RUNNING!")
     current_date = timezone.now()
     ahead_datetime = current_date + datetime.timedelta(
         minutes=settings.MEDICATION_RECORDS_CREATATION
@@ -253,10 +252,10 @@ def create_and_send_medication_record_notification():
     # Create Medication Records when they get close (in time)
     for medication in medications:
         for slot in medication.get_available_slots():
-            logger.debug(
-                f"{current_date} <= {slot} < {ahead_datetime}: {(current_date <= slot < ahead_datetime)}"
-            )
-            if current_date <= slot < ahead_datetime:
+            if current_date <= slot <= ahead_datetime:
+                logger.debug(
+                    f"{current_date} <= {slot} <= {ahead_datetime}: {(current_date <= slot <= ahead_datetime)}"
+                )
                 # Create a Medication record
                 medication_record = ClientMedicationRecord.objects.create(
                     client_medication=medication,

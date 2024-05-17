@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "system",
     "assessments",
+    "healty",
     "ai",
     "authentication",
     "client",
@@ -277,9 +278,8 @@ CELERY_BEAT_SCHEDULE = {
     },
     "create_and_send_medication_record_notification": {
         "task": "client.tasks.create_and_send_medication_record_notification",
-        "schedule": crontab(
-            minute=f"*/{MEDICATION_RECORDS_CREATATION}",
-        ),  # every hour
+        "schedule": crontab(minute=f"*/{MEDICATION_RECORDS_CREATATION}"),  # in minutes
+        # "schedule": MEDICATION_RECORDS_CREATATION * 60,  # in seconds
     },
     "send_contract_reminders": {
         "task": "client.tasks.send_contract_reminders",

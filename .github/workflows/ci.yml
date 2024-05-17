@@ -29,13 +29,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          mask-password: 'true'
+          mask-password: "true"
 
       - name: Build Docker images
         run: |
           docker build -t ${{ env.ECR_REGISTRY }}/healthy:latest .
           docker tag ${{ env.ECR_REGISTRY }}/healthy:latest ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
-          
+
           # Push the images to ECR
           docker build -t ${{ env.ECR_REGISTRY }}/my_celery:latest --file celery/Dockerfile .
           docker tag ${{ env.ECR_REGISTRY }}/my_celery:latest ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
@@ -47,7 +47,6 @@ jobs:
 
           docker push ${{ env.ECR_REGISTRY }}/my_celery:latest
           docker push ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
-
 
   deploy_to_testing_environment:
     env:
@@ -66,7 +65,6 @@ jobs:
 
           # Copy the main services
           sshpass -p "${{ secrets.VPS_PASS }}" rsync -aP -e "ssh -p ${{ secrets.VPS_PORT }} -o StrictHostKeyChecking=no" ${{ env.SOURCE }} ${{ env.SERVER }}:${{ env.DESTINATION }}
-
 
       - name: Deploy now
         uses: appleboy/ssh-action@v1.0.3
@@ -100,6 +98,9 @@ jobs:
 
             # Some space clean up
             docker image prune -f
+
+            # Restart the celery beat tasks
+            sleep 5 && docker exec -it -u root core_celery_1 python3 manage.py refresh_celery_beat_tasks
 
             # Inform me/us
             # nothing yet

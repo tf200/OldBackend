@@ -24,8 +24,6 @@ services:
     command: celery -A healty.celery worker --beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
       - .env
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379
     networks:
       - private
     depends_on:
