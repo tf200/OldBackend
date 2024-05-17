@@ -19,7 +19,7 @@ services:
       - private
 
   celery:
-    image: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/my_celery:latest
+    image: 146023855582.dkr.ecr.eu-central-1.amazonaws.com/healthy:latest
     working_dir: /healthy
     command: celery -A healty.celery worker --beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     env_file:
