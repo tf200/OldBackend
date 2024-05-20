@@ -192,6 +192,24 @@ class ClientDetails(models.Model):
             domain_ids.extend([domain.id for domain in care_plan.domains.all()])
         return list(set(domain_ids))
 
+    def documents_info(self) -> dict:
+        documents = self.documents.all()  # type: ignore
+        available_document_labels = set(dict(ClientDocuments.Labels.choices).keys())
+        uploaded_document_labels = set([doc.label for doc in documents])
+
+        ## remove the "other" from documents labels
+        available_document_labels.discard("other")  # type: ignore
+        uploaded_document_labels.discard("other")
+
+        not_uploaded_document_labels = available_document_labels - uploaded_document_labels
+        # Return the number of uploaded document an the number of not uploaded documents
+        return {
+            "total_uploaded": len(documents),
+            "total_not_uploaded": len(available_document_labels - uploaded_document_labels),
+            "uploaded_document_labels": uploaded_document_labels,
+            "not_uploaded_document_labels": not_uploaded_document_labels,
+        }
+
     def __str__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"
 
@@ -307,12 +325,25 @@ class ClientAllergy(models.Model):
 
 
 class ClientDocuments(models.Model):
+    class Labels(models.TextChoices):
+        REGISTRATION_FORM = ("registration_form", "Registration Form")
+        INTAKE_FORM = ("intake_form", "Intake Form")
+        CONSENT_FORM = ("consent_form", "Consent Form")
+        RISK_ASSESSMENT = ("risk_assessment", "Risk Assessment")
+        SELF_RELIANCE_MATRIX = ("self_reliance_matrix", "Self-reliance Matrix")
+        FORCE_INVENTORY = ("force_inventory", "Force Inventory")
+        CARE_PLAN = ("care_plan", "Care Plan")
+        SIGNALING_PLAN = ("signaling_plan", "Signaling Plan")
+        COOPERATION_AGREEMENT = ("cooperation_agreement", "Cooperation Agreement")
+        OTHER = ("other", "Other")
+
     user = models.ForeignKey(ClientDetails, related_name="documents", on_delete=models.CASCADE)
     documents = models.FileField(upload_to="client_documents/")
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.BigIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    label = models.CharField(choices=Labels.choices, default=Labels.OTHER, max_length=100)
 
     def save(self, *args, **kwargs):
         if not self.pk:

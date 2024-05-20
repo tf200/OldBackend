@@ -205,6 +205,16 @@ class ProgressReport(models.Model):
         CONTACT_JOURNAL = "contact_journal", "Contact Journal"
         OTHER = "other", "Other"
 
+    class EmotionalStates(models.TextChoices):
+        NORMAL = "normal", "Normal"
+        EXCITED = "excited", "Excited"
+        HAPPY = "happy", "Happy"
+        SAD = "sad", "Sad"
+        ANGRY = "angry", "Angry"
+        ANXIOUS = "anxious", "Anxious"
+        DEPRESSED = "depressed", "Depressed"
+        # OTHER = "other", "Other"
+
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -218,8 +228,14 @@ class ProgressReport(models.Model):
     )
 
     type = models.CharField(choices=Types.choices, default=Types.OTHER)
+    emotional_state = models.CharField(
+        choices=EmotionalStates.choices, default=EmotionalStates.NORMAL
+    )
 
     created = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ("-date",)
 
 
 class Measurement(models.Model):

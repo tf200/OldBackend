@@ -13,6 +13,7 @@ from .models import *
 class ClientDetailsSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
     attachments = serializers.SerializerMethodField()
+    document_info = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientDetails
@@ -47,6 +48,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "departure_reason",
             "departure_report",
             "gps_position",
+            "document_info",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
@@ -68,6 +70,9 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         attachment_ids = obj.identity_attachment_ids
         attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)
         return AttchementFileSerialize(attachments, many=True).data
+
+    def get_document_info(self, obj: ClientDetails):
+        return obj.documents_info()
 
 
 class ClientDetailsNestedSerializer(serializers.ModelSerializer):
