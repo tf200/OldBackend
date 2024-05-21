@@ -148,6 +148,14 @@ def dashboard(request: HttpRequest):
 
     # Fetch all the needed data from DB here, then pass it to the dectionary bellow
 
+    total_missing_documents: int = 0
+    total_missing_documents_profiles: int = 0
+    for client in ClientDetails.objects.all():
+        document_info = client.documents_info()
+        total_missing_documents += len(document_info["not_uploaded_document_labels"])
+        if total_missing_documents:
+            total_missing_documents_profiles += 1
+
     return {
         # User's stats
         "users": {
@@ -157,6 +165,8 @@ def dashboard(request: HttpRequest):
             "total_on_waiting_list_users": ClientDetails.objects.filter(
                 status="On Waiting List"
             ).count(),
+            "total_missing_documents": total_missing_documents,
+            "total_missing_documents_profiles": total_missing_documents_profiles,
         },
         # Contract stats
         "contracts": {
