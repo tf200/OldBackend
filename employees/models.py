@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from loguru import logger
 
@@ -17,6 +18,7 @@ from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
 from system.models import Notification
+from system.utils import send_mail_async
 
 
 class EmployeeProfile(models.Model):
@@ -236,6 +238,36 @@ class ProgressReport(models.Model):
 
     class Meta:
         ordering = ("-date",)
+
+    def send_progress_report_to_emergency_contacts(self):
+        # Send to emergency contacts
+        report = render_to_string(
+            "emails/progress_report.html",
+            {
+                "client": self.client,
+                "progress_report": self,
+            },
+        )
+
+        for contact in self.client.emergency_contact.filter(goals_reports=True).all():  # type: ignore
+            send_mail_async(
+                subject="Progress Report",
+                message=report,
+                from_email=None,
+                recipient_list=[contact.email],
+                fail_silently=False,
+            )
+
+        # # Create a notification for a progress report
+        # notification = Notification.objects.create(
+        #     title="Progress Report sent.",
+        #     event=Notification.EVENTS.PROGRESS_REPORT_CREATED,
+        #     content="You have a progress report.",
+        #     receiver=self.client.user,
+        #     metadata={"progress_report_id": self.id},
+        # )
+
+        # notification.notify()
 
 
 class Measurement(models.Model):

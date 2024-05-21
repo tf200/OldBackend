@@ -34,18 +34,18 @@ def send_progress_report_email(progress_report_id, report_text):
         progress_report = ProgressReport.objects.get(id=progress_report_id)
 
         emergency_contacts = ClientEmergencyContact.objects.filter(
-            client=progress_report.client, auto_reports=True
-        )
+            client=progress_report.client, goals_reports=True
+        )  # goals_reports to send the progress report to the emergency contacts
 
-        notification = Notification.objects.create(
-            title="Progress Report Update",
-            event=Notification.EVENTS.PROGRESS_REPORT_AVAILABLE,
-            content=f"You have a new progress report available #{progress_report.id}.",
-            receiver=progress_report.client.user,
-            metadata={"report_id": progress_report.id},
-        )
+        # notification = Notification.objects.create(
+        #     title="Progress Report Update",
+        #     event=Notification.EVENTS.PROGRESS_REPORT_AVAILABLE,
+        #     content=f"You have a new progress report available #{progress_report.id}.",
+        #     receiver=progress_report.client.user,
+        #     metadata={"report_id": progress_report.id},
+        # )
 
-        notification.notify()
+        # notification.notify()
 
         for contact in emergency_contacts:
             send_mail_async.delay(
@@ -328,3 +328,48 @@ def record_goals_and_objectives_history():
             GoalHistory.objects.create(rating=goal.main_goal_rating(), goal=goal)
             for objective in goal.objectives.all():  # type: ignore
                 ObjectiveHistory.objects.create(rating=objective.rating, objective=objective)
+
+
+@shared_task  # this task should be dispatched once a week (on Monday)
+def send_medication_report_to_client_emergency_contacts():
+    ## Send medication report of the client to the client's emergency contacts for this week
+    current_date = timezone.now()
+    current_weekday = current_date.weekday()
+    # week range
+    end_week = current_date - datetime.timedelta(days=current_weekday)
+    start_week = end_week - datetime.timedelta(days=7)
+
+    for client in ClientDetails.objects.all():
+        medications = ClientMedication.objects.filter(
+            client=client, start_date__gte=start_week, end_date__lte=end_week
+        ).all()
+
+        selected_medications = []
+        for medication in medications:
+            records = ClientMedicationRecord.objects.filter(
+                client_medication=medication, created__gte=start_week, created__lte=end_week
+            ).all()
+
+            if records:
+                selected_medications.append((medication, records))
+
+        # Send email medication report to only the emergency contacts that have auto_reports enabled
+        # create the report
+        report = render_to_string(
+            "email_templates/medication_report.html",
+            {
+                "client": client,
+                "selected_medications": selected_medications,
+            },
+        )
+
+        for contact in client.emergency_contact.filter(medical_reports=True).all():  # type: ignore
+            # send the report
+            logger.debug(f"Sending medication report to {contact.email}")
+            send_mail_async(
+                subject="Medication Report",
+                message=report,
+                from_email=None,
+                recipient_list=[contact.email],
+                fail_silently=False,
+            )

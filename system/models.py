@@ -88,6 +88,7 @@ class Notification(models.Model):
         INVOICE_EXPIRED = "invoice_expired", "Invoice expired"
         INVOICE_CREATED = "invoice_created", "Invoice created"
         PROGRESS_REPORT_AVAILABLE = "progress_report_available", "Progress Report Available"
+        PROGRESS_REPORT_CREATED = "progress_report_created", "Progress Report Created"
         MEDICATION_TIME = "medication_time", "Medication Time"
         CONTRACT_REMINDER = "contract_reminder", "Contract Reminder"
 

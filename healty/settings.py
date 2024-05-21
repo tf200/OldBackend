@@ -293,6 +293,10 @@ CELERY_BEAT_SCHEDULE = {
     #     "task": "client.tasks.record_goals_and_objectives_history",
     #     "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
     # },
+    "send_medication_report_to_client_emergency_contacts": {
+        "task": "client.tasks.send_medication_report_to_client_emergency_contacts",
+        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every Monday
+    },
 }
 
 # for easyaudit

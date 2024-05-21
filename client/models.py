@@ -299,7 +299,9 @@ class ClientEmergencyContact(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     medical_reports = models.BooleanField(default=False)
     incidents_reports = models.BooleanField(default=False)
-    goals_reports = models.BooleanField(default=False)
+    goals_reports = models.BooleanField(
+        default=False
+    )  # this is used to send Progress Reports to the emergency contact
 
 
 class Treatments(models.Model):
