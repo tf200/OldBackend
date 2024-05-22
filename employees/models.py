@@ -17,7 +17,7 @@ from adminmodif.models import Group, Permission
 from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
-from system.models import Notification
+from system.models import DBSettings, Notification
 from system.utils import send_mail_async
 
 
@@ -237,15 +237,16 @@ class ProgressReport(models.Model):
     created = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        ordering = ("-date",)
+        ordering = ("-created",)
 
     def send_progress_report_to_emergency_contacts(self):
         # Send to emergency contacts
         report = render_to_string(
-            "emails/progress_report.html",
+            "email_templates/progress_report.html",
             {
                 "client": self.client,
                 "progress_report": self,
+                "company_name": DBSettings.get("CONTACT_COMPANY_NAME"),
             },
         )
 

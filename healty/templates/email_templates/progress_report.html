@@ -10,6 +10,7 @@
     <p>Name: {{ client.first_name }} {{ client.last_name }}</p>
     <p>Email: {{ client.email }}</p>
     <p>Phone: {{ client.phone_number }}</p>
+    <p>Emotional State: {{ progress_report.emotional_state | title }}</p>
         
     <div>{{ progress_report.report_text }}</div>    
     
