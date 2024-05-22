@@ -204,7 +204,9 @@ class ClientMedicationSchema(ModelSchema):
 
     @staticmethod
     def resolve_administered_by_name(medication: ClientMedication) -> str:
-        return f"{medication.administered_by.last_name} {medication.administered_by.last_name}"
+        if medication.administered_by:
+            return f"{medication.administered_by.last_name} {medication.administered_by.last_name}"
+        return ""
 
 
 class MedicationRecordSchema(ModelSchema):

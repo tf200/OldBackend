@@ -336,8 +336,10 @@ class ClientMedication(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     administered_by = models.ForeignKey(
         EmployeeProfile,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="medications_administered",
+        null=True,
+        blank=True,
     )
 
     is_critical = models.BooleanField(default=False)
@@ -423,15 +425,37 @@ class ClientMedicationRecord(models.Model):
         notification.notify()
 
         # Send to the employee
-        notification = Notification.objects.create(
-            title=f"Medication record (#{self.id}).",
-            event=Notification.EVENTS.MEDICATION_TIME,
-            content=f"You have a medication record to fill up.",
-            receiver=self.client_medication.administered_by.user,
-            metadata={"medication_id": self.client_medication.id, "medication_record_id": self.id},
-        )
+        if self.client_medication.administered_by:
+            notification = Notification.objects.create(
+                title=f"Medication record (#{self.id}).",
+                event=Notification.EVENTS.MEDICATION_TIME,
+                content=f"You have a medication record to fill up.",
+                receiver=self.client_medication.administered_by.user,
+                metadata={
+                    "medication_id": self.client_medication.id,
+                    "medication_record_id": self.id,
+                },
+            )
 
-        notification.notify()
+            notification.notify()
+        else:
+            # Send to the employees that have "receive_medication_notifications" permission
+            employees = EmployeeProfile.objects.all()
+            for employee in employees:
+                logger.debug(f"Send Medical Notification {self.id} to employee")
+
+                if employee.has_permission("medication.notifications.receive"):
+                    notification = Notification.objects.create(
+                        title=f"Medication record (#{self.id}).",
+                        event=Notification.EVENTS.MEDICATION_TIME,
+                        content=f"You have a medication record to fill up.",
+                        receiver=employee.user,
+                        metadata={
+                            "medication_id": self.client_medication.id,
+                            "medication_record_id": self.id,
+                        },
+                    )
+                    notification.notify()
 
 
 class ClientGoals(models.Model):
