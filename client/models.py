@@ -277,6 +277,11 @@ class ClientDiagnosis(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
+class ContactRelationship(models.Model):
+    name = models.CharField(max_length=100)
+    soft_delete = models.BooleanField(default=False)
+
+
 class ClientEmergencyContact(models.Model):
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name="emergency_contact"

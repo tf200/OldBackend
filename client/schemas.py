@@ -9,6 +9,7 @@ from client.models import (
     ClientDetails,
     ClientState,
     ClientStatusHistory,
+    ContactRelationship,
     Contract,
     ContractType,
     ContractWorkingHours,
@@ -408,3 +409,14 @@ class ClientStateSchemaPatch(Schema):
 class GPSPositionSchemaInput(Schema):
     latitude: str
     longitude: str
+
+
+class ContactRelationshipSchema(ModelSchema):
+
+    class Meta:
+        model = ContactRelationship
+        fields = "__all__"
+
+
+class ContactRelationshipInput(Schema):
+    name: str

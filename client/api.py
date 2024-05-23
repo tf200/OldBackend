@@ -17,6 +17,7 @@ from client.models import (
     ClientDetails,
     ClientState,
     ClientStatusHistory,
+    ContactRelationship,
     Contract,
     ContractType,
     ContractWorkingHours,
@@ -32,6 +33,8 @@ from client.schemas import (
     ClientStateSchemaInput,
     ClientStateSchemaPatch,
     ClientStatusHistorySchema,
+    ContactRelationshipInput,
+    ContactRelationshipSchema,
     ContractSchema,
     ContractSchemaInput,
     ContractTypeInput,
@@ -483,4 +486,23 @@ def update_client_gps_location(
     ClientDetails.objects.filter(id=client_id).update(
         gps_position=[gps_position.latitude, gps_position.longitude]
     )
+    return 204, {}
+
+
+@router.get("/emergency-contacts/contact-relationships", response=list[ContactRelationshipSchema])
+def contact_relationships(request: HttpRequest):
+    return ContactRelationship.objects.filter(soft_delete=False).all()
+
+
+@router.post("/emergency-contacts/contact-relationships/add", response=ContactRelationshipSchema)
+def add_contact_relationships(request: HttpRequest, relationship: ContactRelationshipInput):
+    return ContactRelationship.objects.create(**relationship.dict())
+
+
+@router.delete(
+    "/emergency-contacts/contact-relationships/{int:id}/delete",
+    response={204: EmptyResponseSchema},
+)
+def delete_contact_relationships(request: HttpRequest, id: int):
+    ContactRelationship.objects.filter(id=id).update(soft_delete=True)
     return 204, {}
