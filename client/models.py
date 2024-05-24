@@ -1095,7 +1095,7 @@ class Incident(models.Model):
     technical = models.JSONField(default=list)
     organizational = models.JSONField(default=list)
     mese_worker = models.JSONField(default=list)
-    client = models.JSONField(default=list)
+    client_options = models.JSONField(default=list)
     other = models.CharField(max_length=100)
     cause_explanation = models.TextField(default="", null=True, blank=True)
 
