@@ -426,7 +426,7 @@ class ContactRelationshipInput(Schema):
 class IncidentSchema(ModelSchema):
     class Meta:
         model = Incident
-        fields = "__all__"
+        exclude = ("soft_delete",)
 
 
 class IncidentInput(ModelSchema):
@@ -450,7 +450,7 @@ class IncidentInput(ModelSchema):
 
     class Meta:
         model = Incident
-        exclude = ("created", "updated", "id", "client", "location")
+        exclude = ("created", "updated", "id", "client", "location", "soft_delete")
 
 
 class IncidentPatch(ModelSchema):
@@ -473,4 +473,4 @@ class IncidentPatch(ModelSchema):
 
     class Meta:
         model = Incident
-        exclude = ("created", "updated", "id", "client", "location")
+        exclude = ("created", "updated", "id", "client", "location", "soft_delete")
