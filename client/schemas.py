@@ -13,6 +13,7 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    Incident,
     Invoice,
     InvoiceHistory,
 )
@@ -420,3 +421,56 @@ class ContactRelationshipSchema(ModelSchema):
 
 class ContactRelationshipInput(Schema):
     name: str
+
+
+class IncidentSchema(ModelSchema):
+    class Meta:
+        model = Incident
+        fields = "__all__"
+
+
+class IncidentInput(ModelSchema):
+    client_id: int
+    location_id: int
+    reporter_involvement: Literal["directly_involved", "witness", "found_afterwards", "alarmed"]
+    severity_of_incident: Literal["near_incident", "less_serious", "serious", "fatal"]
+    recurrence_risk: Literal["very_low", "means", "high", "very_high"]
+    physical_injury: Literal[
+        "no_injuries",
+        "not_noticeable_yet",
+        "bruising_swelling",
+        "skin_injury",
+        "broken_bones",
+        "shortness_of_breath",
+        "death",
+        "other",
+    ]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest"]
+    needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
+
+    class Meta:
+        model = Incident
+        exclude = ("created", "updated", "id", "client", "location")
+
+
+class IncidentPatch(ModelSchema):
+    location_id: int
+    reporter_involvement: Literal["directly_involved", "witness", "found_afterwards", "alarmed"]
+    severity_of_incident: Literal["near_incident", "less_serious", "serious", "fatal"]
+    recurrence_risk: Literal["very_low", "means", "high", "very_high"]
+    physical_injury: Literal[
+        "no_injuries",
+        "not_noticeable_yet",
+        "bruising_swelling",
+        "skin_injury",
+        "broken_bones",
+        "shortness_of_breath",
+        "death",
+        "other",
+    ]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest"]
+    needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
+
+    class Meta:
+        model = Incident
+        exclude = ("created", "updated", "id", "client", "location")
