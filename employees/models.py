@@ -506,7 +506,7 @@ class Incident(models.Model):
     reported_by = models.ForeignKey(
         EmployeeProfile, on_delete=models.CASCADE, related_name="reported_incidents"
     )
-    involved_children = models.ManyToManyField(ClientDetails, related_name="incidents")
+    involved_children = models.ManyToManyField(ClientDetails, related_name="incidents_list")
     date_reported = models.DateTimeField(default=timezone.now)
     date_of_incident = models.DateTimeField()
     location = models.CharField(max_length=255)

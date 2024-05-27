@@ -1013,3 +1013,120 @@ class CareplanAtachements(models.Model):
     attachement = models.FileField(upload_to="clients_pics/")
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(null=True, max_length=100)
+
+
+class Incident(models.Model):
+    class ReporterInvolvement(models.TextChoices):
+        DIRECTLY_INVOLVED = "directly_involved", "Directly involved"
+        WITNESS = "witness", "Witness"
+        FOUND_AFTERWARDS = "found_afterwards", "Found afterwards"
+        ALARMED = "alarmed", "Alarmed"
+
+    class IncidentSeverity(models.TextChoices):
+        NEAR_INCIDENT = "near_incident", "Near Incident"
+        LESS_SERIOUS = "less_serious", "Less Serious"
+        SERIOUS = "serious", "Serious"
+        FATAL = "fatal", "Fatal"
+
+    class RecurrenceRisk(models.TextChoices):
+        VERY_LOW = "very_low", "Very Low"
+        MEANS = "means", "Means"
+        HIGH = "high", "High"
+        VERY_HIGH = "very_high", "Very High"
+
+    class PhysicalInjury(models.TextChoices):
+        NO_INJURIES = "no_injuries", "No Injuries"
+        NOT_NOTICEABLE_YET = "not_noticeable_yet", "Not Noticeable Yet"
+        BRUISING_SWELLING = "bruising_swelling", "Bruising/Swelling"
+        SKIN_INJURY = "skin_injury", "Skin Injury"
+        BROKEN_BONES = "broken_bones", "Broken Bones"
+        SHORTNESS_OF_BREATH = "shortness_of_breath", "Shortness of Breath"
+        DEATH = "death", "Death"
+        OTHER = "other", "Other"
+
+    class PsychologicalDamage(models.TextChoices):
+        NO = "no", "No"
+        NOT_NOTICEABLE_YET = "not_noticeable_yet", "Not Noticeable Yet"
+        DROWSINESS = "drowsiness", "Drowsiness"
+        UNREST = "unrest", "Unrest"
+
+    class NeededConsultation(models.TextChoices):
+        NO = "no", "No"
+        NOT_CLEAR_YET = "not_clear", "Not Clear Yet"
+        HOSPITALIZATION = "hospitalization", "Hospitalization"
+        CONSULT_GP = "consult_gp", "Consult GP"
+
+    employee_fullname = models.CharField(max_length=100)
+    employee_position = models.CharField(max_length=100)
+    location = models.ForeignKey(
+        Location, related_name="incident", on_delete=models.SET_NULL, null=True
+    )
+    reporter_involvement = models.CharField(
+        max_length=100,
+        choices=ReporterInvolvement.choices,
+    )
+    inform_who = models.JSONField(default=list)
+    incident_date = models.DateField()
+    runtime_incident = models.CharField(max_length=100)
+
+    incident_type = models.CharField(max_length=100)
+    passing_away = models.BooleanField(default=False)
+    self_harm = models.BooleanField(default=False)
+    violence = models.BooleanField(default=False)
+    fire_water_damage = models.BooleanField(default=False)
+    accident = models.BooleanField(default=False)
+    client_absence = models.BooleanField(default=False)
+    medicines = models.BooleanField(default=False)
+    organization = models.BooleanField(default=False)
+    use_prohibited_substances = models.BooleanField(default=False)
+    other_notifications = models.BooleanField(default=False)
+    severity_of_incident = models.CharField(
+        max_length=100,
+        choices=IncidentSeverity.choices,
+    )
+    incident_explanation = models.TextField(null=True, blank=True)
+    recurrence_risk = models.CharField(
+        max_length=100,
+        choices=RecurrenceRisk.choices,
+    )
+    incident_prevent_steps = models.TextField(null=True, blank=True)
+    incident_taken_measures = models.TextField(null=True, blank=True)
+
+    technical = models.JSONField(default=list)
+    organizational = models.JSONField(default=list)
+    mese_worker = models.JSONField(default=list)
+    client_options = models.JSONField(default=list)
+    other_cause = models.CharField(max_length=100, null=True, blank=True)
+    cause_explanation = models.TextField(default="", null=True, blank=True)
+
+    physical_injury = models.CharField(
+        max_length=100,
+        choices=PhysicalInjury.choices,
+    )
+    physical_injury_desc = models.TextField(default="", null=True, blank=True)
+    psychological_damage = models.CharField(
+        max_length=100,
+        choices=PsychologicalDamage.choices,
+    )
+    psychological_damage_desc = models.TextField(default="", null=True, blank=True)
+    needed_consultation = models.CharField(
+        max_length=100,
+        choices=NeededConsultation.choices,
+    )
+
+    succession = models.JSONField(default=list)
+    succession_desc = models.TextField(default="", null=True, blank=True)
+    other = models.BooleanField(default=False)
+    other_desc = models.CharField(max_length=100, null=True, blank=True)
+
+    additional_appointments = models.TextField(default="", null=True, blank=True)
+    employee_absenteeism = models.JSONField(default=list)
+
+    client = models.ForeignKey(ClientDetails, related_name="incidents", on_delete=models.CASCADE)
+
+    soft_delete = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)

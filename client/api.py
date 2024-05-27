@@ -21,6 +21,7 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    Incident,
     Invoice,
     InvoiceHistory,
 )
@@ -52,6 +53,9 @@ from client.schemas import (
     DownloadLinkSchema,
     GoalHistorySchema,
     GPSPositionSchemaInput,
+    IncidentInput,
+    IncidentPatch,
+    IncidentSchema,
     InvoiceHistoryInput,
     InvoiceHistorySchema,
     InvoiceSchema,
@@ -505,4 +509,31 @@ def add_contact_relationships(request: HttpRequest, relationship: ContactRelatio
 )
 def delete_contact_relationships(request: HttpRequest, id: int):
     ContactRelationship.objects.filter(id=id).update(soft_delete=True)
+    return 204, {}
+
+
+@router.get("/incidents", response=list[IncidentSchema])
+def get_all_incidents(request: HttpRequest):
+    return Incident.objects.filter(soft_delete=False).all()
+
+
+@router.get("/{int:client_id}/incidents", response=list[IncidentSchema])
+def get_client_incidents(request: HttpRequest, client_id: int):
+    return Incident.objects.filter(client__id=client_id, soft_delete=False).all()
+
+
+@router.post("/incidents/add", response=IncidentSchema)
+def add_incident(request: HttpRequest, incident: IncidentInput):
+    return Incident.objects.create(**incident.dict())
+
+
+@router.post("/incidents/{int:incident_id}/update", response=IncidentSchema)
+def edit_incident(request: HttpRequest, incident_id: int, incident: IncidentPatch):
+    Incident.objects.filter(id=incident_id).update(**incident.dict(exclude_unset=True))
+    return get_object_or_404(Incident, id=incident_id)
+
+
+@router.delete("/incidents/{int:incident_id}/delete", response={204: EmptyResponseSchema})
+def delete_incident(request: HttpRequest, incident_id: int):
+    Incident.objects.filter(id=incident_id).update(soft_delete=True)
     return 204, {}
