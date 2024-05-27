@@ -17,6 +17,7 @@ from client.models import (
     Incident,
     Invoice,
     InvoiceHistory,
+    RiskAssessment,
 )
 from employees.models import (
     ClientMedication,
@@ -490,4 +491,20 @@ class CollaborationAgreementInput(ModelSchema):
 
     class Meta:
         model = CollaborationAgreement
+        exclude = ("client", "id")
+
+
+class RiskAssessmentSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = RiskAssessment
+        exclude = ("client",)
+
+
+class RiskAssessmentInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = RiskAssessment
         exclude = ("client", "id")

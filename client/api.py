@@ -25,6 +25,7 @@ from client.models import (
     Incident,
     Invoice,
     InvoiceHistory,
+    RiskAssessment,
 )
 from client.schemas import (
     ClientCurrentLevelInput,
@@ -69,6 +70,8 @@ from client.schemas import (
     ObjectiveHistorySchema,
     ObjectiveHistorySchemaInput,
     ObjectiveHistorySchemaPatch,
+    RiskAssessmentInput,
+    RiskAssessmentSchema,
 )
 from client.utils import get_employee
 from employees.models import (
@@ -538,6 +541,11 @@ def edit_incident(request: HttpRequest, incident_id: int, incident: IncidentPatc
     return get_object_or_404(Incident, id=incident_id)
 
 
+@router.get("/incidents/{int:incident_id}/details", response=IncidentSchema)
+def incident_details(request: HttpRequest, incident_id: int):
+    return get_object_or_404(Incident, id=incident_id)
+
+
 @router.delete("/incidents/{int:incident_id}/delete", response={204: EmptyResponseSchema})
 def delete_incident(request: HttpRequest, incident_id: int):
     Incident.objects.filter(id=incident_id).update(soft_delete=True)
@@ -554,7 +562,7 @@ def get_collaboration_agreement(request: HttpRequest, client_id: int):
 
 
 @router.post(
-    "/questionnairs/collaboration_agreements",
+    "/questionnairs/collaboration_agreements/add",
     response=CollaborationAgreementSchema,
     tags=["questionnairs"],
 )
@@ -563,7 +571,7 @@ def add_collaboration_agreement(request: HttpRequest, payload: CollaborationAgre
 
 
 @router.post(
-    "/questionnairs/collaboration_agreements/{int:agreement_id}",
+    "/questionnairs/collaboration_agreements/{int:agreement_id}/update",
     response=CollaborationAgreementSchema,
     tags=["questionnairs"],
 )
@@ -576,8 +584,17 @@ def update_collaboration_agreement(
     return get_object_or_404(CollaborationAgreement, id=agreement_id)
 
 
+@router.get(
+    "/questionnairs/collaboration_agreements/{int:agreement_id}/details",
+    response=CollaborationAgreementSchema,
+    tags=["questionnairs"],
+)
+def collaboration_agreement_details(request: HttpRequest, agreement_id: int):
+    return get_object_or_404(CollaborationAgreement, id=agreement_id)
+
+
 @router.delete(
-    "/questionnairs/collaboration_agreements/{int:agreement_id}",
+    "/questionnairs/collaboration_agreements/{int:agreement_id}/delete",
     response={204: EmptyResponseSchema},
     tags=["questionnairs"],
 )
@@ -586,6 +603,59 @@ def delete_collaboration_agreement(request: HttpRequest, agreement_id: int):
     return 204, {}
 
 
-# @router.get("/questionnairs/risk-assessments", response=list[RiskAssessmentSchema])
-# def get_risk_assessments(request: HttpRequest):
-#     return RiskAssessment.objects.all()
+@router.get(
+    "/questionnairs/risk-assessments", response=list[RiskAssessmentSchema], tags=["questionnairs"]
+)
+@paginate(NinjaCustomPagination)
+def get_risk_assessments(request: HttpRequest):
+    return RiskAssessment.objects.all()
+
+
+@router.get(
+    "/{int:client_id}/questionnairs/risk-assessments",
+    response=list[RiskAssessmentSchema],
+    tags=["questionnairs"],
+)
+@paginate(NinjaCustomPagination)
+def get_client_risk_assessments(request: HttpRequest, client_id: int):
+    return RiskAssessment.objects.filter(client__id=client_id).all()
+
+
+@router.post(
+    "/questionnairs/risk-assessments/add",
+    response=RiskAssessmentSchema,
+    tags=["questionnairs"],
+)
+def add_risk_assessments(request: HttpRequest, payload: RiskAssessmentInput):
+    return RiskAssessment.objects.create(**payload.dict())
+
+
+@router.post(
+    "/questionnairs/risk-assessments/{int:risk_assessment_id}/update",
+    response=RiskAssessmentSchema,
+    tags=["questionnairs"],
+)
+def update_risk_assessments(
+    request: HttpRequest, risk_assessment_id: int, payload: RiskAssessmentInput
+):
+    RiskAssessment.objects.create(**payload.dict())
+    return get_object_or_404(RiskAssessment, id=risk_assessment_id)
+
+
+@router.get(
+    "/questionnairs/risk-assessments/{int:risk_assessment_id}/details",
+    response=RiskAssessmentSchema,
+    tags=["questionnairs"],
+)
+def risk_assessments_details(request: HttpRequest, risk_assessment_id: int):
+    return get_object_or_404(RiskAssessment, id=risk_assessment_id)
+
+
+@router.delete(
+    "/questionnairs/risk-assessments/{int:risk_assessment_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["questionnairs"],
+)
+def delete_risk_assessment(request: HttpRequest, risk_assessment_id: int):
+    RiskAssessment.objects.filter(id=risk_assessment_id).delete()
+    return 204, {}
