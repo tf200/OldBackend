@@ -9,6 +9,7 @@ from client.models import (
     ClientDetails,
     ClientState,
     ClientStatusHistory,
+    CollaborationAgreement,
     ContactRelationship,
     Contract,
     ContractType,
@@ -474,3 +475,19 @@ class IncidentPatch(ModelSchema):
     class Meta:
         model = Incident
         exclude = ("created", "updated", "id", "client", "location", "soft_delete")
+
+
+class CollaborationAgreementSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = CollaborationAgreement
+        exclude = ("client",)
+
+
+class CollaborationAgreementInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = CollaborationAgreement
+        exclude = ("client", "id")

@@ -1130,3 +1130,147 @@ class Incident(models.Model):
 
     class Meta:
         ordering = ("-created",)
+
+
+class CollaborationAgreement(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="collaboration_agreements", on_delete=models.CASCADE
+    )
+    # Client: (full name, SKN, client number, phone)
+    client_full_name = models.CharField(max_length=100)
+    client_SKN = models.CharField(max_length=100)
+    client_number = models.CharField(max_length=100)
+    client_phone = models.CharField(max_length=100)
+
+    # Probation: (full name, Organization, phone)
+    probation_full_name = models.CharField(max_length=100)
+    probation_organization = models.CharField(max_length=100)
+    probation_phone = models.CharField(max_length=100)
+
+    # Healthcare institution: (name, Organization, phone, function)
+    healthcare_institution_name = models.CharField(max_length=100)
+    healthcare_institution_organization = models.CharField(max_length=100)
+    healthcare_institution_phone = models.CharField(max_length=100)
+    healthcare_institution_function = models.CharField(max_length=100)
+
+    contact_agreements = models.TextField()
+
+    """
+    attention_risks: (
+    type: living | datetime | addiction_resources_use | finances | behaviour | psychic_health | physical_health | family | partner_children | friends
+
+    attention: str
+    risk: str
+    positive: str
+    dates: text
+    explination: text
+)
+    """
+    attention_risks = models.JSONField(default=list)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+
+"""
+risk_assessment:
+    date_of_birth: date
+    gender: male | female
+    date_of_intake: datetime
+    intaker_position_name: str
+
+    family_situation: text
+    education_work: text
+    current_living_situation: text
+    social_network: str
+    previous_assistance: str
+
+    behaviour_at_school_work: text
+    people_skills: text
+    emotional_status: anxiety | depression | ...etc  
+    self_image_self_confidence: text
+    stress_factors: text
+
+    committed_offences_description: text
+    offences_frequency_seriousness: text
+    age_first_offense: text  
+    circumstances_surrounding_crimes: text
+    offenses_recations: text
+
+    personal_risk_factors: str
+    environmental_risk_factors: str
+    behaviour_recurrence_risk: text
+    abuse_substance_risk: text
+
+    person_strengths: text
+    positive_influences: text
+    available_support_assistance: text
+    person_strategies: text
+
+    specific_needs : str
+    recommended_interventions: text
+    other_agencies_involvement: text
+    risk_management_plan_of_actions: text
+
+    findings_summary: text
+    institution_advice: text
+    inclusion: text 
+    intaker_name: str
+    report_date: date
+"""
+
+
+class RiskAssessment(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="risk_assessments", on_delete=models.CASCADE
+    )
+
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=100)
+    date_of_intake = models.DateTimeField()
+    intaker_position_name = models.CharField(max_length=100)
+
+    family_situation = models.TextField()
+    education_work = models.TextField()
+    current_living_situation = models.TextField()
+    social_network = models.TextField()
+    previous_assistance = models.TextField()
+
+    behaviour_at_school_work = models.TextField()
+    people_skills = models.TextField()
+    emotional_status = models.TextField()
+    self_image_self_confidence = models.TextField()
+    stress_factors = models.TextField()
+
+    committed_offences_description = models.TextField()
+    offences_frequency_seriousness = models.TextField()
+    age_first_offense = models.TextField()
+    circumstances_surrounding_crimes = models.TextField()
+
+    offenses_recations = models.TextField()
+    personal_risk_factors = models.TextField()
+    environmental_risk_factors = models.TextField()
+    behaviour_recurrence_risk = models.TextField()
+    abuse_substance_risk = models.TextField()
+
+    person_strengths = models.TextField()
+    positive_influences = models.TextField()
+    available_support_assistance = models.TextField()
+    person_strategies = models.TextField()
+
+    specific_needs = models.TextField()
+    recommended_interventions = models.TextField()
+    other_agencies_involvement = models.TextField()
+    risk_management_plan_of_actions = models.TextField()
+
+    findings_summary = models.TextField()
+    institution_advice = models.TextField()
+    inclusion = models.TextField()
+    intaker_name = models.CharField(max_length=100)
+    report_date = models.DateField()
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)

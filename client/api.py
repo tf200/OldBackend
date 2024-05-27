@@ -17,6 +17,7 @@ from client.models import (
     ClientDetails,
     ClientState,
     ClientStatusHistory,
+    CollaborationAgreement,
     ContactRelationship,
     Contract,
     ContractType,
@@ -34,6 +35,8 @@ from client.schemas import (
     ClientStateSchemaInput,
     ClientStateSchemaPatch,
     ClientStatusHistorySchema,
+    CollaborationAgreementInput,
+    CollaborationAgreementSchema,
     ContactRelationshipInput,
     ContactRelationshipSchema,
     ContractSchema,
@@ -513,11 +516,13 @@ def delete_contact_relationships(request: HttpRequest, id: int):
 
 
 @router.get("/incidents", response=list[IncidentSchema])
+@paginate(NinjaCustomPagination)
 def get_all_incidents(request: HttpRequest):
     return Incident.objects.filter(soft_delete=False).all()
 
 
 @router.get("/{int:client_id}/incidents", response=list[IncidentSchema])
+@paginate(NinjaCustomPagination)
 def get_client_incidents(request: HttpRequest, client_id: int):
     return Incident.objects.filter(client__id=client_id, soft_delete=False).all()
 
@@ -537,3 +542,50 @@ def edit_incident(request: HttpRequest, incident_id: int, incident: IncidentPatc
 def delete_incident(request: HttpRequest, incident_id: int):
     Incident.objects.filter(id=incident_id).update(soft_delete=True)
     return 204, {}
+
+
+@router.get(
+    "/{int:client_id}/questionnairs/collaboration_agreements",
+    response=list[CollaborationAgreementSchema],
+    tags=["questionnairs"],
+)
+def get_collaboration_agreement(request: HttpRequest, client_id: int):
+    return CollaborationAgreement.objects.filter(client__id=client_id).all()
+
+
+@router.post(
+    "/questionnairs/collaboration_agreements",
+    response=CollaborationAgreementSchema,
+    tags=["questionnairs"],
+)
+def add_collaboration_agreement(request: HttpRequest, payload: CollaborationAgreementInput):
+    return CollaborationAgreement.objects.create(**payload.dict())
+
+
+@router.post(
+    "/questionnairs/collaboration_agreements/{int:agreement_id}",
+    response=CollaborationAgreementSchema,
+    tags=["questionnairs"],
+)
+def update_collaboration_agreement(
+    request: HttpRequest, agreement_id: int, payload: CollaborationAgreementInput
+):
+    CollaborationAgreement.objects.filter(id=agreement_id).update(
+        **payload.dict(exclude_unset=True)
+    )
+    return get_object_or_404(CollaborationAgreement, id=agreement_id)
+
+
+@router.delete(
+    "/questionnairs/collaboration_agreements/{int:agreement_id}",
+    response={204: EmptyResponseSchema},
+    tags=["questionnairs"],
+)
+def delete_collaboration_agreement(request: HttpRequest, agreement_id: int):
+    CollaborationAgreement.objects.filter(id=agreement_id).delete()
+    return 204, {}
+
+
+# @router.get("/questionnairs/risk-assessments", response=list[RiskAssessmentSchema])
+# def get_risk_assessments(request: HttpRequest):
+#     return RiskAssessment.objects.all()
