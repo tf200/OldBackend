@@ -426,9 +426,12 @@ class ContactRelationshipInput(Schema):
 
 
 class IncidentSchema(ModelSchema):
+    client_id: int
+    location_id: int
+
     class Meta:
         model = Incident
-        exclude = ("soft_delete",)
+        exclude = ("soft_delete", "location", "client")
 
 
 class IncidentInput(ModelSchema):
