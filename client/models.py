@@ -1049,6 +1049,7 @@ class Incident(models.Model):
         NOT_NOTICEABLE_YET = "not_noticeable_yet", "Not Noticeable Yet"
         DROWSINESS = "drowsiness", "Drowsiness"
         UNREST = "unrest", "Unrest"
+        OTHER = "other", "Other"
 
     class NeededConsultation(models.TextChoices):
         NO = "no", "No"

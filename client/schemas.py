@@ -450,7 +450,7 @@ class IncidentInput(ModelSchema):
         "death",
         "other",
     ]
-    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest"]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest", "other"]
     needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
 
     class Meta:
@@ -473,7 +473,7 @@ class IncidentPatch(ModelSchema):
         "death",
         "other",
     ]
-    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest"]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest", "other"]
     needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
 
     class Meta:
