@@ -17,7 +17,7 @@ from adminmodif.models import Group, Permission
 from assessments.models import AssessmentDomain
 from authentication.models import Location
 from client.models import ClientDetails
-from system.models import DBSettings, Notification
+from system.models import DBSettings, Notification, ProtectedEmail
 from system.utils import send_mail_async
 
 
@@ -240,24 +240,37 @@ class ProgressReport(models.Model):
         ordering = ("-created",)
 
     def send_progress_report_to_emergency_contacts(self):
-        # Send to emergency contacts
-        report = render_to_string(
-            "email_templates/progress_report.html",
-            {
-                "client": self.client,
-                "progress_report": self,
-                "company_name": DBSettings.get("CONTACT_COMPANY_NAME"),
-            },
-        )
-
+        # Send a Secure email to the emergency contacts
         for contact in self.client.emergency_contact.filter(goals_reports=True).all():  # type: ignore
-            send_mail_async(
-                subject="Progress Report",
-                message=report,
-                from_email=None,
-                recipient_list=[contact.email],
-                fail_silently=False,
-            )
+            if contact.email:
+                ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Progress Report for {self.client.first_name} {self.client.last_name}",
+                    content="",
+                    email_type=ProtectedEmail.EMAIL_TYPES.PROGRESS_REPORT,
+                    metadata={"progress_report_id": self.pk},
+                ).notify(
+                    title="Progress Report",
+                    short_description=f"An progress report is available of {self.client.first_name} {self.client.last_name}.",
+                )
+
+        # Send to emergency contacts
+        # report = render_to_string(
+        #     "email_templates/progress_report.html",
+        #     {
+        #         "client": self.client,
+        #         "progress_report": self,
+        #         "company_name": DBSettings.get("CONTACT_COMPANY_NAME"),
+        #     },
+        # )
+
+        # send_mail_async(
+        #     subject="Progress Report",
+        #     message=report,
+        #     from_email=None,
+        #     recipient_list=[contact.email],
+        #     fail_silently=False,
+        # )
 
         # # Create a notification for a progress report
         # notification = Notification.objects.create(

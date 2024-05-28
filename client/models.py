@@ -18,7 +18,8 @@ from weasyprint import HTML
 
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from system.models import AttachmentFile, DBSettings, Notification
+from system.models import AttachmentFile, DBSettings, Notification, ProtectedEmail
+from system.utils import send_mail_async
 
 
 def generate_invoice_id() -> str:
@@ -1132,6 +1133,23 @@ class Incident(models.Model):
     class Meta:
         ordering = ("-created",)
 
+    def send_incident_to_emergency_contacts(self) -> None:
+        # Send a notification to the emergency contacts
+        for contact in self.client.emergency_contact.filter(incidents_reports=True).all():  # type: ignore
+            if contact.email:
+                content: str = ""  # we may not need the content.
+
+                ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Incident Report for {self.client.first_name} {self.client.last_name}",
+                    content=content,
+                    email_type=ProtectedEmail.EMAIL_TYPES.INCIDENT_REPORT,
+                    metadata={"incident_id": self.pk},
+                ).notify(
+                    title="Incident Report",
+                    short_description=f"An incident report is available of {self.client.first_name} {self.client.last_name}.",
+                )
+
 
 class CollaborationAgreement(models.Model):
     client = models.ForeignKey(
@@ -1157,15 +1175,17 @@ class CollaborationAgreement(models.Model):
     contact_agreements = models.TextField()
 
     """
-    attention_risks: (
-    type: living | datetime | addiction_resources_use | finances | behaviour | psychic_health | physical_health | family | partner_children | friends
-
-    attention: str
-    risk: str
-    positive: str
-    dates: text
-    explination: text
-)
+    [
+        {
+            type: living | datetime | addiction_resources_use | finances | behaviour | psychic_health | physical_health | family | partner_children | friends
+            attention: str
+            risk: str
+            positive: str
+            dates: text
+            explanation: text
+        },
+        ...
+    ]
     """
     attention_risks = models.JSONField(default=list)
 

@@ -494,7 +494,7 @@ class CollaborationAgreementInput(ModelSchema):
 
     class Meta:
         model = CollaborationAgreement
-        exclude = ("client", "id")
+        exclude = ("client", "id", "updated", "created")
 
 
 class RiskAssessmentSchema(ModelSchema):
@@ -510,4 +510,4 @@ class RiskAssessmentInput(ModelSchema):
 
     class Meta:
         model = RiskAssessment
-        exclude = ("client", "id")
+        exclude = ("client", "id", "updated", "created")

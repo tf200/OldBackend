@@ -557,6 +557,7 @@ def delete_incident(request: HttpRequest, incident_id: int):
     response=list[CollaborationAgreementSchema],
     tags=["questionnairs"],
 )
+@paginate(NinjaCustomPagination)
 def get_collaboration_agreement(request: HttpRequest, client_id: int):
     return CollaborationAgreement.objects.filter(client__id=client_id).all()
 

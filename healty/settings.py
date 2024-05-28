@@ -250,6 +250,7 @@ CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
 MEDICATION_RECORDS_CREATATION: int = 1  # in minutes
+PROTECTED_EMAIL_EXPIRATION_DAYS: int = 7  # in days (this is for protected email expiration days)
 
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
@@ -298,6 +299,8 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every Monday
     },
 }
+
+FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "https://localhost:3000")
 
 # for easyaudit
 DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
