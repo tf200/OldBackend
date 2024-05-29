@@ -1290,8 +1290,40 @@ class RiskAssessment(models.Model):
     intaker_name = models.CharField(max_length=100)
     report_date = models.DateField()
 
+    regular_evaluation_plan = models.CharField(max_length=255)
+    success_criteria = models.CharField(max_length=255)
+    time_table = models.CharField(max_length=255)
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ("-created",)
+
+
+class ConsentDeclaration(models.Model):
+    youth_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    parent_guardian_name = models.CharField(max_length=255)
+    address = models.TextField()
+    youth_care_institution = models.CharField(max_length=255)
+    proposed_assistance_description = models.TextField()
+    statement_by_representative = models.TextField()
+    parent_guardian_signature_date = models.DateField()
+    juvenile_name = models.CharField(max_length=255, blank=True, null=True)
+    juvenile_signature_date = models.DateField(blank=True, null=True)
+    representative_name = models.CharField(max_length=255)
+    representative_signature_date = models.DateField()
+    contact_person_name = models.CharField(max_length=255)
+    contact_phone_number = models.CharField(max_length=20)
+    contact_email = models.EmailField()
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="consent_declarations", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.youth_name} - {self.youth_care_institution}"

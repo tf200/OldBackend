@@ -10,6 +10,7 @@ from client.models import (
     ClientState,
     ClientStatusHistory,
     CollaborationAgreement,
+    ConsentDeclaration,
     ContactRelationship,
     Contract,
     ContractType,
@@ -510,4 +511,20 @@ class RiskAssessmentInput(ModelSchema):
 
     class Meta:
         model = RiskAssessment
+        exclude = ("client", "id", "updated", "created")
+
+
+class ConsentDeclarationSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ConsentDeclaration
+        exclude = ("client",)
+
+
+class ConsentDeclarationInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ConsentDeclaration
         exclude = ("client", "id", "updated", "created")

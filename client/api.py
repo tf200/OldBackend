@@ -18,6 +18,7 @@ from client.models import (
     ClientState,
     ClientStatusHistory,
     CollaborationAgreement,
+    ConsentDeclaration,
     ContactRelationship,
     Contract,
     ContractType,
@@ -38,6 +39,8 @@ from client.schemas import (
     ClientStatusHistorySchema,
     CollaborationAgreementInput,
     CollaborationAgreementSchema,
+    ConsentDeclarationInput,
+    ConsentDeclarationSchema,
     ContactRelationshipInput,
     ContactRelationshipSchema,
     ContractSchema,
@@ -639,7 +642,7 @@ def add_risk_assessments(request: HttpRequest, payload: RiskAssessmentInput):
 def update_risk_assessments(
     request: HttpRequest, risk_assessment_id: int, payload: RiskAssessmentInput
 ):
-    RiskAssessment.objects.create(**payload.dict())
+    RiskAssessment.objects.filter(id=risk_assessment_id).update(**payload.dict())
     return get_object_or_404(RiskAssessment, id=risk_assessment_id)
 
 
@@ -659,4 +662,58 @@ def risk_assessments_details(request: HttpRequest, risk_assessment_id: int):
 )
 def delete_risk_assessment(request: HttpRequest, risk_assessment_id: int):
     RiskAssessment.objects.filter(id=risk_assessment_id).delete()
+    return 204, {}
+
+
+@router.get(
+    "/{int:client_id}/questionnairs/consent-declarations",
+    response=list[ConsentDeclarationSchema],
+    tags=["questionnairs"],
+)
+@paginate(NinjaCustomPagination)
+def get_concent_declarations(request: HttpRequest, client_id: int):
+    return ConsentDeclaration.objects.filter(client__id=client_id).all()
+
+
+# create endpoints for the consent declarations
+@router.post(
+    "/questionnairs/consent-declarations",
+    response=ConsentDeclarationSchema,
+    tags=["questionnairs"],
+)
+def add_consent_declaration(request: HttpRequest, payload: ConsentDeclarationInput):
+    return ConsentDeclaration.objects.create(**payload.dict())
+
+
+# The details endpoint
+@router.get(
+    "/questionnairs/consent-declarations/{int:consent_declaration_id}/details",
+    response=ConsentDeclarationSchema,
+    tags=["questionnairs"],
+)
+def consent_declaration_details(request: HttpRequest, consent_declaration_id: int):
+    return get_object_or_404(ConsentDeclaration, id=consent_declaration_id)
+
+
+# The update endpoint
+@router.post(
+    "/questionnairs/consent-declarations/{int:consent_declaration_id}/update",
+    response=ConsentDeclarationSchema,
+    tags=["questionnairs"],
+)
+def update_consent_declaration(
+    request: HttpRequest, consent_declaration_id: int, payload: ConsentDeclarationInput
+):
+    ConsentDeclaration.objects.filter(id=consent_declaration_id).update(**payload.dict())
+    return get_object_or_404(ConsentDeclaration, id=consent_declaration_id)
+
+
+# The delete endpoint
+@router.delete(
+    "/questionnairs/consent-declarations/{int:consent_declaration_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["questionnairs"],
+)
+def delete_consent_declaration(request: HttpRequest, consent_declaration_id: int):
+    ConsentDeclaration.objects.filter(id=consent_declaration_id).delete()
     return 204, {}

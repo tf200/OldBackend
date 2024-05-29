@@ -4,6 +4,7 @@ from uuid import UUID
 from django.db.models import ExpressionWrapper, F, FloatField, Sum
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from easyaudit.models import CRUDEvent
 from loguru import logger
 from ninja import Query, Router, UploadedFile
@@ -19,7 +20,13 @@ from employees.models import (
     GroupAccess,
 )
 from system.filters import ExpenseSchemaFilter
-from system.models import AttachmentFile, DBSettings, Expense, Notification
+from system.models import (
+    AttachmentFile,
+    DBSettings,
+    Expense,
+    Notification,
+    ProtectedEmail,
+)
 from system.schemas import (
     ActivityLogSchema,
     AttachmentFilePatch,
@@ -38,6 +45,8 @@ from system.schemas import (
     GroupSchemaPatch,
     GroupsListSchema,
     NotificationSchema,
+    PassKeySchema,
+    ProtectedEmailSchema,
 )
 from system.utils import NinjaCustomPagination
 
@@ -398,3 +407,23 @@ def delete_employee_group_access_by_id(request: HttpRequest, group_access_id: in
 def delete_employee_group_access(request: HttpRequest, employee_id: int, group_id: int):
     GroupAccess.objects.filter(employee__id=employee_id, group__id=group_id).delete()
     return 204, {}
+
+
+@router.get("/protected-emails", response=list[ProtectedEmailSchema], tags=["protected-email"])
+def get_protected_emails(request: HttpRequest):
+    return ProtectedEmail.objects.all()
+
+
+@router.post(
+    "/protected-email/{uuid}",
+    response={200: ProtectedEmailSchema, 404: ErrorResponseSchema},
+    tags=["protected-email"],
+    auth=None,
+)
+def get_protected_email(request: HttpRequest, uuid: UUID, passkey: PassKeySchema):
+    try:
+        return ProtectedEmail.objects.filter(
+            uuid=uuid, passkey=passkey.passkey, expired_at__gt=timezone.now()
+        ).get()
+    except ProtectedEmail.DoesNotExist:
+        return 404, {"message": "Protected email not found or expired!"}
