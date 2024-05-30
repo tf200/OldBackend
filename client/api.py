@@ -544,7 +544,7 @@ def edit_incident(request: HttpRequest, incident_id: int, incident: IncidentPatc
     return get_object_or_404(Incident, id=incident_id)
 
 
-@router.get("/incidents/{int:incident_id}/details", response=IncidentSchema)
+@router.get("/incidents/{int:incident_id}/details", response=IncidentSchema, auth=None)
 def incident_details(request: HttpRequest, incident_id: int):
     return get_object_or_404(Incident, id=incident_id)
 

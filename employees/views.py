@@ -62,7 +62,7 @@ class ProgressReportCreateView(generics.CreateAPIView):
 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfManagement]
+    # permission_classes = [IsAuthenticated, IsMemberOfManagement] # disable authentication
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
 
