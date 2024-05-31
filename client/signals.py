@@ -9,7 +9,7 @@ from loguru import logger
 from employees.models import ProgressReport
 from system.models import AttachmentFile
 
-from .models import ClientDetails, ClientStatusHistory, Incident
+from .models import ClientDetails, ClientEmergencyContact, ClientStatusHistory, Incident
 
 
 @receiver(pre_save, sender=ClientDetails)
@@ -64,3 +64,13 @@ def send_incident_to_client_emergency_contacts(
     if created:
         # Send incident report to client emergency contacts
         instance.send_incident_to_emergency_contacts()
+
+
+# Send verification email to client emergency contacts once created
+@receiver(post_save, sender=ClientEmergencyContact)
+def send_verification_email_for_emergency_contacts(
+    sender: type[ClientEmergencyContact], instance: ClientEmergencyContact, created: bool, **kwargs
+):
+    if created:
+        # Send ClientEmergencyContact report to client emergency contacts
+        instance.send_verification_email()

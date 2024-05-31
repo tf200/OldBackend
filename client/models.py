@@ -303,11 +303,44 @@ class ClientEmergencyContact(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)  # this is for email verification
+    uuid = models.UUIDField(null=True, blank=True)  # this is used for email verification
     medical_reports = models.BooleanField(default=False)
     incidents_reports = models.BooleanField(default=False)
     goals_reports = models.BooleanField(
         default=False
     )  # this is used to send Progress Reports to the emergency contact
+
+    def send_verification_email(self) -> None:
+        # Send verification email to the emergency contact
+
+        # Generate a unique uuid
+        self.uuid = uuid.uuid4()
+        self.save()
+
+        send_mail_async(
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            subject="Email Verification",
+            recipient_list=[self.email],
+            message="",
+            html_message=render_to_string(
+                "email_templates/email_verification.html",
+                {
+                    "first_name": self.first_name,
+                    "last_name": self.last_name,
+                    "verification_link": f"{settings.FRONTEND_BASE_URL}/verify-network-email/{self.uuid}",
+                    "company_name": DBSettings.get("CONTACT_COMPANY_NAME", ""),
+                },
+            ),
+        )
+
+    def verify_email(self, uuid: uuid.UUID) -> bool:
+        if self.uuid == uuid:
+            self.is_verified = True
+            self.uuid = None
+            self.save()
+            return True
+        return False
 
 
 class Treatments(models.Model):
@@ -1325,5 +1358,94 @@ class ConsentDeclaration(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ("-created",)
+
     def __str__(self):
         return f"{self.youth_name} - {self.youth_care_institution}"
+
+
+class YouthCareIntake(models.Model):
+    class ServiceChoices(models.TextChoices):
+        OUTPATIENT_CARE = "outpatient_care", "Outpatient care"
+        SHELTERED_HOUSING = "sheltered_housing", "Sheltered housing"
+        ASSISTED_LIVING = "assisted_living", "Assisted Living"
+
+    class FinancingActs(models.TextChoices):
+        WMO = ("WMO", "WMO")
+        ZVW = ("ZVW", "ZVW")
+        WLZ = ("WLZ", "WLZ")
+        JW = ("JW", "JW")
+        WPG = ("WPG", "WPG")
+
+    class FinancingOptions(models.TextChoices):
+        ZIN = ("ZIN", "ZIN")
+        PGB = ("PGB", "PGB")
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="youth_care_intakes", on_delete=models.CASCADE
+    )
+
+    name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=30)
+    nationality = models.CharField(max_length=100)
+    bsn = models.CharField(max_length=20)
+
+    address = models.TextField()
+    postcode = models.CharField(max_length=20)
+    residence = models.CharField(max_length=100)
+
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
+
+    referrer_name = models.CharField(max_length=255)
+    referrer_organization = models.CharField(max_length=255)
+    referrer_function = models.CharField(max_length=255)
+    referrer_phone_number = models.CharField(max_length=20)
+    referrer_email = models.EmailField()
+
+    service_choice = models.CharField(max_length=20, choices=ServiceChoices.choices)
+    financing_acts = models.CharField(max_length=20, choices=FinancingActs.choices)
+    financing_options = models.CharField(max_length=20, choices=FinancingOptions.choices)
+    financing_other = models.CharField(max_length=255, blank=True, null=True)
+
+    registration_reason = models.TextField()
+    current_situation_background = models.TextField()
+
+    previous_aid_agencies_involved = models.BooleanField(default=False)
+    previous_aid_agencies_details = models.TextField(blank=True, null=True)
+
+    medical_conditions = models.BooleanField(default=False)
+    medical_conditions_details = models.TextField(blank=True, null=True)
+
+    medication_use = models.BooleanField(default=False)
+    medication_details = models.TextField(blank=True, null=True)
+
+    allergies_or_dietary_needs = models.BooleanField(default=False)
+    allergies_or_dietary_details = models.TextField(blank=True, null=True)
+
+    addictions = models.BooleanField(default=False)
+    addictions_details = models.TextField(blank=True, null=True)
+
+    school_or_daytime_activities = models.BooleanField(default=False)
+    school_daytime_name = models.CharField(max_length=255, blank=True, null=True)
+    current_class_level = models.CharField(max_length=100, blank=True, null=True)
+    school_contact_person = models.CharField(max_length=255, blank=True, null=True)
+    school_contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    school_contact_email = models.EmailField(blank=True, null=True)
+
+    important_people = models.TextField(blank=True, null=True)
+    external_supervisors_involved = models.BooleanField(default=False)
+    external_supervisors_details = models.TextField(blank=True, null=True)
+
+    special_circumstances = models.TextField(blank=True, null=True)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self):
+        return f"{self.name} - {self.date_of_birth}"

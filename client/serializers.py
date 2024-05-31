@@ -93,6 +93,7 @@ class ClientEmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientEmergencyContact
         fields = "__all__"
+        read_only_fields = ("uuid",)
 
 
 class ClientDocumentsSerializers(serializers.ModelSerializer):

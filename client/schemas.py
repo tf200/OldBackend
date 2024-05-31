@@ -19,6 +19,7 @@ from client.models import (
     Invoice,
     InvoiceHistory,
     RiskAssessment,
+    YouthCareIntake,
 )
 from employees.models import (
     ClientMedication,
@@ -527,4 +528,20 @@ class ConsentDeclarationInput(ModelSchema):
 
     class Meta:
         model = ConsentDeclaration
+        exclude = ("client", "id", "updated", "created")
+
+
+class YouthCareIntakeSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = YouthCareIntake
+        exclude = ("client",)
+
+
+class YouthCareIntakeInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = YouthCareIntake
         exclude = ("client", "id", "updated", "created")

@@ -27,6 +27,7 @@ from client.models import (
     Invoice,
     InvoiceHistory,
     RiskAssessment,
+    YouthCareIntake,
 )
 from client.schemas import (
     ClientCurrentLevelInput,
@@ -75,6 +76,8 @@ from client.schemas import (
     ObjectiveHistorySchemaPatch,
     RiskAssessmentInput,
     RiskAssessmentSchema,
+    YouthCareIntakeInput,
+    YouthCareIntakeSchema,
 )
 from client.utils import get_employee
 from employees.models import (
@@ -716,4 +719,52 @@ def update_consent_declaration(
 )
 def delete_consent_declaration(request: HttpRequest, consent_declaration_id: int):
     ConsentDeclaration.objects.filter(id=consent_declaration_id).delete()
+    return 204, {}
+
+
+# Questionnaire YouthCareIntake CRUD
+@router.get(
+    "/{int:client_id}/questionnairs/youth-care-intakes",
+    response=list[YouthCareIntakeSchema],
+    tags=["questionnairs"],
+)
+def get_youth_care_intakes(request: HttpRequest, client_id: int):
+    return YouthCareIntake.objects.filter(client__id=client_id).all()
+
+
+@router.post(
+    "/questionnairs/youth-care-intakes/add",
+    response=YouthCareIntakeSchema,
+    tags=["questionnairs"],
+)
+def add_youth_care_intake(request: HttpRequest, payload: YouthCareIntakeInput):
+    return YouthCareIntake.objects.create(**payload.dict())
+
+
+@router.get(
+    "/questionnairs/youth-care-intakes/{int:intake_id}/details",
+    response=YouthCareIntakeSchema,
+    tags=["questionnairs"],
+)
+def get_youth_care_intake(request: HttpRequest, intake_id: int):
+    return get_object_or_404(YouthCareIntake, id=intake_id)
+
+
+@router.post(
+    "/questionnairs/youth-care-intakes/{int:intake_id}/update",
+    response=YouthCareIntakeSchema,
+    tags=["questionnairs"],
+)
+def update_youth_care_intake(request: HttpRequest, intake_id: int, payload: YouthCareIntakeInput):
+    YouthCareIntake.objects.filter(id=intake_id).update(**payload.dict())
+    return get_object_or_404(YouthCareIntake, id=intake_id)
+
+
+@router.delete(
+    "/questionnairs/youth-care-intakes/{int:intake_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["questionnairs"],
+)
+def delete_youth_care_intake(request: HttpRequest, intake_id: int):
+    YouthCareIntake.objects.filter(id=intake_id).delete()
     return 204, {}

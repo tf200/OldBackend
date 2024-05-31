@@ -12,7 +12,7 @@ from ninja.pagination import paginate
 
 from adminmodif.models import Group, Permission
 from authentication.models import Location
-from client.models import ClientDetails, Contract, Invoice
+from client.models import ClientDetails, ClientEmergencyContact, Contract, Invoice
 from employees.models import (
     ClientMedication,
     ClientMedicationRecord,
@@ -409,7 +409,7 @@ def delete_employee_group_access(request: HttpRequest, employee_id: int, group_i
     return 204, {}
 
 
-@router.get("/protected-emails", response=list[ProtectedEmailSchema], tags=["protected-email"])
+@router.get("/protected-emails", response=list[ProtectedEmailSchema], tags=["emails"])
 def get_protected_emails(request: HttpRequest):
     return ProtectedEmail.objects.all()
 
@@ -417,7 +417,7 @@ def get_protected_emails(request: HttpRequest):
 @router.post(
     "/protected-email/{uuid}",
     response={200: ProtectedEmailSchema, 404: ErrorResponseSchema},
-    tags=["protected-email"],
+    tags=["emails"],
     auth=None,
 )
 def get_protected_email(request: HttpRequest, uuid: UUID, passkey: PassKeySchema):
@@ -427,3 +427,13 @@ def get_protected_email(request: HttpRequest, uuid: UUID, passkey: PassKeySchema
         ).get()
     except ProtectedEmail.DoesNotExist:
         return 404, {"message": "Protected email not found or expired!"}
+
+
+# verify network email
+@router.get(
+    "/verify-network-email/{uuid}", tags=["emails"], auth=None, response={204: EmptyResponseSchema}
+)
+def verify_network_email(request: HttpRequest, uuid: UUID):
+    contact = ClientEmergencyContact.objects.filter(uuid=uuid).get()
+    contact.verify_email(uuid)
+    return 204, {}
