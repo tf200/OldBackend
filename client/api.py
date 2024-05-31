@@ -23,6 +23,7 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    DataSharingStatement,
     Incident,
     Invoice,
     InvoiceHistory,
@@ -51,6 +52,8 @@ from client.schemas import (
     ContractWorkingHoursInput,
     ContractWorkingHoursPatch,
     ContractWorkingHoursSchema,
+    DataSharingStatementInput,
+    DataSharingStatementSchema,
     DomainGoalInput,
     DomainGoalPatch,
     DomainGoalPatchApproval,
@@ -767,4 +770,54 @@ def update_youth_care_intake(request: HttpRequest, intake_id: int, payload: Yout
 )
 def delete_youth_care_intake(request: HttpRequest, intake_id: int):
     YouthCareIntake.objects.filter(id=intake_id).delete()
+    return 204, {}
+
+
+# Creating the crud for DataSharingStatement
+@router.get(
+    "/{int:client_id}/questionnairs/data-sharing-statements",
+    response=list[DataSharingStatementSchema],
+    tags=["questionnairs"],
+)
+def get_data_sharing_statements(request: HttpRequest, client_id: int):
+    return DataSharingStatement.objects.filter(client__id=client_id).all()
+
+
+@router.get(
+    "/questionnairs/data-sharing-statements/{int:statement_id}/details",
+    response=DataSharingStatementSchema,
+    tags=["questionnairs"],
+)
+def get_data_sharing_statement(request: HttpRequest, statement_id: int):
+    return get_object_or_404(DataSharingStatement, id=statement_id)
+
+
+@router.post(
+    "/questionnairs/data-sharing-statements/add",
+    response=DataSharingStatementSchema,
+    tags=["questionnairs"],
+)
+def add_data_sharing_statement(request: HttpRequest, payload: DataSharingStatementInput):
+    return DataSharingStatement.objects.create(**payload.dict())
+
+
+@router.post(
+    "/questionnairs/data-sharing-statements/{int:statement_id}/update",
+    response=DataSharingStatementSchema,
+    tags=["questionnairs"],
+)
+def update_data_sharing_statement(
+    request: HttpRequest, statement_id: int, payload: DataSharingStatementInput
+):
+    DataSharingStatement.objects.filter(id=statement_id).update(**payload.dict())
+    return get_object_or_404(DataSharingStatement, id=statement_id)
+
+
+@router.delete(
+    "/questionnairs/data-sharing-statements/{int:statement_id}/delete",
+    response={204: EmptyResponseSchema},
+    tags=["questionnairs"],
+)
+def delete_data_sharing_statement(request: HttpRequest, statement_id: int):
+    DataSharingStatement.objects.filter(id=statement_id).delete()
     return 204, {}

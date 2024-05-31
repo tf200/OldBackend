@@ -434,6 +434,6 @@ def get_protected_email(request: HttpRequest, uuid: UUID, passkey: PassKeySchema
     "/verify-network-email/{uuid}", tags=["emails"], auth=None, response={204: EmptyResponseSchema}
 )
 def verify_network_email(request: HttpRequest, uuid: UUID):
-    contact = ClientEmergencyContact.objects.filter(uuid=uuid).get()
+    contact = get_object_or_404(ClientEmergencyContact, uuid=uuid)
     contact.verify_email(uuid)
     return 204, {}

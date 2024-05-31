@@ -15,6 +15,7 @@ from client.models import (
     Contract,
     ContractType,
     ContractWorkingHours,
+    DataSharingStatement,
     Incident,
     Invoice,
     InvoiceHistory,
@@ -544,4 +545,20 @@ class YouthCareIntakeInput(ModelSchema):
 
     class Meta:
         model = YouthCareIntake
+        exclude = ("client", "id", "updated", "created")
+
+
+class DataSharingStatementSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = DataSharingStatement
+        exclude = ("client",)
+
+
+class DataSharingStatementInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = DataSharingStatement
         exclude = ("client", "id", "updated", "created")
