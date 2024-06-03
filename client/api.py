@@ -54,6 +54,7 @@ from client.schemas import (
     ContractWorkingHoursSchema,
     DataSharingStatementInput,
     DataSharingStatementSchema,
+    DatePeriodSchema,
     DomainGoalInput,
     DomainGoalPatch,
     DomainGoalPatchApproval,
@@ -77,6 +78,7 @@ from client.schemas import (
     ObjectiveHistorySchema,
     ObjectiveHistorySchemaInput,
     ObjectiveHistorySchemaPatch,
+    ObjectiveProgressReportSchema,
     RiskAssessmentInput,
     RiskAssessmentSchema,
     YouthCareIntakeInput,
@@ -90,6 +92,7 @@ from employees.models import (
     DomainObjective,
     GoalHistory,
     ObjectiveHistory,
+    ObjectiveProgressReport,
 )
 from system.schemas import EmptyResponseSchema, ErrorResponseSchema
 from system.utils import NinjaCustomPagination
@@ -731,6 +734,7 @@ def delete_consent_declaration(request: HttpRequest, consent_declaration_id: int
     response=list[YouthCareIntakeSchema],
     tags=["questionnairs"],
 )
+@paginate(NinjaCustomPagination)
 def get_youth_care_intakes(request: HttpRequest, client_id: int):
     return YouthCareIntake.objects.filter(client__id=client_id).all()
 
@@ -779,6 +783,7 @@ def delete_youth_care_intake(request: HttpRequest, intake_id: int):
     response=list[DataSharingStatementSchema],
     tags=["questionnairs"],
 )
+@paginate(NinjaCustomPagination)
 def get_data_sharing_statements(request: HttpRequest, client_id: int):
     return DataSharingStatement.objects.filter(client__id=client_id).all()
 
@@ -821,3 +826,13 @@ def update_data_sharing_statement(
 def delete_data_sharing_statement(request: HttpRequest, statement_id: int):
     DataSharingStatement.objects.filter(id=statement_id).delete()
     return 204, {}
+
+
+# Objective progress report CRUD
+@router.get(
+    "/objectives/{int:objective_id}/progress-reports",
+    response=list[ObjectiveProgressReportSchema],
+)
+@paginate(NinjaCustomPagination)
+def get_objective_progress_reports(request: HttpRequest, objective_id: int):
+    return ObjectiveProgressReport.objects.filter(objective__id=objective_id).all()

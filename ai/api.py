@@ -11,7 +11,8 @@ from ai.schemas import AIGeneratedReportSchema, ReportSchema
 from ai.tasks import ai_summarize
 from ai.utils import ai_enhance_report
 from client.models import ClientDetails
-from employees.models import ProgressReport
+from client.schemas import DatePeriodSchema, ObjectiveProgressReportSchema
+from employees.models import DomainObjective, ProgressReport
 from system.utils import NinjaCustomPagination
 
 router = Router()
@@ -67,4 +68,21 @@ def generate_report_summary(request: HttpRequest, client_id: int, start_date: st
         report_type=AIGeneratedReport.ReportTypes.CLIENT_REPORTS_SUMMARY,
         start_date=start,
         end_date=end,
+    )
+
+
+@router.post(
+    "/objectives/{int:objective_id}/progress-reports/generate",
+    response=ObjectiveProgressReportSchema | None,
+)
+def generate_objective_progress_report(
+    request: HttpRequest,
+    objective_id: int,
+    payload: DatePeriodSchema,
+):
+    # Generate the objective reports for the period
+    objective = get_object_or_404(DomainObjective, id=objective_id)
+
+    return objective.ai_generate_progress_report(
+        start_date=str(payload.start_date), end_date=str(payload.end_date)
     )
