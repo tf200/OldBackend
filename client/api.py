@@ -836,3 +836,12 @@ def delete_data_sharing_statement(request: HttpRequest, statement_id: int):
 @paginate(NinjaCustomPagination)
 def get_objective_progress_reports(request: HttpRequest, objective_id: int):
     return ObjectiveProgressReport.objects.filter(objective__id=objective_id).all()
+
+
+@router.delete(
+    "/objectives/progress-reports/{int:report_id}/delete",
+    response={204: EmptyResponseSchema},
+)
+def delete_objective_progress_report(request: HttpRequest, report_id: int):
+    ObjectiveProgressReport.objects.filter(id=report_id).delete()
+    return 204, {}
