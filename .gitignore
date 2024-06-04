@@ -171,4 +171,3 @@ caddy/
 !caddy/Caddyfile
 
 .vscode/
-static/
