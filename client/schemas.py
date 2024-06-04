@@ -29,6 +29,7 @@ from employees.models import (
     DomainObjective,
     GoalHistory,
     ObjectiveHistory,
+    ObjectiveProgressReport,
 )
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
@@ -562,3 +563,16 @@ class DataSharingStatementInput(ModelSchema):
     class Meta:
         model = DataSharingStatement
         exclude = ("client", "id", "updated", "created")
+
+
+class ObjectiveProgressReportSchema(ModelSchema):
+    objective_id: int
+
+    class Meta:
+        model = ObjectiveProgressReport
+        exclude = ("objective",)
+
+
+class DatePeriodSchema(Schema):
+    start_date: date
+    end_date: date
