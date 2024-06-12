@@ -300,7 +300,7 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "https://localhost:3000")
+FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
 
 # for easyaudit
 DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
