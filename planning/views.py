@@ -38,7 +38,7 @@ class AppointmentListView(generics.ListAPIView):
 
 
 class AppointmentRUDView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = AppointmentSerializerRUD
+    serializer_class = AppointmentSerializer
     queryset = Appointment.objects.all()
 
 

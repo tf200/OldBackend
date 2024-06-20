@@ -82,7 +82,7 @@
                         <td>{{ ic.item_desc }}</td>
                         <td>{{ site_currency_symbol }}{{ ic.contract_amount_without_tax }}</td>
                         <td>{{ ic.used_tax }}%</td>
-                        <td>{{ site_currency_symbol }}{{ ic.contract_amount }}</td>
+                        <td>{{ site_currency_symbol }}{{ ic.contract_amount|floatformat:1 }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -90,7 +90,7 @@
                         <td></td>
                         <td></td>
                         <td class="text-primary fw-bold">Total: </td>
-                        <td class="text-primary fw-bold">{{ site_currency_symbol }}{{ total_amount }}</td>
+                        <td class="text-primary fw-bold">{{ site_currency_symbol }}{{ total_amount|floatformat:1 }}</td>
                     </tr>
                 </tbody>
             </table>

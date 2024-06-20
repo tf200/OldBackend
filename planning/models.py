@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from django.db import models
 from django.utils.timezone import now
@@ -41,9 +42,21 @@ class Appointment(models.Model):
         EmployeeProfile, related_name="modified_appointments", on_delete=models.SET_NULL, null=True
     )
     status = models.CharField(choices=STATUS.choices, default=STATUS.SCHEDULED, blank=True)
+    temporary_file_ids = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.title
+
+    def get_attachments(self) -> list[dict[str, Any]]:
+        from system.models import AttachmentFile
+        from system.schemas import AttachmentFileSchema
+
+        attachments = []
+
+        for file in AttachmentFile.objects.filter(id__in=self.temporary_file_ids).all():
+            attachments.append(AttachmentFileSchema.from_orm(file).model_dump())
+
+        return attachments
 
 
 # class AppointmentConfirmation(models.Model):
