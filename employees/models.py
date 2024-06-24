@@ -458,11 +458,13 @@ class ClientMedicationRecord(models.Model):
             for employee in employees:
                 logger.debug(f"Send Medical Notification {self.id} to employee")
 
+                medication_record_link = f"{settings.FRONTEND_BASE_URL}/clients/{employee.pk}/medications/{self.client_medication.pk}/records"
+
                 if employee.has_permission("medication.notifications.receive"):
                     notification = Notification.objects.create(
                         title=f"Medication record (#{self.id}).",
                         event=Notification.EVENTS.MEDICATION_TIME,
-                        content=f"You have a medication record to fill up.",
+                        content=f"You have a medication record to fill up ({medication_record_link}).",
                         receiver=employee.user,
                         metadata={
                             "medication_id": self.client_medication.id,
