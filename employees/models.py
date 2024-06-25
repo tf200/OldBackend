@@ -218,7 +218,9 @@ class ProgressReport(models.Model):
         DEPRESSED = "depressed", "Depressed"
         # OTHER = "other", "Other"
 
-    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    client = models.ForeignKey(
+        ClientDetails, related_name="progress_reports", on_delete=models.CASCADE
+    )
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=50, blank=True, null=True)
     report_text = models.TextField()

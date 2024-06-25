@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -16,10 +17,14 @@ from django.utils import timezone
 from loguru import logger
 from weasyprint import HTML
 
+from ai.utils import ai_summarize
 from assessments.models import AssessmentDomain
 from authentication.models import Location
 from system.models import AttachmentFile, DBSettings, Notification, ProtectedEmail
 from system.utils import send_mail_async
+
+if TYPE_CHECKING:
+    from employees.models import ProgressReport
 
 
 def generate_invoice_id() -> str:
@@ -218,6 +223,44 @@ class ClientDetails(models.Model):
             "uploaded_document_labels": uploaded_document_labels,
             "not_uploaded_document_labels": not_uploaded_document_labels,
         }
+
+    def send_weekly_progress_report(self) -> None:
+        """Send a weekly progress report to the client emergency contacts"""
+        current_date = timezone.now()
+        current_weekday = current_date.weekday()
+        # week range
+        end_week = current_date - timedelta(days=current_weekday)
+        start_week = end_week - timedelta(days=7)
+
+        progress_reports: list[ProgressReport] = list(
+            self.progress_reports.filter(
+                created__gte=start_week, created__lte=end_week
+            ).all()
+        )
+
+        if progress_reports:
+            report: str = (
+                f"This is a summary of the progress reports for the past week ({start_week:%b %d} - {end_week:%b %d})\n\n"
+            )
+
+            # Create a summary report for the week
+            for progress_report in progress_reports:
+                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default="no content")}\n\n"
+
+            for contact in self.emergency_contact.filter(incidents_reports=True).all():
+                # send the report
+                protected_email = ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Weekly Progress Report ({start_week:%b %d} - {end_week:%b %d})",
+                    content=report,
+                    metadata={
+                        "client_id": self.pk,
+                        "sender_id": contact.pk,
+                    },
+                )
+
+                logger.debug(f"Sending Progress weekly report to {contact.email}")
+                protected_email.notify()
 
     def __str__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"

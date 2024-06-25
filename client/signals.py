@@ -51,9 +51,10 @@ def create_client_profile_status_history_on_create(
 def send_progress_report_to_client_emergency_contacts(
     sender: type[ProgressReport], instance: ProgressReport, created: bool, **kwargs
 ):
-    if created:
-        # Send progress report to client emergency contacts
-        instance.send_progress_report_to_emergency_contacts()
+    # if created:
+    #     # Send progress report to client emergency contacts
+    #     instance.send_progress_report_to_emergency_contacts()
+    pass
 
 
 # Send incident report to client emergency contacts once created

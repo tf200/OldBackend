@@ -296,7 +296,11 @@ CELERY_BEAT_SCHEDULE = {
     # },
     "send_medication_report_to_client_emergency_contacts": {
         "task": "client.tasks.send_medication_report_to_client_emergency_contacts",
-        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every Monday
+        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every week
+    },
+    "send_weekly_progress_report_to_emergency_contacts": {
+        "task": "client.tasks.send_weekly_progress_report_to_emergency_contacts",
+        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every week
     },
 }
 

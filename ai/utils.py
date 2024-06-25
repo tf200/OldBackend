@@ -81,3 +81,26 @@ content: \n{h.content}
             "description": objective.desc,
         }
     )
+
+
+def ai_summarize(content: str, default="no content") -> str:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0, api_key=settings.OPENAI_KEY)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "Please summarize the following text/report, make sure to give a concise summary that includes all the importent information."
+                + (
+                    f"If you find nothing to summarize, return '{default}' and nothing else."
+                    if default
+                    else ""
+                ),
+            ),
+            ("user", "{input}"),
+        ]
+    )
+
+    chain = prompt | llm | StrOutputParser()
+
+    return chain.invoke({"input": content})

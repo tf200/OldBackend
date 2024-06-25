@@ -373,3 +373,23 @@ def send_medication_report_to_client_emergency_contacts():
                 recipient_list=[contact.email],
                 fail_silently=False,
             )
+
+
+# Send incidents weekly
+@shared_task
+def send_weekly_progress_report_to_emergency_contacts():
+    ## Send incident report of the client to the client's emergency contacts for this week
+    current_date = timezone.now()
+    current_weekday = current_date.weekday()
+    # week range
+    end_week = current_date - datetime.timedelta(days=current_weekday)
+    start_week = end_week - datetime.timedelta(days=7)
+
+    for client in ClientDetails.objects.all():
+        progress_reports_count: int = client.progress_reports.filter(
+            created__gte=start_week, created__lte=end_week
+        ).count()
+
+        if progress_reports_count:
+            # Send email progress report to only the emergency contacts that have auto_reports enabled
+            client.send_weekly_progress_report()
