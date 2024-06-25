@@ -45,8 +45,16 @@ class Sender(models.Model):
     client_number = models.CharField(max_length=20, null=True, blank=True)
     email_adress = models.CharField(max_length=20, null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} (#{self.pk})"
+
+    def get_contacts(self) -> list[Contact]:
+        contact_ids = ClientTypeContactRelation.objects.filter(client_type=self).values_list(
+            "contact", flat=True
+        )
+
+        # Get all the Contact instances
+        return list(Contact.objects.filter(id__in=contact_ids).all())
 
 
 ClientType = Sender  # For backword compatibility
@@ -720,12 +728,15 @@ class Invoice(models.Model):
             "client_full_name": f"{self.client.first_name} {self.client.last_name}",
             "client_id": self.client.id,
             "client_date_of_birth": self.client.date_of_birth,
+            "client_bsn": self.client.bsn,
             # Sender
             "company_name": sender.name if sender else "",
             "email": sender.email_adress if sender else "",
             "address": sender.address if sender else "",
             "KVK": sender.BTWnumber if sender else "",
             "BTW": sender.KVKnumber if sender else "",
+            "sender": sender,
+            "sender_contacts": sender.get_contacts() if sender else [],
             # Site info
             "site_name": DBSettings.get("SITE_NAME"),
             "invoice_footer": DBSettings.get("INVOICE_FOOTER"),

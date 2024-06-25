@@ -252,9 +252,8 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 class ClientTypeSerializer(serializers.ModelSerializer):
-    contacts = ContactSerializer(
-        many=True, required=False
-    )  # Set `required=False` if contacts are optional
+
+    contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientType
@@ -283,9 +282,10 @@ class ClientTypeSerializer(serializers.ModelSerializer):
             ClientTypeContactRelation.objects.create(client_type=client_type, contact=contact)
         return client_type
 
-    def get_contacts(self, obj):
-        # Assuming 'contact_relations' is the related_name for the ForeignKey in ClientTypeContactRelation
-        contacts = [relation.contact for relation in obj.contact_relations.all()]
+    def get_contacts(self, obj: ClientType):
+        # List all the Contacts instances related to the ClientType instance
+        contacts = obj.get_contacts()
+
         return ContactSerializer(contacts, many=True).data
 
 
