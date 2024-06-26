@@ -50,6 +50,9 @@ class Sender(models.Model):
     client_number = models.CharField(max_length=20, null=True, blank=True)
     email_adress = models.CharField(max_length=20, null=True, blank=True)
 
+    class Meta:
+        ordering = ("-id",)
+
     def __str__(self) -> str:
         return f"{self.name} (#{self.pk})"
 
