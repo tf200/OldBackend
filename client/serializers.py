@@ -1,3 +1,5 @@
+import json
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -253,7 +255,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class ClientTypeSerializer(serializers.ModelSerializer):
 
-    contacts = serializers.SerializerMethodField()
+    contacts = serializers.ListField(child=serializers.DictField(), required=False)
 
     class Meta:
         model = ClientType
@@ -276,17 +278,40 @@ class ClientTypeSerializer(serializers.ModelSerializer):
         contacts_data = validated_data.pop(
             "contacts", []
         )  # Safely remove contacts with a default empty list
+
         client_type = ClientType.objects.create(**validated_data)
+
         for contact_data in contacts_data:
             contact, created = Contact.objects.get_or_create(**contact_data)
             ClientTypeContactRelation.objects.create(client_type=client_type, contact=contact)
+
         return client_type
 
-    def get_contacts(self, obj: ClientType):
-        # List all the Contacts instances related to the ClientType instance
-        contacts = obj.get_contacts()
+    def update(self, instance: ClientType, validated_data):
+        contacts_data = validated_data.pop("contacts", [])
 
-        return ContactSerializer(contacts, many=True).data
+        # Update the ClientType instance with other validated data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update or create contacts
+        for contact_data in contacts_data:
+            contact, created = Contact.objects.get_or_create(**contact_data)
+            ClientTypeContactRelation.objects.get_or_create(client_type=instance, contact=contact)
+
+        return instance
+
+    def to_representation(self, instance: ClientType):
+        data = super().to_representation(instance)
+        data["contacts"] = ContactSerializer(instance.get_contacts(), many=True).data
+        return data
+
+    # def get_contacts(self, obj: ClientType):
+    #     # List all the Contacts instances related to the ClientType instance
+    #     contacts = obj.get_contacts()
+
+    #     return ContactSerializer(contacts, many=True).data
 
 
 class TemporaryFileSerializer(serializers.ModelSerializer):

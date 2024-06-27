@@ -77,6 +77,7 @@ urlpatterns = [
     path("contract_update/<int:pk>/", ContractUpdateView.as_view(), name="contract_update"),
     path("contract_delete/<int:pk>/", ContractDeleteView.as_view(), name="contract_delete"),
     path("sender_create/", ClientTypeCreateAPIView.as_view(), name="clienttype-create"),
+    path("sender_update/<int:pk>/", ClientTypeCreateAPIView.as_view(), name="clienttype-update"),
     path("senders/", ClientTypeListView.as_view(), name="clienttype-list"),
     path("senders/<int:client_id>/", SenderRetrieveAPIView.as_view(), name="retrieve-sender"),
     path("temporary-files/", TemporaryFileUploadView.as_view(), name="temporary_file_upload"),
