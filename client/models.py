@@ -236,9 +236,7 @@ class ClientDetails(models.Model):
         start_week = end_week - timedelta(days=7)
 
         progress_reports: list[ProgressReport] = list(
-            self.progress_reports.filter(
-                created__gte=start_week, created__lte=end_week
-            ).all()
+            self.progress_reports.filter(created__gte=start_week, created__lte=end_week).all()
         )
 
         if progress_reports:
@@ -248,7 +246,7 @@ class ClientDetails(models.Model):
 
             # Create a summary report for the week
             for progress_report in progress_reports:
-                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default="no content")}\n\n"
+                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default='no content')}\n\n"
 
             for contact in self.emergency_contact.filter(incidents_reports=True).all():
                 # send the report

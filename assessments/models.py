@@ -17,7 +17,7 @@ class Assessment(models.Model):
         LEVEL_4 = 4, "Level 4"
         LEVEL_5 = 5, "Level 5"
 
-    content = models.JSONField(default=list, null=True, blank=True)
+    content = models.TextField(default="", null=True, blank=True)
     domain = models.ForeignKey(
         AssessmentDomain, related_name="assessments", on_delete=models.CASCADE, null=True
     )
@@ -26,3 +26,6 @@ class Assessment(models.Model):
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("level",)
