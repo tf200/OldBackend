@@ -120,6 +120,8 @@ class ClientDetails(models.Model):
     departure_report = models.TextField(null=True, blank=True)
     gps_position = models.JSONField(default=list)
 
+    maturity_domains = models.JSONField(default=list, blank=True)
+
     class Meta:
         ordering = ("-id",)
         verbose_name = "Client"
@@ -203,11 +205,16 @@ class ClientDetails(models.Model):
         return super().save(*args, **kwargs)
 
     def get_domain_ids(self) -> list[int]:
-        care_plans = CarePlan.objects.filter(client__id=self.pk).all()
-        domain_ids: list[int] = []
-        for care_plan in care_plans:
-            domain_ids.extend([domain.id for domain in care_plan.domains.all()])
-        return list(set(domain_ids))
+        return list(self.maturity_domains)
+
+        # care_plans = CarePlan.objects.filter(client__id=self.pk).all()
+        # domain_ids: list[int] = []
+        # for care_plan in care_plans:
+        #     domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+        # return list(set(domain_ids))
+
+    def get_selected_domains(self) -> list[int]:
+        return list(self.maturity_domains)
 
     def documents_info(self) -> dict:
         documents = self.documents.all()  # type: ignore
@@ -236,9 +243,7 @@ class ClientDetails(models.Model):
         start_week = end_week - timedelta(days=7)
 
         progress_reports: list[ProgressReport] = list(
-            self.progress_reports.filter(
-                created__gte=start_week, created__lte=end_week
-            ).all()
+            self.progress_reports.filter(created__gte=start_week, created__lte=end_week).all()
         )
 
         if progress_reports:
@@ -248,7 +253,7 @@ class ClientDetails(models.Model):
 
             # Create a summary report for the week
             for progress_report in progress_reports:
-                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default="no content")}\n\n"
+                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default='no content')}\n\n"
 
             for contact in self.emergency_contact.filter(incidents_reports=True).all():
                 # send the report
