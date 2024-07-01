@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from django.conf import settings
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
@@ -104,3 +104,50 @@ def ai_summarize(content: str, default="no content") -> str:
     chain = prompt | llm | StrOutputParser()
 
     return chain.invoke({"input": content})
+
+
+def ai_smart_formula(
+    domain: str, goal: str, format: Literal["TEXT", "JSON"] = "TEXT", objective_number=3
+) -> str | dict[str, Any]:
+    llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0, api_key=settings.OPENAI_KEY)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                'Please the SMART Formula to to create an accurate {objective_number} objectives for the following goal to achieve it this goal is in "{domain}" field:',
+            ),
+            ("user", "Goal: {goal}\n{format_string}"),
+        ]
+    )
+
+    json_format = """{
+        "objectives": [
+            {
+                "specific": "",
+                "measurable": "",
+                "achievable": "",
+                "relevant": "",
+                "time_bound": ""
+            },
+            ...(repeat for {objective_number} objectives)
+        ]
+    }"""
+
+    format_string: str = "Ensure to return only in {format} format."
+
+    if format == "TEXT":
+        chain = prompt | llm | StrOutputParser()
+    elif format == "JSON":
+        chain = prompt | llm | JsonOutputParser()
+        format_string = format_string.format(format="JSON") + ":\n" + json_format
+
+    return chain.invoke(
+        {
+            "domain": domain,
+            "goal": goal,
+            "format": format,
+            "objective_number": objective_number,
+            "format_string": format_string,
+        }
+    )
