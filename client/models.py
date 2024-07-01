@@ -120,6 +120,8 @@ class ClientDetails(models.Model):
     departure_report = models.TextField(null=True, blank=True)
     gps_position = models.JSONField(default=list)
 
+    maturity_domains = models.JSONField(default=list, blank=True)
+
     class Meta:
         ordering = ("-id",)
         verbose_name = "Client"
@@ -203,11 +205,16 @@ class ClientDetails(models.Model):
         return super().save(*args, **kwargs)
 
     def get_domain_ids(self) -> list[int]:
-        care_plans = CarePlan.objects.filter(client__id=self.pk).all()
-        domain_ids: list[int] = []
-        for care_plan in care_plans:
-            domain_ids.extend([domain.id for domain in care_plan.domains.all()])
-        return list(set(domain_ids))
+        return list(self.maturity_domains)
+
+        # care_plans = CarePlan.objects.filter(client__id=self.pk).all()
+        # domain_ids: list[int] = []
+        # for care_plan in care_plans:
+        #     domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+        # return list(set(domain_ids))
+
+    def get_selected_domains(self) -> list[int]:
+        return list(self.maturity_domains)
 
     def documents_info(self) -> dict:
         documents = self.documents.all()  # type: ignore

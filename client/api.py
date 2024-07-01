@@ -59,6 +59,7 @@ from client.schemas import (
     DomainGoalPatch,
     DomainGoalPatchApproval,
     DomainGoalSchema,
+    DomainListSchema,
     DomainObjectiveInput,
     DomainObjectivePatch,
     DomainObjectiveSchema,
@@ -845,3 +846,21 @@ def get_objective_progress_reports(request: HttpRequest, objective_id: int):
 def delete_objective_progress_report(request: HttpRequest, report_id: int):
     ObjectiveProgressReport.objects.filter(id=report_id).delete()
     return 204, {}
+
+
+@router.post("/{int:client_id}/selected-domains/update", response={204: EmptyResponseSchema})
+def save_client_maturity_matrix_domains(
+    request: HttpRequest, client_id: int, domains: DomainListSchema
+):
+    client = get_object_or_404(ClientDetails, id=client_id)
+
+    client.maturity_domains = domains.domains
+    client.save()
+
+    return 204, {}
+
+
+@router.get("/{int:client_id}/selected-domains", response=DomainListSchema)
+def get_client_domains(request: HttpRequest, client_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    return {"domains": client.get_selected_domains()}

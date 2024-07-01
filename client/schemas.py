@@ -576,3 +576,7 @@ class ObjectiveProgressReportSchema(ModelSchema):
 class DatePeriodSchema(Schema):
     start_date: date
     end_date: date
+
+
+class DomainListSchema(Schema):
+    domains: list[int]

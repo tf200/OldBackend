@@ -28,4 +28,4 @@ class Assessment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ("level",)
+        ordering = ("level",)  # Soerting by level is important for Maturity Matrix Table
