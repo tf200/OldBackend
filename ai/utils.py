@@ -107,7 +107,11 @@ def ai_summarize(content: str, default="no content") -> str:
 
 
 def ai_smart_formula(
-    domain: str, goal: str, format: Literal["TEXT", "JSON"] = "TEXT", objective_number=3
+    domain: str,
+    goal: str,
+    format: Literal["TEXT", "JSON"] = "TEXT",
+    objective_number=3,
+    language=None,
 ) -> str | dict[str, Any]:
     llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0, api_key=settings.OPENAI_KEY)
 
@@ -115,7 +119,7 @@ def ai_smart_formula(
         [
             (
                 "system",
-                'Please the SMART Formula to to create an accurate {objective_number} objectives for the following goal to achieve it this goal is in "{domain}" field:',
+                'Please the SMART Formula to to create an accurate {objective_number} objectives for the following goal to achieve it this goal is in "{domain}" field, {language_string}:',
             ),
             ("user", "Goal: {goal}\n{format_string}"),
         ]
@@ -136,6 +140,9 @@ def ai_smart_formula(
 
     format_string: str = "Ensure to return only in {format} format."
 
+    language: str = language if language is not None else "English"
+    language_string: str = "Answer in {language} language."
+
     if format == "TEXT":
         chain = prompt | llm | StrOutputParser()
     elif format == "JSON":
@@ -149,5 +156,6 @@ def ai_smart_formula(
             "format": format,
             "objective_number": objective_number,
             "format_string": format_string,
+            "language_string": language,
         }
     )
