@@ -15,7 +15,7 @@ from loguru import logger
 
 from adminmodif.models import Group, Permission
 from ai.utils import generate_ai_objective_progress_report
-from assessments.models import AssessmentDomain
+from assessments.models import AssessmentDomain, SelectedMaturityMatrixAssessment
 from authentication.models import Location
 from client.models import ClientDetails
 from system.models import DBSettings, Notification, ProtectedEmail
@@ -572,6 +572,10 @@ class DomainGoal(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
+    selected_maturity_matrix_assessment = models.ForeignKey(
+        SelectedMaturityMatrixAssessment, related_name="goals", on_delete=models.CASCADE, null=True
+    )
+
     is_approved = models.BooleanField(default=False)
 
     updated = models.DateTimeField(auto_now=True)
