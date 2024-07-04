@@ -4,6 +4,7 @@ from typing import Any, Literal, Optional
 from loguru import logger
 from ninja import Field, FilterSchema, ModelSchema, Schema
 
+from assessments.models import MaturityMatrix, SelectedMaturityMatrixAssessment
 from client.models import (
     ClientCurrentLevel,
     ClientDetails,
@@ -580,3 +581,34 @@ class DatePeriodSchema(Schema):
 
 class DomainListSchema(Schema):
     domains: list[int]
+
+
+#############
+
+
+class MaturityMatrixSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "assessments")
+
+
+class MaturityMatrixInput(ModelSchema):
+    client_id: int
+    start_date: date
+    end_date: date
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "id", "created", "updated", "is_approved", "assessments")
+
+
+class SelectedMaturityMatrixAssessmentSchema(ModelSchema):
+    assessment_id: int
+    maturity_matrix_id: int
+    goals: list[DomainGoalSchema]
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment")

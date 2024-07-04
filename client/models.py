@@ -18,7 +18,7 @@ from loguru import logger
 from weasyprint import HTML
 
 from ai.utils import ai_summarize
-from assessments.models import AssessmentDomain
+from assessments.models import AssessmentDomain, MaturityMatrix
 from authentication.models import Location
 from system.models import AttachmentFile, DBSettings, Notification, ProtectedEmail
 from system.utils import send_mail_async
@@ -269,6 +269,10 @@ class ClientDetails(models.Model):
 
                 logger.debug(f"Sending Progress weekly report to {contact.email}")
                 protected_email.notify()
+
+    def get_maturity_matrix(self) -> list[MaturityMatrix]:
+        "get maturity matrices for the client"
+        return list(MaturityMatrix.objects.filter(client__id=self.pk).all())
 
     def __str__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"

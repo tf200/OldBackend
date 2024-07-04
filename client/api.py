@@ -1,10 +1,18 @@
+from typing import Any
+
+from django.db import transaction
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
-from assessments.models import AssessmentDomain
-from assessments.schemas import AssessmentDomainSchema
+from ai.schemas import EditedSmartFormulaRequestSchema
+from assessments.models import (
+    Assessment,
+    AssessmentDomain,
+    MaturityMatrix,
+    SelectedMaturityMatrixAssessment,
+)
 from client.filters import (
     ClientStateFilter,
     ContractFilterSchema,
@@ -73,6 +81,8 @@ from client.schemas import (
     InvoiceHistorySchema,
     InvoiceSchema,
     InvoiceSchemaPatch,
+    MaturityMatrixInput,
+    MaturityMatrixSchema,
     MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
@@ -82,6 +92,7 @@ from client.schemas import (
     ObjectiveProgressReportSchema,
     RiskAssessmentInput,
     RiskAssessmentSchema,
+    SelectedMaturityMatrixAssessmentSchema,
     YouthCareIntakeInput,
     YouthCareIntakeSchema,
 )
@@ -864,3 +875,126 @@ def save_client_maturity_matrix_domains(
 def get_client_domains(request: HttpRequest, client_id: int):
     client = get_object_or_404(ClientDetails, id=client_id)
     return {"domains": client.get_selected_domains()}
+
+
+@router.post(
+    "/{int:client_id}/smart-formula/{int:goal_id}/{int:level_id}/add",
+    response={204: EmptyResponseSchema},
+)
+def save_smart_formula_result(
+    request: HttpRequest,
+    client_id: int,
+    goal_id: int,
+    level_id: int,
+    result: EditedSmartFormulaRequestSchema,
+):
+    # Create domain goals and objectives from smart formula result
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain = get_object_or_404(AssessmentDomain, id=goal_id)
+    assessment = get_object_or_404(Assessment, domain=domain, level=level_id)
+
+    if client and domain and assessment:
+        # Start DB transaction
+        with transaction.atomic():
+            for smart_goal in result.goals:
+                # Create DomainObjective
+                goal = DomainGoal.objects.create(
+                    client=client,
+                    domain=domain,
+                    title=smart_goal.title,
+                    desc="",
+                )
+                # Create objectives and asign them to the goal
+                for smart_objective in smart_goal.objectives:
+                    objective = DomainObjective.objects.create(
+                        client=client,
+                        goal=goal,
+                        title=smart_objective.title,
+                        desc=smart_objective.description,
+                    )
+                    goal.objectives.add(objective)  # type: ignore
+                    goal.save()  # just in case
+
+    return 204, {}
+
+
+@router.get(
+    "/{int:client_id}/smart-formula/{int:goal_id}/{int:level_id}",
+    response=EditedSmartFormulaRequestSchema,
+)
+def get_smart_formula(request: HttpRequest, client_id: int, goal_id: int, level_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain = get_object_or_404(AssessmentDomain, id=goal_id)
+    assessment = get_object_or_404(Assessment, domain=domain, level=level_id)
+    # goals = DomainGoal.objects.filter(client=client, domain=domain).all()
+
+    return {
+        "goals": [
+            {
+                "title": goal.title,
+                "objectives": [
+                    {"title": objective.title, "description": objective.desc}
+                    for objective in goal.objectives.all()
+                ],
+            }
+            for goal in domain.goals.filter(client=client).all()
+        ]
+    }
+
+
+# @router.get(
+#     "/{int:client_id}/smart-formula",
+#     response=EditedSmartFormulaRequestSchema,
+# )
+# def get_smart_formula(request: HttpRequest, client_id: int):
+#     client = get_object_or_404(ClientDetails, id=client_id)
+#     domains = AssessmentDomain.objects.filter(client=client).all()
+
+#     for domain in domains:
+#         assessment = get_object_or_404(Assessment, domain=domain)
+
+#     return {
+#         "goals": [
+#             {
+#                 "title": goal.title,
+#                 "objectives": [
+#                     {"title": objective.title, "description": objective.desc}
+#                     for objective in goal.objectives.all()
+#                 ],
+#             }
+#             for goal in domain.goals.all()
+#         ]
+#     }
+
+
+@router.get(
+    "/{int:client_id}/questionnaires/maturity-matrices",
+    response=list[MaturityMatrixSchema],
+    tags=["questionnairs"],
+)
+def get_client_maturity_matries(request: HttpRequest, client_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    return client.get_maturity_matrix()
+
+
+@router.post(
+    "/questionnaires/maturity-matrices/add",
+    response=MaturityMatrixSchema,
+    tags=["questionnairs"],
+)
+def add_maturity_matrix(request: HttpRequest, payload: MaturityMatrixInput):
+    return MaturityMatrix.objects.create(**payload.dict())
+
+
+@router.post(
+    "/questionnaires/maturity-matrices/{int:matrix_id}/{int:assessment_id}/add",
+    response=SelectedMaturityMatrixAssessmentSchema,
+)
+def add_selected_maturity_matrix(request: HttpRequest, matrix_id: int, assessment_id: int):
+    matrix = get_object_or_404(MaturityMatrix, id=matrix_id)
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+
+    # let's create the selected maturity matrix
+    return SelectedMaturityMatrixAssessment.objects.create(
+        maturity_matrix=matrix, assessment=assessment
+    )
