@@ -28,3 +28,17 @@ class SmartFormulaGoalSchema(Schema):
 
 class SmartFormulaResultSchema(Schema):
     goals: list[SmartFormulaGoalSchema]
+
+
+class EditedSmartFormulaObjectiveSchema(Schema):
+    title: str
+    description: str
+
+
+class EditedSmartFormulaGoalSchema(Schema):
+    title: str
+    objectives: list[EditedSmartFormulaObjectiveSchema]
+
+
+class EditedSmartFormulaRequestSchema(Schema):
+    goals: list[EditedSmartFormulaGoalSchema]
