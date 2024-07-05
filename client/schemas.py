@@ -606,9 +606,21 @@ class MaturityMatrixInput(ModelSchema):
 
 class SelectedMaturityMatrixAssessmentSchema(ModelSchema):
     assessment_id: int
-    maturity_matrix_id: int
+    maturitymatrix_id: int
     goals: list[DomainGoalSchema]
 
     class Meta:
         model = SelectedMaturityMatrixAssessment
         exclude = ("maturitymatrix", "assessment")
+
+
+class SelectedMaturityMatrixAssessmentInput(ModelSchema):
+    assessment_id: int
+    maturitymatrix_id: int
+
+    # What about goals?
+    # goals: list[DomainGoalSchema]
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment", "id", "created", "updated")
