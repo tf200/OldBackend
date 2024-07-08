@@ -7,12 +7,7 @@ from ninja import Query, Router
 from ninja.pagination import paginate
 
 from ai.schemas import EditedSmartFormulaRequestSchema
-from assessments.models import (
-    Assessment,
-    AssessmentDomain,
-    MaturityMatrix,
-    SelectedMaturityMatrixAssessment,
-)
+from assessments.models import Assessment, AssessmentDomain
 from client.filters import (
     ClientStateFilter,
     ContractFilterSchema,
@@ -35,7 +30,9 @@ from client.models import (
     Incident,
     Invoice,
     InvoiceHistory,
+    MaturityMatrix,
     RiskAssessment,
+    SelectedMaturityMatrixAssessment,
     YouthCareIntake,
 )
 from client.schemas import (
@@ -980,7 +977,19 @@ def get_smart_formula(request: HttpRequest, client_id: int, goal_id: int, level_
 )
 def get_client_maturity_matries(request: HttpRequest, client_id: int):
     client = get_object_or_404(ClientDetails, id=client_id)
-    return client.get_maturity_matrix()
+    # return client.get_maturity_matrices()
+    # Get All the matrices for the client
+    return MaturityMatrix.objects.filter(client=client).all()
+
+
+@router.get(
+    "/questionnaires/maturity-matrices/{matrix_id}/details",
+    response=MaturityMatrixSchema,
+    tags=["questionnairs"],
+)
+def get_client_maturity_matrix_details(request: HttpRequest, matrix_id: int):
+    # Get All the matrices for the client
+    return get_object_or_404(MaturityMatrix, id=matrix_id)
 
 
 @router.post(
@@ -989,7 +998,29 @@ def get_client_maturity_matries(request: HttpRequest, client_id: int):
     tags=["questionnairs"],
 )
 def add_maturity_matrix(request: HttpRequest, payload: MaturityMatrixInput):
-    return MaturityMatrix.objects.create(**payload.dict())
+    client_id = payload.client_id
+    client = get_object_or_404(ClientDetails, id=client_id)
+
+    maturity_matrix = MaturityMatrix.objects.create(
+        client=client,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+    )
+
+    # Create Selected Maturity Matrix Assessment for each goal
+    for assessment_payload in payload.maturity_matrix:
+        domain = get_object_or_404(AssessmentDomain, id=assessment_payload.domain_id)
+        assessment = get_object_or_404(Assessment, domain=domain, level=assessment_payload.level)
+        if domain and assessment:
+            selected_assessment = SelectedMaturityMatrixAssessment.objects.create(
+                maturitymatrix=maturity_matrix, assessment=assessment
+            )
+            # Update the goal with the selected assessment
+            DomainGoal.objects.filter(id__in=assessment_payload.goal_ids).update(
+                selected_maturity_matrix_assessment=selected_assessment
+            )
+
+    return maturity_matrix
 
 
 @router.post(
