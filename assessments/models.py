@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import json
+from typing import TYPE_CHECKING, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -37,46 +40,3 @@ class Assessment(models.Model):
 
     class Meta:
         ordering = ("level",)  # Soerting by level is important for Maturity Matrix Table
-
-
-class MaturityMatrix(models.Model):
-    client = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="maturity_matrices"
-    )
-
-    start_date = models.DateField()
-    end_date = models.DateField()
-
-    is_approved = models.BooleanField(default=False)
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    assessments = models.ManyToManyField(
-        "Assessment",
-        through="SelectedMaturityMatrixAssessment",
-    )
-
-    class Meta:
-        ordering = ("-created",)
-
-    def get_selected_assessments(self) -> list["SelectedMaturityMatrixAssessment"]:
-        # raise NotImplementedError(
-        #     "'get_selected_assessments' This method should be implemented in the child class."
-        # )
-        ...
-
-
-class SelectedMaturityMatrixAssessment(models.Model):
-    maturitymatrix = models.ForeignKey(
-        MaturityMatrix, related_name="selected_assessments", on_delete=models.CASCADE
-    )
-    assessment = models.ForeignKey(
-        Assessment, related_name="selected_assessments", on_delete=models.CASCADE
-    )
-
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ("-created",)

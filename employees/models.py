@@ -15,9 +15,9 @@ from loguru import logger
 
 from adminmodif.models import Group, Permission
 from ai.utils import generate_ai_objective_progress_report
-from assessments.models import AssessmentDomain, SelectedMaturityMatrixAssessment
+from assessments.models import AssessmentDomain
 from authentication.models import Location
-from client.models import ClientDetails
+from client.models import ClientDetails, SelectedMaturityMatrixAssessment
 from system.models import DBSettings, Notification, ProtectedEmail
 from system.utils import send_mail_async
 
