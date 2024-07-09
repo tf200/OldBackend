@@ -1027,8 +1027,7 @@ def add_maturity_matrix(request: HttpRequest, payload: MaturityMatrixInput):
     "/questionnaires/maturity-matrices/{int:matrix_id}/update", response=MaturityMatrixSchema
 )
 def update_maturity_matrix(request: HttpRequest, matrix_id: int, payload: MaturityMatrixInput):
-    client_id = payload.client_id
-    client = get_object_or_404(ClientDetails, id=client_id)
+    client = get_object_or_404(ClientDetails, id=payload.client_id)
 
     maturity_matrix = get_object_or_404(MaturityMatrix, id=matrix_id)
     maturity_matrix.start_date = payload.start_date
@@ -1040,21 +1039,40 @@ def update_maturity_matrix(request: HttpRequest, matrix_id: int, payload: Maturi
     for assessment_payload in payload.maturity_matrix:
         domain = get_object_or_404(AssessmentDomain, id=assessment_payload.domain_id)
         assessment = get_object_or_404(Assessment, domain=domain, level=assessment_payload.level)
+
+        selected_assessments: list[SelectedMaturityMatrixAssessment] = []
+
         if domain and assessment:
-            selected_assessment = SelectedMaturityMatrixAssessment.objects.get_or_create(
+            selected_assessment, created = SelectedMaturityMatrixAssessment.objects.get_or_create(
                 maturitymatrix=maturity_matrix, assessment=assessment
             )
 
+            # Collect all the selected assessments for later use
+            selected_assessments.append(selected_assessment)
+
+            # Delete old selected assessments with the same domain
+            SelectedMaturityMatrixAssessment.objects.filter(
+                maturitymatrix=maturity_matrix, assessment__domain=domain
+            ).exclude(id=selected_assessment.pk).delete()
+
             # Delete the old DomainGoals for this selected assessment
             DomainGoal.objects.filter(
-                id__not_in=assessment_payload.goal_ids,
                 selected_maturity_matrix_assessment=selected_assessment,
+            ).exclude(
+                id__in=assessment_payload.goal_ids,
             ).delete()
 
             # Update the goal with the selected assessment
             DomainGoal.objects.filter(id__in=assessment_payload.goal_ids).update(
                 selected_maturity_matrix_assessment=selected_assessment
             )
+
+    # # Delete the old SelectedMaturityMatrixAssessment
+    # SelectedMaturityMatrixAssessment.objects.filter(
+    #     maturitymatrix=maturity_matrix,
+    # ).exclude(
+    #     id__in=[selected_assessments.pk for selected_assessments in selected_assessments]
+    # ).delete()
 
     return maturity_matrix
 
@@ -1068,8 +1086,6 @@ def add_selected_assessment(
     request: HttpRequest,
     payload: SelectedMaturityMatrixAssessmentInput,
 ):
-    print(payload.model_dump())
-
     matrix = get_object_or_404(MaturityMatrix, id=payload.maturitymatrix_id)
     assessment = get_object_or_404(Assessment, id=payload.assessment_id)
 
