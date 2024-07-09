@@ -1023,6 +1023,42 @@ def add_maturity_matrix(request: HttpRequest, payload: MaturityMatrixInput):
     return maturity_matrix
 
 
+@router.put(
+    "/questionnaires/maturity-matrices/{int:matrix_id}/update", response=MaturityMatrixSchema
+)
+def update_maturity_matrix(request: HttpRequest, matrix_id: int, payload: MaturityMatrixInput):
+    client_id = payload.client_id
+    client = get_object_or_404(ClientDetails, id=client_id)
+
+    maturity_matrix = get_object_or_404(MaturityMatrix, id=matrix_id)
+    maturity_matrix.start_date = payload.start_date
+    maturity_matrix.end_date = payload.end_date
+    # maturity_matrix.is_approved = payload.is_approved
+    maturity_matrix.save()
+
+    # Create Selected Maturity Matrix Assessment for each goal
+    for assessment_payload in payload.maturity_matrix:
+        domain = get_object_or_404(AssessmentDomain, id=assessment_payload.domain_id)
+        assessment = get_object_or_404(Assessment, domain=domain, level=assessment_payload.level)
+        if domain and assessment:
+            selected_assessment = SelectedMaturityMatrixAssessment.objects.get_or_create(
+                maturitymatrix=maturity_matrix, assessment=assessment
+            )
+
+            # Delete the old DomainGoals for this selected assessment
+            DomainGoal.objects.filter(
+                id__not_in=assessment_payload.goal_ids,
+                selected_maturity_matrix_assessment=selected_assessment,
+            ).delete()
+
+            # Update the goal with the selected assessment
+            DomainGoal.objects.filter(id__in=assessment_payload.goal_ids).update(
+                selected_maturity_matrix_assessment=selected_assessment
+            )
+
+    return maturity_matrix
+
+
 @router.post(
     "/questionnaires/maturity-matrices/selected-assessments/add",
     response=SelectedMaturityMatrixAssessmentSchema,

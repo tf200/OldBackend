@@ -617,10 +617,22 @@ class SelectedMaturityMatrixAssessmentSchema(ModelSchema):
     assessment_id: int
     maturitymatrix_id: int
     goals: list[DomainGoalSchema]
+    domain_id: int
+    level: int
 
     class Meta:
         model = SelectedMaturityMatrixAssessment
         exclude = ("maturitymatrix", "assessment")
+
+    @staticmethod
+    def resolve_level(obj: SelectedMaturityMatrixAssessment) -> int:
+        return obj.assessment.level
+
+    @staticmethod
+    def resolve_domain_id(obj: SelectedMaturityMatrixAssessment) -> int:
+        if obj.assessment.domain:
+            return obj.assessment.domain.pk
+        return 0
 
 
 class SelectedMaturityMatrixAssessmentInput(ModelSchema):
