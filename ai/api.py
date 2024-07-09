@@ -90,7 +90,9 @@ def generate_objective_progress_report(
 
 
 @router.post("/smart-formula/{int:domainId}/{int:levelId}", response=SmartFormulaResultSchema)
-def ai_smart_formula_generator(request: HttpRequest, domainId: int, levelId: int):
+def ai_smart_formula_generator(
+    request: HttpRequest, domainId: int, levelId: int, period: DatePeriodSchema
+):
 
     result = {"goals": []}
 
@@ -107,6 +109,8 @@ def ai_smart_formula_generator(request: HttpRequest, domainId: int, levelId: int
                 format="JSON",
                 objective_number=3,
                 language="Netherlands Dutch",
+                start_date=period.start_date,
+                end_date=period.end_date,
             )
 
             result["goals"].append(

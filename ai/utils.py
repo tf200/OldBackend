@@ -111,7 +111,9 @@ def ai_smart_formula(
     goal: str,
     format: Literal["TEXT", "JSON"] = "TEXT",
     objective_number=3,
-    language=None,
+    language: str = "English",
+    start_date: None | str = None,
+    end_date: None | str = None,
 ) -> str | dict[str, Any]:
     llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0, api_key=settings.OPENAI_KEY)
 
@@ -119,7 +121,7 @@ def ai_smart_formula(
         [
             (
                 "system",
-                'Please the SMART Formula to to create an accurate {objective_number} objectives for the following goal to achieve it this goal is in "{domain}" field, {language_string}:',
+                'Please create an accurate {objective_number} objectives for the following goal to achieve it using SMART Formula, the goal(s) in "{domain}" field ({period_dates}), ensure to destribute the time/period over objectives if needed, {language_string}:',
             ),
             ("user", "Goal: {goal}\n{format_string}"),
         ]
@@ -143,6 +145,10 @@ def ai_smart_formula(
     language: str = language if language is not None else "English"
     language_string: str = "Answer in {language} language."
 
+    period_dates: str = ""
+    if start_date and end_date:
+        period_dates = f"Period: from {start_date} to {end_date}"
+
     if format == "TEXT":
         chain = prompt | llm | StrOutputParser()
     elif format == "JSON":
@@ -157,5 +163,8 @@ def ai_smart_formula(
             "objective_number": objective_number,
             "format_string": format_string,
             "language_string": language,
+            "start_date": start_date,
+            "end_date": end_date,
+            "period_dates": period_dates,
         }
     )
