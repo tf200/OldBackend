@@ -12,6 +12,7 @@ from client.filters import (
     ClientStateFilter,
     ContractFilterSchema,
     DateFilterSchema,
+    DomainGoalFilter,
     InvoiceFilterSchema,
 )
 from client.models import (
@@ -359,8 +360,8 @@ def client_domain_goals(request: HttpRequest, client_id: int, domain_id: int):
 
 @router.get("/{int:client_id}/goals", response=list[DomainGoalSchema])
 @paginate(NinjaCustomPagination)
-def client_goals(request: HttpRequest, client_id: int):
-    return DomainGoal.objects.filter(client__id=client_id).all()
+def client_goals(request: HttpRequest, client_id: int, filters: DomainGoalFilter = Query(...)):  # type: ignore
+    return filters.filter(DomainGoal.objects.filter(client__id=client_id)).all()
 
 
 @router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
@@ -1093,6 +1094,15 @@ def add_selected_assessment(
     return SelectedMaturityMatrixAssessment.objects.create(
         maturitymatrix=matrix, assessment=assessment
     )
+
+
+@router.get(
+    "/questionnaires/maturity-matrices/selected-assessments-by-goal-id/{int:goal_id}",
+    response=SelectedMaturityMatrixAssessmentSchema,
+    tags=["questionnairs"],
+)
+def get_selected_assessment_by_goal_id(request: HttpRequest, goal_id: int):
+    return get_object_or_404(DomainGoal, id=goal_id).selected_maturity_matrix_assessment
 
 
 # @router.get(
