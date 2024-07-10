@@ -159,3 +159,7 @@ class InvoiceFilterSchema(FilterSchema):
 
 class ClientStateFilter(FilterSchema):
     type: Optional[Literal["emotional", "physical"]] = None
+
+
+class DomainGoalFilter(FilterSchema):
+    selected_assessment_id: int = Field(..., q="selected_maturity_matrix_assessment__id")

@@ -1,14 +1,18 @@
+from typing import Any
+
+from django.db import transaction
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.pagination import paginate
 
-from assessments.models import AssessmentDomain
-from assessments.schemas import AssessmentDomainSchema
+from ai.schemas import EditedSmartFormulaRequestSchema
+from assessments.models import Assessment, AssessmentDomain
 from client.filters import (
     ClientStateFilter,
     ContractFilterSchema,
     DateFilterSchema,
+    DomainGoalFilter,
     InvoiceFilterSchema,
 )
 from client.models import (
@@ -27,7 +31,9 @@ from client.models import (
     Incident,
     Invoice,
     InvoiceHistory,
+    MaturityMatrix,
     RiskAssessment,
+    SelectedMaturityMatrixAssessment,
     YouthCareIntake,
 )
 from client.schemas import (
@@ -73,6 +79,8 @@ from client.schemas import (
     InvoiceHistorySchema,
     InvoiceSchema,
     InvoiceSchemaPatch,
+    MaturityMatrixInput,
+    MaturityMatrixSchema,
     MedicationRecordFilterSchema,
     MedicationRecordInput,
     MedicationRecordSchema,
@@ -82,6 +90,8 @@ from client.schemas import (
     ObjectiveProgressReportSchema,
     RiskAssessmentInput,
     RiskAssessmentSchema,
+    SelectedMaturityMatrixAssessmentInput,
+    SelectedMaturityMatrixAssessmentSchema,
     YouthCareIntakeInput,
     YouthCareIntakeSchema,
 )
@@ -350,8 +360,8 @@ def client_domain_goals(request: HttpRequest, client_id: int, domain_id: int):
 
 @router.get("/{int:client_id}/goals", response=list[DomainGoalSchema])
 @paginate(NinjaCustomPagination)
-def client_goals(request: HttpRequest, client_id: int):
-    return DomainGoal.objects.filter(client__id=client_id).all()
+def client_goals(request: HttpRequest, client_id: int, filters: DomainGoalFilter = Query(...)):  # type: ignore
+    return filters.filter(DomainGoal.objects.filter(client__id=client_id)).all()
 
 
 @router.post("/{int:client_id}/goals/add", response=DomainGoalSchema)
@@ -864,3 +874,243 @@ def save_client_maturity_matrix_domains(
 def get_client_domains(request: HttpRequest, client_id: int):
     client = get_object_or_404(ClientDetails, id=client_id)
     return {"domains": client.get_selected_domains()}
+
+
+@router.post(
+    "/{int:client_id}/smart-formula/{int:goal_id}/{int:level_id}/add",
+    response=list[int],  # DomainGoal ids
+)
+def save_smart_formula_result(
+    request: HttpRequest,
+    client_id: int,
+    goal_id: int,
+    level_id: int,
+    result: EditedSmartFormulaRequestSchema,
+):
+    # Create domain goals and objectives from smart formula result
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain = get_object_or_404(AssessmentDomain, id=goal_id)
+    assessment = get_object_or_404(Assessment, domain=domain, level=level_id)
+
+    domain_goal_ids: list[int] = []
+
+    if client and domain and assessment:
+        # Start DB transaction
+        with transaction.atomic():
+            for smart_goal in result.goals:
+                # Create DomainObjective
+                goal = DomainGoal.objects.create(
+                    client=client,
+                    domain=domain,
+                    title=smart_goal.title,
+                    desc="",
+                )
+
+                domain_goal_ids.append(goal.pk)
+
+                # Create objectives and asign them to the goal
+                for smart_objective in smart_goal.objectives:
+                    objective = DomainObjective.objects.create(
+                        client=client,
+                        goal=goal,
+                        title=smart_objective.title,
+                        desc=smart_objective.description,
+                    )
+                    goal.objectives.add(objective)  # type: ignore
+                    goal.save()  # just in case
+
+    return domain_goal_ids
+
+
+@router.get(
+    "/{int:client_id}/smart-formula/{int:goal_id}/{int:level_id}",
+    response=EditedSmartFormulaRequestSchema,
+)
+def get_smart_formula(request: HttpRequest, client_id: int, goal_id: int, level_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    domain = get_object_or_404(AssessmentDomain, id=goal_id)
+    assessment = get_object_or_404(Assessment, domain=domain, level=level_id)
+    # goals = DomainGoal.objects.filter(client=client, domain=domain).all()
+
+    return {
+        "goals": [
+            {
+                "title": goal.title,
+                "objectives": [
+                    {"title": objective.title, "description": objective.desc}
+                    for objective in goal.objectives.all()
+                ],
+            }
+            for goal in domain.goals.filter(client=client).all()
+        ]
+    }
+
+
+# @router.get(
+#     "/{int:client_id}/smart-formula",
+#     response=EditedSmartFormulaRequestSchema,
+# )
+# def get_smart_formula(request: HttpRequest, client_id: int):
+#     client = get_object_or_404(ClientDetails, id=client_id)
+#     domains = AssessmentDomain.objects.filter(client=client).all()
+
+#     for domain in domains:
+#         assessment = get_object_or_404(Assessment, domain=domain)
+
+#     return {
+#         "goals": [
+#             {
+#                 "title": goal.title,
+#                 "objectives": [
+#                     {"title": objective.title, "description": objective.desc}
+#                     for objective in goal.objectives.all()
+#                 ],
+#             }
+#             for goal in domain.goals.all()
+#         ]
+#     }
+
+
+@router.get(
+    "/{int:client_id}/questionnaires/maturity-matrices",
+    response=list[MaturityMatrixSchema],
+    tags=["questionnairs"],
+)
+def get_client_maturity_matries(request: HttpRequest, client_id: int):
+    client = get_object_or_404(ClientDetails, id=client_id)
+    # return client.get_maturity_matrices()
+    # Get All the matrices for the client
+    return MaturityMatrix.objects.filter(client=client).all()
+
+
+@router.get(
+    "/questionnaires/maturity-matrices/{matrix_id}/details",
+    response=MaturityMatrixSchema,
+    tags=["questionnairs"],
+)
+def get_client_maturity_matrix_details(request: HttpRequest, matrix_id: int):
+    # Get All the matrices for the client
+    return get_object_or_404(MaturityMatrix, id=matrix_id)
+
+
+@router.post(
+    "/questionnaires/maturity-matrices/add",
+    response=MaturityMatrixSchema,
+    tags=["questionnairs"],
+)
+def add_maturity_matrix(request: HttpRequest, payload: MaturityMatrixInput):
+    client_id = payload.client_id
+    client = get_object_or_404(ClientDetails, id=client_id)
+
+    maturity_matrix = MaturityMatrix.objects.create(
+        client=client,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+    )
+
+    # Create Selected Maturity Matrix Assessment for each goal
+    for assessment_payload in payload.maturity_matrix:
+        domain = get_object_or_404(AssessmentDomain, id=assessment_payload.domain_id)
+        assessment = get_object_or_404(Assessment, domain=domain, level=assessment_payload.level)
+        if domain and assessment:
+            selected_assessment = SelectedMaturityMatrixAssessment.objects.create(
+                maturitymatrix=maturity_matrix, assessment=assessment
+            )
+            # Update the goal with the selected assessment
+            DomainGoal.objects.filter(id__in=assessment_payload.goal_ids).update(
+                selected_maturity_matrix_assessment=selected_assessment
+            )
+
+    return maturity_matrix
+
+
+@router.put(
+    "/questionnaires/maturity-matrices/{int:matrix_id}/update", response=MaturityMatrixSchema
+)
+def update_maturity_matrix(request: HttpRequest, matrix_id: int, payload: MaturityMatrixInput):
+    client = get_object_or_404(ClientDetails, id=payload.client_id)
+
+    maturity_matrix = get_object_or_404(MaturityMatrix, id=matrix_id)
+    maturity_matrix.start_date = payload.start_date
+    maturity_matrix.end_date = payload.end_date
+    # maturity_matrix.is_approved = payload.is_approved
+    maturity_matrix.save()
+
+    # Create Selected Maturity Matrix Assessment for each goal
+    for assessment_payload in payload.maturity_matrix:
+        domain = get_object_or_404(AssessmentDomain, id=assessment_payload.domain_id)
+        assessment = get_object_or_404(Assessment, domain=domain, level=assessment_payload.level)
+
+        selected_assessments: list[SelectedMaturityMatrixAssessment] = []
+
+        if domain and assessment:
+            selected_assessment, created = SelectedMaturityMatrixAssessment.objects.get_or_create(
+                maturitymatrix=maturity_matrix, assessment=assessment
+            )
+
+            # Collect all the selected assessments for later use
+            selected_assessments.append(selected_assessment)
+
+            # Delete old selected assessments with the same domain
+            SelectedMaturityMatrixAssessment.objects.filter(
+                maturitymatrix=maturity_matrix, assessment__domain=domain
+            ).exclude(id=selected_assessment.pk).delete()
+
+            # Delete the old DomainGoals for this selected assessment
+            DomainGoal.objects.filter(
+                selected_maturity_matrix_assessment=selected_assessment,
+            ).exclude(
+                id__in=assessment_payload.goal_ids,
+            ).delete()
+
+            # Update the goal with the selected assessment
+            DomainGoal.objects.filter(id__in=assessment_payload.goal_ids).update(
+                selected_maturity_matrix_assessment=selected_assessment
+            )
+
+    # # Delete the old SelectedMaturityMatrixAssessment
+    # SelectedMaturityMatrixAssessment.objects.filter(
+    #     maturitymatrix=maturity_matrix,
+    # ).exclude(
+    #     id__in=[selected_assessments.pk for selected_assessments in selected_assessments]
+    # ).delete()
+
+    return maturity_matrix
+
+
+@router.post(
+    "/questionnaires/maturity-matrices/selected-assessments/add",
+    response=SelectedMaturityMatrixAssessmentSchema,
+    tags=["questionnairs"],
+)
+def add_selected_assessment(
+    request: HttpRequest,
+    payload: SelectedMaturityMatrixAssessmentInput,
+):
+    matrix = get_object_or_404(MaturityMatrix, id=payload.maturitymatrix_id)
+    assessment = get_object_or_404(Assessment, id=payload.assessment_id)
+
+    # let's create the selected maturity matrix
+    return SelectedMaturityMatrixAssessment.objects.create(
+        maturitymatrix=matrix, assessment=assessment
+    )
+
+
+@router.get(
+    "/questionnaires/maturity-matrices/selected-assessments-by-goal-id/{int:goal_id}",
+    response=SelectedMaturityMatrixAssessmentSchema,
+    tags=["questionnairs"],
+)
+def get_selected_assessment_by_goal_id(request: HttpRequest, goal_id: int):
+    return get_object_or_404(DomainGoal, id=goal_id).selected_maturity_matrix_assessment
+
+
+# @router.get(
+#     "/questionnaires/maturity-matrices/selected-assessments/{int:domain_id}/{int:level}",
+#     response=SelectedMaturityMatrixAssessmentSchema,
+#     tags=["questionnairs"],
+# )
+# def get_client_selected_assessment(request: HttpRequest, domain_id: int, level: int):
+#     return get_object_or_404(
+#         SelectedMaturityMatrixAssessment, maturitymatrix__id=domain_id, assessment__level=level
+#     )

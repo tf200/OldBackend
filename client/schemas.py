@@ -19,7 +19,9 @@ from client.models import (
     Incident,
     Invoice,
     InvoiceHistory,
+    MaturityMatrix,
     RiskAssessment,
+    SelectedMaturityMatrixAssessment,
     YouthCareIntake,
 )
 from employees.models import (
@@ -580,3 +582,66 @@ class DatePeriodSchema(Schema):
 
 class DomainListSchema(Schema):
     domains: list[int]
+
+
+#############
+
+
+class MaturityMatrixSchema(ModelSchema):
+    client_id: int
+    selected_assessments: list["SelectedMaturityMatrixAssessmentSchema"]
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "assessments")
+
+
+class AssessmentPayloadSchema(Schema):
+    domain_id: int
+    level: int
+    goal_ids: list[int]
+
+
+class MaturityMatrixInput(ModelSchema):
+    client_id: int
+    start_date: date
+    end_date: date
+    maturity_matrix: list[AssessmentPayloadSchema]
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "id", "created", "updated", "is_approved", "assessments")
+
+
+class SelectedMaturityMatrixAssessmentSchema(ModelSchema):
+    assessment_id: int
+    maturitymatrix_id: int
+    goals: list[DomainGoalSchema]
+    domain_id: int
+    level: int
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment")
+
+    @staticmethod
+    def resolve_level(obj: SelectedMaturityMatrixAssessment) -> int:
+        return obj.assessment.level
+
+    @staticmethod
+    def resolve_domain_id(obj: SelectedMaturityMatrixAssessment) -> int:
+        if obj.assessment.domain:
+            return obj.assessment.domain.pk
+        return 0
+
+
+class SelectedMaturityMatrixAssessmentInput(ModelSchema):
+    assessment_id: int
+    maturitymatrix_id: int
+
+    # What about goals?
+    # goals: list[DomainGoalSchema]
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment", "id", "created", "updated")

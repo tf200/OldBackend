@@ -18,7 +18,7 @@ from loguru import logger
 from weasyprint import HTML
 
 from ai.utils import ai_summarize
-from assessments.models import AssessmentDomain
+from assessments.models import Assessment, AssessmentDomain
 from authentication.models import Location
 from system.models import AttachmentFile, DBSettings, Notification, ProtectedEmail
 from system.utils import send_mail_async
@@ -269,6 +269,10 @@ class ClientDetails(models.Model):
 
                 logger.debug(f"Sending Progress weekly report to {contact.email}")
                 protected_email.notify()
+
+    def get_maturity_matrices(self) -> list[MaturityMatrix]:
+        "get maturity matrices for the client"
+        return list(MaturityMatrix.objects.filter(client__id=self.pk).all())
 
     def __str__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"
@@ -1552,3 +1556,46 @@ class DataSharingStatement(models.Model):
 
     def __str__(self):
         return f"{self.youth_name} - {self.date_of_birth}"
+
+
+class MaturityMatrix(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, on_delete=models.CASCADE, related_name="maturity_matrices"
+    )
+
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    is_approved = models.BooleanField(default=False)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    assessments = models.ManyToManyField(
+        Assessment,
+        through="SelectedMaturityMatrixAssessment",
+    )
+
+    class Meta:
+        ordering = ("-created",)
+
+    def get_selected_assessments(self) -> list["SelectedMaturityMatrixAssessment"]:
+        # raise NotImplementedError(
+        #     "'get_selected_assessments' This method should be implemented in the child class."
+        # )
+        ...
+
+
+class SelectedMaturityMatrixAssessment(models.Model):
+    maturitymatrix = models.ForeignKey(
+        MaturityMatrix, related_name="selected_assessments", on_delete=models.CASCADE
+    )
+    assessment = models.ForeignKey(
+        Assessment, related_name="selected_assessments", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
