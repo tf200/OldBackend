@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaboration agreements</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <section id="collab">
+        <div class=" m-4  pb-2">
+            <div class="text-center">
+                <h1 class="display-7 fw-bold">Samenwerkingsafspraken</h1>
+                <h3 class="">tussen <strong>cliënt</strong>, <strong>reclassering</strong> en <strong>zorginstelling</strong>
+                    (tijdens verblijf en ambulante begeleiding)</h3>
+            </div>
+            <h6 class="my-3">Welkom bij de start van het begeleidingstraject. Dit document is bedoeld om ervoor
+                te zorgen dat we samen aan dezelfde doelen werken. We brengen ook risico’s en
+                aandachtsgebieden in kaart. Samen vergroten we zo kans op een succesvol traject.
+                De gemaakte afspraken gelden zolang het reclasseringstoezicht duurt.</h6>
+            
+            <div class="border-top border-bottom my-5 bg-succes" style="background-color: #e8f1da; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr">
+                <div class="d-flex flex-column">
+                    <span class=" text-white px-2" style="background-color: #76b82a;">Cliënt</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{client_full_name}}"></div>
+                    <div class="d-flex px-2" style="font-weight: 500; justify-content: space-between; gap: 6px;"><div><label for="">SKN:</label><input type="text" value="{{client_SKN}}"  style="width: auto;"></div><div><label for="">Cliëntnummer:</label><input type="text" value="{{client_number}}" style="width: auto;"></div></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{client_phone}}"></div>
+                </div>
+                <div class="d-flex flex-column" style="background-color: #e1edfa;">
+                    <span class=" text-white px-2" style="background-color: #3ea3dc;">Reclassering</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{probation_full_name}}"></div>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Organisatie:</label><input type="text" value="{{probation_organization}}"></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{probation_phone}}"></div>
+                </div>
+                <div class="d-flex flex-column" style="background-color: #fde8d5;">
+                    <span class=" text-white px-2" style="background-color: #ef7e26;">Zorginstelling</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{healthcare_institution_name}}"></div>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Organisatie:</label><input type="text" value="{{healthcare_institution_organization}}"></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{healthcare_institution_phone}}"></div>
+                </div>
+            </div>
+            
+            <div class="border-bottom my-5 p-3" style="background-color: #e8f1da; border-radius: 6px;">
+                <h3>De 3 Basisafspraken</h3>
+                <p>De <strong>cliënt</strong> werkt mee aan het traject door zich te houden aan:</p>
+                <ol>
+                    <li>de afspraken die gemaakt worden met de reclasseringswerker en begeleider en werkt actief mee aan het reclasseringstoezicht/begeleiding;</li>
+                    <li>de huisregels van de instelling waar hij/zij woont en/of begeleiding krijgt;</li>
+                    <li>de afspraak dat cliënt contact opneemt met de toezichthouder of begeleider met vragen of ondersteuning. Bij klachten kan de cliënt de klachtenprocedure bij de zorginstelling of de reclassering volgen.</li>
+                </ol>
+            </div>
+            <p class="border-bottom my-5 p-3" style="background-color: #e1edfa; border-radius: 6px;">
+                De toezichthouder begeleidt de cliënt in opdracht van justitie en beoordeelt of cliënt zich aan de afspraken en
+                voorwaarden houdt. Als de cliënt zich niet aan de afspraken of voorwaarden houdt, meldt de toezichthouder dit aan
+                justitie. De toezichthouder vertelt de cliënt welke informatie met anderen wordt gedeeld en betrekt cliënt zo veel
+                mogelijk hierbij.
+            </p>
+            <p class="border-bottom my-5 p-3"  style="background-color: #fde8d5; border-radius: 6px;">
+                De begeleider ondersteunt de cliënt gedurende het reclasseringstoezicht in het dagelijks leven (door middel van
+                motiveren, helpen, leren, uitleggen, etc.). De begeleider vertelt de cliënt welke informatie met anderen wordt gedeeld
+                en betrekt client zoveel mogelijk hierbij.
+            </p>
+            
+            
+            <div class="p-3" style="background-color: #f6f6f6; border-radius: 6px;">
+                <p class="fw-bold">Contactafspraken tussen cliënt, toezichthouder en begeleider</p>
+                <textarea name="" id="" style="width: 100%; height: 200px; border: none; border-radius: 6px;">{{contact_agreements}}</textarea>
+            </div>
+            
+            <div class="my-2 py-3">
+                <strong>Aandacht en risico’s</strong>
+                <p>Op welke onderstaande gebieden wil de cliënt aandacht om te zorgen dat het beter gaat?
+                    En op welke gebieden is er een risico om de fout in te gaan?
+                    Welke leefgebieden zijn positief en daarmee helpend en beschermend om recidive te voorkomen?</p>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; "><span>Wonen</span><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lamp-floor"><path d="M9 2h6l3 7H6l3-7Z"/><path d="M12 9v13"/><path d="M9 22h6"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-armchair"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">DAGBESTEDING <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-ruler"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VERSLAVING/ MIDDELENGEBRUIK <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pill"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">FINANCIËN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">GEDRAG <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">PSYCHISCHE GEZONDHEID<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-earth"><path d="M21.54 15H17a2 2 0 0 0-2 2v4.54"/><path d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"/><path d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"/><circle cx="12" cy="12" r="10"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">LICHAMELIJKE GEZONDHEID <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">FAMILIE <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><span style="font-size: small;">PARTNER/KINDEREN</span> <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-baby"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VRIENDEN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span>
+                <div>
+                    <div>
+                        <div style="display: flex; gap: 18px; color: white;">
+                            <label for="">Aandacht</label>
+                            <label for="">Risico</label>
+                            <label for="">Positief</label>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                            <input type="text" style="width: 80px;">
+                        </div>
+                    </div>
+                    <div style="color: white; display: flex; flex-direction: column;">
+                        <label for="">Afspraken</label>
+                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div style="color: white; display: flex; flex-direction: column;">
+                    <label for="">Toelichting</label>
+                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                </div>
+            </div>
+            <div class=" border-bottom my-5 py-3" style="background-color: #f6f6f6; padding: 10px; border-radius: 6px;">
+                <h3>Contactmomenten toezichthouder en begeleider</h3>
+                <span>Begeleider en toezichthouder informeren elkaar <strong>in ieder geval:</strong></span>
+                <ul>
+                    <li>bij een wijziging of stagnatie van het reclasseringstoezicht of de begeleiding;</li>
+                    <li>als de cliënt zich niet aan de afspraken houdt;</li>
+                    <li>als er sprake is van een risico wat zou kunnen leiden tot het plegen van een delict;</li>
+                    <li>als de cliënt (als slachtoffer of vermoedelijke dader) betrokken is bij een incident;</li>
+                    <li>als er gevaar dreigt voor personen of goederen;</li>
+                    <li>als de cliënt een waarschuwing of sanctie krijgt;</li>
+                    <li>bij het voornemen de begeleiding of reclasseringstoezicht te beëindigen;</li>
+                    <li>als de einddatum van het reclasseringstoezicht wijzigt of ten minste drie maanden voor het beëindigen van het reclasseringstoezicht;</li>
+                    <li>als de einddatum van het reclasseringstoezicht wijzigt of ten minste drie maanden voor het beëindigen van het reclasseringstoezicht;</li>
+                </ul>
+                <span>Toezichthouder en begeleider hebben afspraken gemaakt over hoe er bij <strong>calamiteiten</strong> buiten kantoortijden direct informatie wordt uitgewisseld. Er wordt <strong>direct</strong> contact opgenomen en eventueel politie ingeschakeld:</span>
+                <ul>
+                    <li>bij een ernstig incident dat direct leidt tot een (tijdelijk) locatieverbod;</li>
+                    <li>als er ernstig gevaar dreigt voor personen (cliënt en/of anderen);</li>
+                    <li>bij het plegen van een nieuw delict waarbij cliënt is gearresteerd door de politie en in de cel is geplaatst.</li>
+                </ul>
+            </div>
+            <div class=" border-bottom my-5 py-3" style="background-color: #e9eaf7; padding: 10px; border-radius: 6px;">
+                <h3 style="font-weight: 700;">Mogelijkheid meldingen aan het OM/politie</h3>
+                <span>Begeleider en toezichthouder informeren elkaar <strong>in ieder geval:</strong></span>
+                <ul>
+                    <li>Van dreiging, agressie en/of nieuwe delicten binnen de zorginstelling wordt in principe aangifte gedaan. Als de begeleiding
+                        wordt voortgezet, vindt er binnen twee weken een gesprek plaats tussen cliënt, toezichthouder en begeleider.</li>
+                    <li>De reclassering kan melding maken bij het OM als de cliënt de afspraken van deze overeenkomst niet nakomt. </li>
+                </ul>
+            </div>
+            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+                <h3 style="font-weight: 700;">Ondertekening</h3>
+                <div style="display: flex; justify-content: space-between; max-width: 600px;"><span >Plaats: </span> <span>Datum:</span></div>
+            </div>
+            <div class="border-top border-bottom my-5 bg-succes" style="background-color: #e8f1da; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr">
+                <div class="d-flex flex-column" style="display: flex; justify-content: space-between;">
+                    <span class=" text-white px-2" style="background-color: #76b82a;">Cliënt</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{client_full_name}}"></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
+                </div>
+                <div class="d-flex flex-column" style="background-color: #e1edfa; justify-content: space-between;">
+                    <span class=" text-white px-2" style="background-color: #3ea3dc;">Reclassering</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{probation_full_name}}"></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
+                </div>
+                <div class="d-flex flex-column" style="background-color: #fde8d5; justify-content: space-between;">
+                    <span class=" text-white px-2" style="background-color: #ef7e26;">Zorginstelling</span>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{healthcare_institution_name}}"></div>
+                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Functie:</label><input type="text" value="{{healthcare_institution_function}}"/></div>
+                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
+                </div>
+            </div>
+            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+                <p>Op dit document is bestaande wet- en regelgeving van toepassing</p>
+            </div>
+            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+                <h3 style="font-weight: 700;">Toelichting document samenwerkingsafspraken</h3>
+                <p>tussen <strong>cliënt</strong>, <strong>reclassering</strong> en <strong>zorginstelling</strong></p>
+                <p>Het document Samenwerkingsafspraken is gemaakt om de samenwerking te verbeteren bij forensische zorgtrajecten gericht op begeleiding. Het gaat hier over de zorg die in het kader van de Wet forensische Zorg wordt geleverd.</p>
+                <p>Forensische zorg gaat over herstel van de cliënt en het zoveel mogelijk verkleinen van het recidiverisico. Een goede samenwerking tussen cliënt, toezichthouder en begeleider vergroot de kans op een succesvol traject. Daarom is het belangrijk om bij de start van het traject duidelijke afspraken te maken over de samenwerking en invulling van het traject. Dat kan door dit document samen in te vullen. Dit document is een startdocument. Het actualiseren en bijstellen van afspraken, doelen en dergelijke vindt plaats in bestaande systemen en/of documenten. </p>
+                <p>Een aantal zorgaanbieders, de 3 reclasseringsorganisaties (3RO) en brancheorganisatie Valente hebben het document opgesteld en getoetst bij diverse andere partijen. Deze organisaties hebben afgesproken dat dit document bij de start van alle forensische zorgtrajecten wordt ingevuld. Het document is beschikbaar voor alle reclasseringsorganisaties en BW/MO zorgaanbieders in Nederland en is terug te vinden op: https://efp.nl/projecten/bwmo </p>
+                <h3 style="font-weight: 500;">Doelen</h3>
+                <span>Met dit document willen we de volgende doelen bereiken: </span>
+                <ul>
+                    <li>Samenwerking en communicatie tussen cliënt, toezichthouder en begeleider stimuleren.</li>
+                    <li>Duidelijk maken wie welke taken en verantwoordelijkheden heeft. </li>
+                    <li>Begeleiders bewust maken van hun risico signalerende taak. </li>
+                    <li>Cliënt de kans geven om zelf zorg- en risicogebieden te benoemen, zodat er binnen het reclasserings- en zorgtraject wordt gewerkt aan dezelfde doelen (passend binnen het forensisch kader). </li>
+                    <li>Het vergroten van de beschermende factoren, bereiken van positieve stabiliteit op de zorg- en risicogebieden om daarmee de kans op recidive te verkleinen. </li>
+                </ul>
+                <h3>Opmerkingen</h3>
+                <p>Wanneer een geconstateerd risico niet door de cliënt wordt gedeeld, is het oordeel van de professional leidend. Bij overige zaken wordt de inbreng van alle partijen gelijk gewogen.</p>
+                <p>Het document wordt door alle partijen ondertekend als ‘voor gezien’. Als een cliënt zijn handtekening niet wil plaatsen dan is hij dit niet verplicht. Om goed invulling te geven aan het reclasserings- en zorgtraject, is het belangrijk om het document wel inhoudelijk in te vullen en minimaal door de toezichthouder en begeleider te ondertekenen. De afspraken zijn dan alsnog geldig.</p>
+                <p>Na ondertekening ontvangen alle drie de partijen het document om de afspraken na te kunnen lezen. </p>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+</body>
+
+</html>
