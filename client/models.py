@@ -1320,7 +1320,6 @@ class CollaborationAgreement(models.Model):
             "attention_risks": self.attention_risks,
         }
 
-        
         html_string = render_to_string("questionnaire/collaboration_agreement.html", context)
         html = HTML(string=html_string)
         pdf_content = html.write_pdf()
@@ -1396,6 +1395,10 @@ class RiskAssessment(models.Model):
     success_criteria = models.CharField(max_length=255)
     time_table = models.CharField(max_length=255)
 
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -1453,12 +1456,13 @@ class RiskAssessment(models.Model):
             "time_table": self.time_table,
         }
 
-        
         html_string = render_to_string("questionnaire/risk_assessment.html", context)
         html = HTML(string=html_string)
         pdf_content = html.write_pdf()
         new_attachment = AttachmentFile()
-        new_attachment.name = f"Risk_Assessment{self.client.first_name}_{self.client.last_name}.pdf"
+        new_attachment.name = (
+            f"Risk_Assessment{self.client.first_name}_{self.client.last_name}.pdf"
+        )
         new_attachment.file.save(
             new_attachment.name, ContentFile(pdf_content if pdf_content else "")
         )
@@ -1507,7 +1511,7 @@ class ConsentDeclaration(models.Model):
 
     def __str__(self):
         return f"{self.youth_name} - {self.youth_care_institution}"
-    
+
     def download_link(self, refresh=False) -> str:
         """return a link of the consent declaration PDF"""
 
@@ -1531,15 +1535,16 @@ class ConsentDeclaration(models.Model):
             "representative_signature_date": self.representative_signature_date,
             "contact_person_name": self.contact_person_name,
             "contact_phone_number": self.contact_phone_number,
-            "contact_email": self.contact_email
+            "contact_email": self.contact_email,
         }
 
-        
         html_string = render_to_string("questionnaire/declaration_of_consent.html", context)
         html = HTML(string=html_string)
         pdf_content = html.write_pdf()
         new_attachment = AttachmentFile()
-        new_attachment.name = f"Consent_declaration{self.client.first_name}_{self.client.last_name}.pdf"
+        new_attachment.name = (
+            f"Consent_declaration{self.client.first_name}_{self.client.last_name}.pdf"
+        )
         new_attachment.file.save(
             new_attachment.name, ContentFile(pdf_content if pdf_content else "")
         )

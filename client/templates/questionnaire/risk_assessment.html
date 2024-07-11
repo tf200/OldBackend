@@ -17,9 +17,9 @@
   </head>
 
   <body>
-      <section id="invoice">
-          <div class="m-4 pb-2" style="display: flex; justify-content: center; flex-direction: column;">
-            <div style="width: 250px; align-self: center; margin-bottom: 12px; ">
+      <section id="risk-assessment">
+          <div class="" style="align-items: center;">
+            <div class="p-2" style="width: 250px; margin-left: 50%; transform: translateX(-50%);" >
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" x="0px" y="0px" viewBox="0 0 1102 582.4" style="enable-background:new 0 0 1102 582.4;" xml:space="preserve">
                     <style type="text/css">
                         .st0{fill:#AB5335;}
@@ -69,133 +69,142 @@
                     </g>
                 </svg>
             </div>
-              <div class="text-center">
-                  <h3 class="display-7 fw-bold">Format voor Risicotaxatie voor het Aannemen van Jongeren in een Jeugdzorginstelling</h3>
-              </div>
-              <div class="border-top border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">1. Algemene Informatie</b>
-                              <p class="m-0">Naam jongere: <strong>{{ youth_name }}</strong></p>
-                              <p class="m-0">Geboortedatum: <strong>{{ date_of_birth }}</strong>
-                              <p class="m-0">Geslacht: <strong>{{ gender }}</strong></p>
-                              <p class="m-0">Datum van intake: <strong>{{ date_of_intake }}</strong></p>
-                              <p class="m-0">Naam en functie van de intaker: <strong>{{ intaker_position_name }}</strong></p>
-                          </td>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">2. Achtergrondinformatie</b>
-                              <p class="m-0">Gezinssituatie: <strong>{{ family_situation }}</strong></p>
-                              <p class="m-0">Onderwijs/werk: <strong>{{ education_work }}</strong>
-                              <p class="m-0">Huidige woonsituatie: <strong>{{ current_living_situation }}</strong></p>
-                              <p class="m-0">Sociale netwerk: <strong>{{ social_network }}</strong></p>
-                              <p class="m-0">Eventuele eerdere hulpverlening: <strong>{{ previous_assistance }}</strong></p>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              
-              <div class="border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">3. Gedrag en Psychosociale Status</b>
-                              <p class="m-0">Gedrag op school/werk: <strong>{{ behaviour_at_school_work }}</strong></p>
-                              <p class="m-0">Sociale vaardigheden: <strong>{{ people_skills }}</strong>
-                              <p class="m-0">Emotionele status (angst, depressie, etc.): <strong>{{ emotional_status }}</strong></p>
-                              <p class="m-0">Zelfbeeld en zelfvertrouwen: <strong>{{ self_image_self_confidence }}</strong></p>
-                              <p class="m-0">Stressfactoren: <strong>{{ stress_factors }}</strong></p>
-                          </td>
-                      </tr>
-              </table>
-              </div>
-              
-              <div class=" border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">4. Delictgedrag</b>
-                              <p class="m-0">Omschrijving van gepleegde delicten: <strong>{{ committed_offences_description }}</strong></p>
-                              <p class="m-0">Frequentie en ernst van de delicten: <strong>{{ offences_frequency_seriousness }}</strong>
-                              <p class="m-0">Leeftijd van eerste delict: <strong>{{ age_first_offense }}</strong></p>
-                              <p class="m-0">Context en omstandigheden rondom delicten: <strong>{{ circumstances_surrounding_crimes }}</strong></p>
-                              <p class="m-0">Reactie van de jongere op de delicten (berouw, inzicht, etc.): <strong>{{ offenses_recations }}</strong></p>
-                          </td>
-                          
-                      </tr>
-                  </table>
-              </div>
-              
-              <div class=" border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">5. Risicofactoren</b>
-                              <p class="m-0">Persoonlijke risicofactoren (impulsiviteit, agressie, etc.): <strong>{{ personal_risk_factors }}</strong></p>
-                              <p class="m-0">Omgevingsrisicofactoren (probleemgezinnen, slechte buurt, etc.): <strong>{{ environmental_risk_factors }}</strong>
-                              <p class="m-0">Risico op herhaling van delictgedrag: <strong>{{ behaviour_recurrence_risk }}</strong></p>
-                              <p class="m-0">Risico op middelenmisbruik: <strong>{{ abuse_substance_risk }}</strong></p>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              <div class=" border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">6. Beschermende Factoren</b>
-                              <p class="m-0">Sterke punten van de jongere: <strong>{{ person_strengths }}</strong></p>
-                              <p class="m-0">Positieve invloeden in het leven van de jongere: <strong>{{ positive_influences }}</strong>
-                              <p class="m-0">Beschikbare ondersteunende diensten en hulpverlening: <strong>{{ available_support_assistance }}</strong></p>
-                              <p class="m-0">Copingstrategieën van de jongere: <strong>{{ person_strategies }}</strong></p>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              <div class=" border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">7. Behoeften en Aanbevelingen</b>
-                              <p class="m-0">Specifieke behoeften van de jongere (psychologische hulp, onderwijsbegeleiding, etc.): <strong>{{ specific_needs }}</strong></p>
-                              <p class="m-0">Aanbevolen interventies en programma’s: <strong>{{ recommended_interventions }}</strong>
-                              <p class="m-0">Betrokkenheid van andere instanties of professionals: <strong>{{ other_agencies_involvement }}</strong></p>
-                              <p class="m-0">Plan van aanpak voor risicobeheersing: <strong>{{ risk_management_plan_of_actions }}</strong></p>
-                              
-                          </td>
-                          
-                      </tr>
-                  </table>
-              </div>
-              <div class=" border-bottom my-5 py-3">
-                  <table>
-                      <tr>
-                          <td style="min-width: 400px;">
-                              <b class="text-primary">8. Conclusie en Advies</b>
-                              <p class="m-0">Samenvatting van bevindingen: <strong>{{ findings_summary }}</strong></p>
-                              <p class="m-0">Advies over opname in de instelling: <strong>{{ institution_advice }}</strong>
-                              <p class="m-0">Eventuele voorwaarden of aandachtspunten voor opname: <strong>{{ inclusion }}</strong></p>
-                              <p class="m-0">Naam en handtekening van de intaker: <strong>{{ intaker_name }}</strong></p>
-                              <p class="m-0">Datum van rapportage: <strong>{{ report_date }}</strong></p>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-              <div class="my-5 py-3">
-                  <table>
-                          <tr>
-                              <td style="min-width: 400px;">
-                                  <b class="text-primary">9. Evaluatie en Monitoring</b>
-                                  <p class="m-0">Plan voor regelmatige evaluatie van de jongere: <strong>{{ regular_evaluation_plan }}</strong></p>
-                                  <p class="m-0">Criteria voor succes en voortgangsmetingen: <strong>{{ success_criteria }}</strong>
-                                  <p class="m-0">Tijdschema voor evaluatiegesprekken: <strong>{{ time_table }}</strong></p>
-                              </td>
-                          </tr>
-                  </table>
-              </div>
+            <h3 class="display-7 fw-bold p-2">Format voor Risicotaxatie voor het Aannemen van Jongeren in een Jeugdzorginstelling</h3>
+
+            <table class="" style="border: none;">
+                <tr>
+                    <td class="border-top border-bottom my-5 py-3">
+                        <b class="text-primary">1. Algemene Informatie</b>
+                        <p class="m-0">Naam jongere: <strong>{{ youth_name }}</strong></p>
+                        <p class="m-0">Geboortedatum: <strong>{{ date_of_birth }}</strong></p>
+                        <p class="m-0">Geslacht: <strong>{{ gender }}</strong></p>
+                        <p class="m-0">Datum van intake: <strong>{{ date_of_intake }}</strong></p>
+                        <p class="m-0">Naam en functie van de intaker: <strong>{{ intaker_position_name }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">2. Achtergrondinformatie</b>
+                        <p class="m-0">Gezinssituatie: <strong>{{ family_situation }}</strong></p>
+                        <p class="m-0">Onderwijs/werk: <strong>{{ education_work }}</strong></p>
+                        <p class="m-0">Huidige woonsituatie: <strong>{{ current_living_situation }}</strong></p>
+                        <p class="m-0">Sociale netwerk: <strong>{{ social_network }}</strong></p>
+                        <p class="m-0">Eventuele eerdere hulpverlening: <strong>{{ previous_assistance }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">3. Gedrag en Psychosociale Status</b>
+                        <p class="m-0">Gedrag op school/werk: <strong>{{ behaviour_at_school_work }}</strong></p>
+                        <p class="m-0">Sociale vaardigheden: <strong>{{ people_skills }}</strong></p>
+                        <p class="m-0">Emotionele status (angst, depressie, etc.): <strong>{{ emotional_status }}</strong></p>
+                        <p class="m-0">Zelfbeeld en zelfvertrouwen: <strong>{{ self_image_self_confidence }}</strong></p>
+                        <p class="m-0">Stressfactoren: <strong>{{ stress_factors }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">4. Delictgedrag</b>
+                        <p class="m-0">Omschrijving van gepleegde delicten: <strong>{{ committed_offences_description }}</strong></p>
+                        <p class="m-0">Frequentie en ernst van de delicten: <strong>{{ offences_frequency_seriousness }}</strong></p>
+                        <p class="m-0">Leeftijd van eerste delict: <strong>{{ age_first_offense }}</strong></p>
+                        <p class="m-0">Context en omstandigheden rondom delicten: <strong>{{ circumstances_surrounding_crimes }}</strong></p>
+                        <p class="m-0">Reactie van de jongere op de delicten (berouw, inzicht, etc.): <strong>{{ offenses_recations }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">5. Risicofactoren</b>
+                        <p class="m-0">Persoonlijke risicofactoren (impulsiviteit, agressie, etc.): <strong>{{ personal_risk_factors }}</strong></p>
+                        <p class="m-0">Omgevingsrisicofactoren (probleemgezinnen, slechte buurt, etc.): <strong>{{ environmental_risk_factors }}</strong></p>
+                        <p class="m-0">Risico op herhaling van delictgedrag: <strong>{{ behaviour_recurrence_risk }}</strong></p>
+                        <p class="m-0">Risico op middelenmisbruik: <strong>{{ abuse_substance_risk }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">6. Beschermende Factoren</b>
+                        <p class="m-0">Sterke punten van de jongere: <strong>{{ person_strengths }}</strong></p>
+                        <p class="m-0">Positieve invloeden in het leven van de jongere: <strong>{{ positive_influences }}</strong></p>
+                        <p class="m-0">Beschikbare ondersteunende diensten en hulpverlening: <strong>{{ available_support_assistance }}</strong></p>
+                        <p class="m-0">Copingstrategieën van de jongere: <strong>{{ person_strategies }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">7. Behoeften en Aanbevelingen</b>
+                        <p class="m-0">Specifieke behoeften van de jongere (psychologische hulp, onderwijsbegeleiding, etc.): <strong>{{ specific_needs }}</strong></p>
+                        <p class="m-0">Aanbevolen interventies en programma’s: <strong>{{ recommended_interventions }}</strong></p>
+                        <p class="m-0">Betrokkenheid van andere instanties of professionals: <strong>{{ other_agencies_involvement }}</strong></p>
+                        <p class="m-0">Plan van aanpak voor risicobeheersing: <strong>{{ risk_management_plan_of_actions }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-bottom my-5 py-3">
+                        <b class="text-primary">8. Conclusie en Advies</b>
+                        <p class="m-0">Samenvatting van bevindingen: <strong>{{ findings_summary }}</strong></p>
+                        <p class="m-0">Advies over opname in de instelling: <strong>{{ institution_advice }}</strong></p>
+                        <p class="m-0">Eventuele voorwaarden of aandachtspunten voor opname: <strong>{{ inclusion }}</strong></p>
+                        <p class="m-0">Naam en handtekening van de intaker: <strong>{{ intaker_name }}</strong></p>
+                        <p class="m-0">Datum van rapportage: <strong>{{ report_date }}</strong></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="my-5 py-3">
+                        <b class="text-primary">9. Evaluatie en Monitoring</b>
+                        <p class="m-0">Plan voor regelmatige evaluatie van de jongere: <strong>{{ regular_evaluation_plan }}</strong></p>
+                        <p class="m-0">Criteria voor succes en voortgangsmetingen: <strong>{{ success_criteria }}</strong></p>
+                        <p class="m-0">Tijdschema voor evaluatiegesprekken: <strong>{{ time_table }}</strong></p>
+                    </td>
+                </tr>
+            </table>
+            </div>
+            
           </div>
       </section>
+      <style>
+        .container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .big-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .big-table td {
+            padding: 20px;
+            border: 1px solid #ccc;
+            vertical-align: top;
+        }
+
+        .text-primary {
+            color: #007bff; /* Adjust the color as needed */
+        }
+
+        .my-5 {
+            margin: 3rem 0; /* Adjust the margin as needed */
+        }
+
+        .py-3 {
+            padding: 1rem 0; /* Adjust the padding as needed */
+        }
+
+        .border-top {
+            border-top: 1px solid #ccc;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .m-0 {
+            margin: 0;
+        }
+
+      </style>
   </body>
 
   </html>
