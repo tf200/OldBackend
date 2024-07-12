@@ -1,7 +1,12 @@
 import os
 
+from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
 from celery import shared_task
 from employees.models import EmployeeProfile, ProgressReport
+from system.models import AttachmentFile
 from system.utils import send_mail_async
 
 from .models import ClientEmergencyContact

@@ -1273,6 +1273,11 @@ class CollaborationAgreement(models.Model):
 
     contact_agreements = models.TextField()
 
+    # attachment
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True
+    )
+
     """
     [
         {
@@ -1291,53 +1296,54 @@ class CollaborationAgreement(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def download_link(self, refresh=False) -> str:
+        """return a link of the collaboration agreement PDF"""
 
-"""
-risk_assessment:
-    date_of_birth: date
-    gender: male | female
-    date_of_intake: datetime
-    intaker_position_name: str
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
 
-    family_situation: text
-    education_work: text
-    current_living_situation: text
-    social_network: str
-    previous_assistance: str
+        context = {
+            # Client
+            "client_full_name": self.client_full_name,
+            "client_SKN": self.client_SKN,
+            "client_number": self.client_number,
+            "client_phone": self.client_phone,
+            # Probation
+            "probation_full_name": self.probation_full_name,
+            "probation_organization": self.probation_organization,
+            "probation_phone": self.probation_phone,
+            # Healthcare institution
+            "healthcare_institution_name": self.healthcare_institution_name,
+            "healthcare_institution_organization": self.healthcare_institution_organization,
+            "healthcare_institution_phone": self.healthcare_institution_phone,
+            "healthcare_institution_function": self.healthcare_institution_function,
+            # Contact agreements
+            "contact_agreements": self.contact_agreements,
+            # Attention risks
+            "attention_risks": self.attention_risks,
+        }
 
-    behaviour_at_school_work: text
-    people_skills: text
-    emotional_status: anxiety | depression | ...etc  
-    self_image_self_confidence: text
-    stress_factors: text
+        html_string = render_to_string("questionnaire/collaboration_agreement.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = f"Collaboration_Agreement_{self.client_full_name}_{self.probation_full_name}_{self.healthcare_institution_name}.pdf"
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Collaboration_Agreement"
+        new_attachment.save()
 
-    committed_offences_description: text
-    offences_frequency_seriousness: text
-    age_first_offense: text  
-    circumstances_surrounding_crimes: text
-    offenses_recations: text
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
 
-    personal_risk_factors: str
-    environmental_risk_factors: str
-    behaviour_recurrence_risk: text
-    abuse_substance_risk: text
+        self.pdf_attachment = new_attachment
 
-    person_strengths: text
-    positive_influences: text
-    available_support_assistance: text
-    person_strategies: text
-
-    specific_needs : str
-    recommended_interventions: text
-    other_agencies_involvement: text
-    risk_management_plan_of_actions: text
-
-    findings_summary: text
-    institution_advice: text
-    inclusion: text 
-    intaker_name: str
-    report_date: date
-"""
+        return new_attachment.file.url
 
 
 class RiskAssessment(models.Model):
@@ -1393,11 +1399,89 @@ class RiskAssessment(models.Model):
     success_criteria = models.CharField(max_length=255)
     time_table = models.CharField(max_length=255)
 
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ("-created",)
+
+    def download_link(self, refresh=False) -> str:
+        """return a link of the risk assessment PDF"""
+
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        context = {
+            # Client
+            "youth_name": f"{self.client.first_name} {self.client.last_name}",
+            "date_of_birth": self.date_of_birth,
+            "gender": self.gender,
+            "date_of_intake": self.date_of_intake,
+            "intaker_position_name": self.intaker_position_name,
+            "family_situation": self.family_situation,
+            "education_work": self.education_work,
+            "current_living_situation": self.current_living_situation,
+            "social_network": self.social_network,
+            "previous_assistance": self.previous_assistance,
+            "behaviour_at_school_work": self.behaviour_at_school_work,
+            "people_skills": self.people_skills,
+            "emotional_status": self.emotional_status,
+            "self_image_self_confidence": self.self_image_self_confidence,
+            "stress_factors": self.stress_factors,
+            "committed_offences_description": self.committed_offences_description,
+            "offences_frequency_seriousness": self.offences_frequency_seriousness,
+            "age_first_offense": self.age_first_offense,
+            "circumstances_surrounding_crimes": self.circumstances_surrounding_crimes,
+            "offenses_recations": self.offenses_recations,
+            "personal_risk_factors": self.personal_risk_factors,
+            "environmental_risk_factors": self.environmental_risk_factors,
+            "behaviour_recurrence_risk": self.behaviour_recurrence_risk,
+            "abuse_substance_risk": self.abuse_substance_risk,
+            "person_strengths": self.person_strengths,
+            "positive_influences": self.positive_influences,
+            "available_support_assistance": self.available_support_assistance,
+            "person_strategies": self.person_strategies,
+            "specific_needs": self.specific_needs,
+            "recommended_interventions": self.recommended_interventions,
+            "other_agencies_involvement": self.other_agencies_involvement,
+            "risk_management_plan_of_actions": self.risk_management_plan_of_actions,
+            "findings_summary": self.findings_summary,
+            "institution_advice": self.institution_advice,
+            "inclusion": self.inclusion,
+            "intaker_name": self.intaker_name,
+            "report_date": self.report_date,
+            "regular_evaluation_plan": self.regular_evaluation_plan,
+            "success_criteria": self.success_criteria,
+            "time_table": self.time_table,
+        }
+
+        html_string = render_to_string("questionnaire/risk_assessment.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = (
+            f"Risk_Assessment{self.client.first_name}_{self.client.last_name}.pdf"
+        )
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Risk_Assessment"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
 
 
 class ConsentDeclaration(models.Model):
@@ -1417,6 +1501,8 @@ class ConsentDeclaration(models.Model):
     contact_phone_number = models.CharField(max_length=20)
     contact_email = models.EmailField()
 
+    # still need to add more fields
+
     client = models.ForeignKey(
         ClientDetails, related_name="consent_declarations", on_delete=models.CASCADE
     )
@@ -1424,11 +1510,65 @@ class ConsentDeclaration(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    # attachment
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
     class Meta:
         ordering = ("-created",)
 
     def __str__(self):
         return f"{self.youth_name} - {self.youth_care_institution}"
+
+    def download_link(self, refresh=False) -> str:
+        """return a link of the consent declaration PDF"""
+
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        context = {
+            # Client
+            "youth_name": self.youth_name,
+            "date_of_birth": self.date_of_birth,
+            "parent_guardian_name": self.parent_guardian_name,
+            "address": self.address,
+            "youth_care_institution": self.youth_care_institution,
+            "proposed_assistance_description": self.proposed_assistance_description,
+            "statement_by_representative": self.statement_by_representative,
+            "parent_guardian_signature_date": self.parent_guardian_signature_date,
+            "juvenile_name": self.juvenile_name,
+            "juvenile_signature_date": self.juvenile_signature_date,
+            "representative_name": self.representative_name,
+            "representative_signature_date": self.representative_signature_date,
+            "contact_person_name": self.contact_person_name,
+            "contact_phone_number": self.contact_phone_number,
+            "contact_email": self.contact_email,
+        }
+
+        html_string = render_to_string("questionnaire/declaration_of_consent.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = (
+            f"Consent_declaration{self.client.first_name}_{self.client.last_name}.pdf"
+        )
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Consent_Declaration"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
 
 
 class YouthCareIntake(models.Model):
