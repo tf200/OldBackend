@@ -1506,6 +1506,11 @@ class ConsentDeclaration(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    # attachment
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
     class Meta:
         ordering = ("-created",)
 
