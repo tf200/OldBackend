@@ -174,7 +174,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-USE_S3: bool = bool(int(os.getenv("DEBUG", 0)))
+USE_S3: bool = bool(int(os.getenv("USE_S3", 0)))
 
 if USE_S3:
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
