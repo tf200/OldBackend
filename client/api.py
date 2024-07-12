@@ -61,6 +61,8 @@ from client.schemas import (
     DataSharingStatementInput,
     DataSharingStatementSchema,
     DatePeriodSchema,
+    DocumentLinkInput,
+    DocumentLinkSchema,
     DomainGoalInput,
     DomainGoalPatch,
     DomainGoalPatchApproval,
@@ -1114,3 +1116,21 @@ def get_selected_assessment_by_goal_id(request: HttpRequest, goal_id: int):
 #     return get_object_or_404(
 #         SelectedMaturityMatrixAssessment, maturitymatrix__id=domain_id, assessment__level=level
 #     )
+
+
+@router.post("/questionnaires/generate-document-link", response=DocumentLinkSchema)
+def generate_questionnaire_link(request: HttpRequest, payload: DocumentLinkInput):
+
+    link: str = ""
+
+    if payload.type == "collaboration_agreement":
+        questionnaire = get_object_or_404(CollaborationAgreement, id=payload.id)
+        link = questionnaire.download_link()
+    elif payload.type == "risk_assessment":
+        questionnaire = get_object_or_404(RiskAssessment, id=payload.id)
+        link = questionnaire.download_link()
+    elif payload.type == "consent_declaration":
+        questionnaire = get_object_or_404(ConsentDeclaration, id=payload.id)
+        link = questionnaire.download_link()
+
+    return {link: link}

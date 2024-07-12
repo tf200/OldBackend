@@ -645,3 +645,12 @@ class SelectedMaturityMatrixAssessmentInput(ModelSchema):
     class Meta:
         model = SelectedMaturityMatrixAssessment
         exclude = ("maturitymatrix", "assessment", "id", "created", "updated")
+
+
+class DocumentLinkSchema(Schema):
+    link: str
+
+
+class DocumentLinkInput(Schema):
+    id: int
+    type: Literal["risk_assessment", "collaboration_agreement", "consent_declaration"]
