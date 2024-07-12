@@ -1118,7 +1118,9 @@ def get_selected_assessment_by_goal_id(request: HttpRequest, goal_id: int):
 #     )
 
 
-@router.post("/questionnaires/generate-document-link", response=DocumentLinkSchema)
+@router.post(
+    "/questionnaires/generate-document-link", response=DocumentLinkSchema, tags=["questionnairs"]
+)
 def generate_questionnaire_link(request: HttpRequest, payload: DocumentLinkInput):
 
     link: str = ""
@@ -1133,4 +1135,4 @@ def generate_questionnaire_link(request: HttpRequest, payload: DocumentLinkInput
         questionnaire = get_object_or_404(ConsentDeclaration, id=payload.id)
         link = questionnaire.download_link()
 
-    return {link: link}
+    return {"link": link}
