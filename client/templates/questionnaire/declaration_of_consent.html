@@ -88,7 +88,7 @@
                   </table>
               </div>
               <div class="py-3">
-                    <p>Hier wordt gedetailleerd beschreven welke hulpverlening, behandeling, of actie wordt voorgesteld, inclusief de aard, doelen, en duur van de interventie.: {{ proposed_assistance_description }} </p>
+                    <p>{{ proposed_assistance_description }}</p>
               </div>
               <div class="py-3">
                     <p>Verklaring van de jeugdige en/of wettelijk vertegenwoordiger: {{ statement_by_representative }}  </p>
@@ -103,12 +103,12 @@
               <ul style="list-style: none; display: flex; flex-direction: column; gap: 15px; padding: 0%; color: black;">
                 <li style="margin-bottom: 26px;"><span>Handtekeningen: </span></li>
                 <li style="margin-bottom: 36px;"><span>Naam ouder/voogd: {{ parent_guardian_name }}</span></li>
-                <li><span>*Handtekening ouder/voogd:* ____________________________</span></li>
-                <li><span>*Datum:* ____________________________ </span></li>
+                <li><span>Handtekening ouder/voogd: ____________________________</span></li>
+                <li><span>Datum: {{ parent_guardian_signature_date }} </span></li>
                 <li><span>Naam jeugdige (indien toepasselijk): {{ youth_name }}</span></li>
-                <li><span>*Handtekening jeugdige:* ____________________________</span></li>
-                <li style="margin-bottom: 36px;"><span>*Datum:* ____________________________ </span></li>
-                <li style="margin-bottom: 36px;"><span>Contactinformatie voor vragen en meer informatie:* </span></li>
+                <li><span>Handtekening jeugdige: ____________________________</span></li>
+                <li style="margin-bottom: 36px;"><span>Datum: ____________________________ </span></li>
+                <li style="margin-bottom: 36px;"><span>Contactinformatie voor vragen en meer informatie: </span></li>
                 <li><span>{{ contact_person_name }}</span></li>
                 <li ><span>{{ contact_phone_number }}</span></li>
                 <li ><span>{{ contact_email }}</span></li>
