@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+import json
+from typing import TYPE_CHECKING, Type
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
@@ -26,6 +33,10 @@ class Assessment(models.Model):
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    def parse_content_as_goals(self) -> list[str]:
+        d = ('{"result": %s}' % self.content).replace("'", '"')
+        return json.loads(d)["result"]
 
     class Meta:
         ordering = ("level",)  # Soerting by level is important for Maturity Matrix Table

@@ -171,3 +171,9 @@ caddy/
 !caddy/Caddyfile
 
 .vscode/
+
+media/
+static/
+
+!media/.gitempty
+!static/.gitempty
