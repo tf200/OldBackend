@@ -180,10 +180,13 @@ if USE_S3:
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+    AWS_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
     AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL", None)
     AWS_S3_REGION_NAME: str = os.getenv("AWS_S3_REGION_NAME", "us-east-2")  # e.g., us-east-2
     AWS_S3_CUSTOM_DOMAIN: str = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
-
+    AWS_S3_HOST: str = os.getenv("AWS_S3_HOST", "s3.amazonaws.com")
+    AWS_AUTH_MECHANISM = 'AWS4-HMAC-SHA256'
+    
     # Static files (CSS, JavaScript, Images)
     STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
     STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
@@ -193,9 +196,10 @@ if USE_S3:
     MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 else:
     STATIC_URL = "/static/"
-    STATIC_ROOT = os.path.join(BASE_DIR, "static")
     MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 AUTH_USER_MODEL = "authentication.CustomUser"
