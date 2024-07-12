@@ -18,7 +18,7 @@
 
 <body>
     <section id="collab">
-        <div class=" m-4  pb-2">
+        <div>
             <div class="text-center">
                 <h1 class="display-7 fw-bold">Samenwerkingsafspraken</h1>
                 <h3 class="">tussen <strong>cliënt</strong>, <strong>reclassering</strong> en <strong>zorginstelling</strong>
@@ -26,28 +26,63 @@
             </div>
             <h6 class="my-3">Welkom bij de start van het begeleidingstraject. Dit document is bedoeld om ervoor te zorgen dat we samen aan dezelfde doelen werken. We brengen ook risico’s en aandachtsgebieden in kaart. Samen vergroten we zo kans op een succesvol traject. De gemaakte afspraken gelden zolang het reclasseringstoezicht duurt.</h6>
             
-            <div class="border-top border-bottom my-5 bg-succes" style="background-color: #e8f1da; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr">
-                <div class="d-flex flex-column">
-                    <span class=" text-white px-2" style="background-color: #76b82a;">Cliënt</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{client_full_name}}"></div>
-                    <div class="d-flex px-2" style="font-weight: 500; justify-content: space-between; gap: 6px;"><div><label for="">SKN:</label><input type="text" value="{{client_SKN}}"  style="width: auto;"></div><div><label for="">Cliëntnummer:</label><input type="text" value="{{client_number}}" style="width: auto;"></div></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{client_phone}}"></div>
-                </div>
-                <div class="d-flex flex-column" style="background-color: #e1edfa;">
-                    <span class=" text-white px-2" style="background-color: #3ea3dc;">Reclassering</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{probation_full_name}}"></div>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Organisatie:</label><input type="text" value="{{probation_organization}}"></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{probation_phone}}"></div>
-                </div>
-                <div class="d-flex flex-column" style="background-color: #fde8d5;">
-                    <span class=" text-white px-2" style="background-color: #ef7e26;">Zorginstelling</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{healthcare_institution_name}}"></div>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Organisatie:</label><input type="text" value="{{healthcare_institution_organization}}"></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Telefoonnummer:</label><input type="text" value="{{healthcare_institution_phone}}"></div>
-                </div>
-            </div>
+            <table class="table-1">
+                <thead>
+                    <tr>
+                        <th>Cliënt</th>
+                        <th>Reclassering</th>
+                        <th>Zorginstelling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div><strong>Naam:</strong></div> <span>{{client_full_name}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Naam:</strong></div><span>{{probation_full_name}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Naam:</strong></div><span>{{healthcare_institution_name}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div><strong>SKN:</strong></div> <span>{{client_SKN}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Organisatie:</strong></div><span>{{probation_organization}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Organisatie:</strong></div><span>{{healthcare_institution_organization}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div><strong>Cliëntnummer:</strong></div><span>{{client_number}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Telefoonnummer:</strong></div><span>{{probation_phone}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Telefoonnummer:</strong></div><span>{{healthcare_institution_phone}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div><strong>Telefoonnummer:</strong></div><span>{{client_phone}}</span>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                </tbody>
+                
+                
+            </table>
             
-            <div class="border-bottom my-5 p-3" style="background-color: #e8f1da; border-radius: 6px;">
+            <div class="border-bottom" style="background-color: #e8f1da; border-radius: 6px; padding: 20px; margin-top: 20px;">
                 <h3>De 3 Basisafspraken</h3>
                 <p>De <strong>cliënt</strong> werkt mee aan het traject door zich te houden aan:</p>
                 <ol>
@@ -56,281 +91,351 @@
                     <li>de afspraak dat cliënt contact opneemt met de toezichthouder of begeleider met vragen of ondersteuning. Bij klachten kan de cliënt de klachtenprocedure bij de zorginstelling of de reclassering volgen.</li>
                 </ol>
             </div>
-            <p class="border-bottom my-5 p-3" style="background-color: #e1edfa; border-radius: 6px;">
+            <p class="border-bottom" style="background-color: #e1edfa; border-radius: 6px; padding: 20px; margin-top: 20px;">
                 De toezichthouder begeleidt de cliënt in opdracht van justitie en beoordeelt of cliënt zich aan de afspraken en
                 voorwaarden houdt. Als de cliënt zich niet aan de afspraken of voorwaarden houdt, meldt de toezichthouder dit aan
                 justitie. De toezichthouder vertelt de cliënt welke informatie met anderen wordt gedeeld en betrekt cliënt zo veel
                 mogelijk hierbij.
             </p>
-            <p class="border-bottom my-5 p-3"  style="background-color: #fde8d5; border-radius: 6px;">
+            <p class="border-bottom"  style="background-color: #fde8d5; border-radius: 6px; padding: 20px; margin-top: 20px;">
                 De begeleider ondersteunt de cliënt gedurende het reclasseringstoezicht in het dagelijks leven (door middel van
                 motiveren, helpen, leren, uitleggen, etc.). De begeleider vertelt de cliënt welke informatie met anderen wordt gedeeld
                 en betrekt client zoveel mogelijk hierbij.
             </p>
             
             
-            <div class="p-3" style="background-color: #f6f6f6; border-radius: 6px;">
+            <div style="background-color: #f6f6f6; border-radius: 6px; padding: 20px; margin-top: 20px;" >
                 <p class="fw-bold">Contactafspraken tussen cliënt, toezichthouder en begeleider</p>
-                <textarea name="" id="" style="width: 100%; height: 200px; border: none; border-radius: 6px;">{{contact_agreements}}</textarea>
+                <span name="" id="" style="width: 100%; height: 200px; border: none; border-radius: 6px; background-color: white; padding: 10px;">{{contact_agreements}}</span>
             </div>
             
-            <div class="my-2 py-3">
+            <div style="padding: 20px; margin-top: 20px;">
                 <strong>Aandacht en risico’s</strong>
                 <p>Op welke onderstaande gebieden wil de cliënt aandacht om te zorgen dat het beter gaat?
                     En op welke gebieden is er een risico om de fout in te gaan?
                     Welke leefgebieden zijn positief en daarmee helpend en beschermend om recidive te voorkomen?</p>
             </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; "><span>Wonen</span><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lamp-floor"><path d="M9 2h6l3 7H6l3-7Z"/><path d="M12 9v13"/><path d="M9 22h6"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-armchair"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">DAGBESTEDING <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-ruler"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VERSLAVING/ MIDDELENGEBRUIK <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pill"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">FINANCIËN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">GEDRAG <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">PSYCHISCHE GEZONDHEID<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-earth"><path d="M21.54 15H17a2 2 0 0 0-2 2v4.54"/><path d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"/><path d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"/><circle cx="12" cy="12" r="10"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">LICHAMELIJKE GEZONDHEID <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">FAMILIE <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><span style="font-size: small;">PARTNER/KINDEREN</span> <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-baby"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
-                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VRIENDEN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span>
-                <div>
-                    <div>
-                        <div style="display: flex; gap: 18px; color: white;">
-                            <label for="">Aandacht</label>
-                            <label for="">Risico</label>
-                            <label for="" style="margin-left: 30px;">Positief</label>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                            <input type="text" style="width: 80px;">
-                        </div>
-                    </div>
-                    <div style="color: white; display: flex; flex-direction: column;">
-                        <label for="">Afspraken</label>
-                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
-                    </div>
-                </div>
-                <div style="color: white; display: flex; flex-direction: column;">
-                    <label for="">Toelichting</label>
-                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
-                </div>
-            </div>
-            <div class=" border-bottom my-5 py-3" style="background-color: #f6f6f6; padding: 10px; border-radius: 6px;">
+            {% load static %}
+            <table class="table-2" >
+                <tbody>
+                    {% for attention_risk in attention_risks %}
+                        <tr>
+                            <td colspan="1">
+                                {% if attention_risk.type == "living" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; "><strong>Wonen</strong><img src="{% static 'images/living.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "datetime" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>DAGBESTEDING</strong><img src="{% static 'images/dayTime.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "addiction_resources_use" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>VERSLAVING/ MIDDELENGEBRUIK</strong><img src="{% static 'images/addiction.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "finances" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;"><strong>FINANCIËN</strong> <img src="{% static 'images/finance.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "behaviour" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>GEDRAG</strong><img src="{% static 'images/behavior.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "psychic_health" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>PSYCHISCHE GEZONDHEID</strong><img src="{% static 'images/psyHealth.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "physical_health" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>LICHAMELIJKE GEZONDHEID</strong><img src="{% static 'images/physicalHealth.png' %}" class="png-image"></span></span>
+                                {% elif attention_risk.type == "family" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>FAMILIE</strong><img src="{% static 'images/family.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "partner_children" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><span style="font-size: small;"><strong>PARTNER/KINDEREN</strong><img src="{% static 'images/partner.png' %}" class="png-image"></span>
+                                {% elif attention_risk.type == "friends" %}
+                                    <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><strong>VRIENDEN</strong><img src="{% static 'images/friends.png' %}" class="png-image"> </span>
+                                {% endif %}
+                            </td>
+                            <td colspan="3">
+                                <div style="margin-right: 10px;">
+                                    <span for=""><strong>Aandacht</strong></span>
+                                    <div class="input-data">{{ attention_risk.attention }}</div>
+                                    <span for=""><strong>Risico</strong></span>
+                                    <div class="input-data">{{ attention_risk.risk }}</div>
+                                    <span for=""><strong>Positief</strong></span>
+                                    <div class="input-data">{{ attention_risk.positive }}</div>
+                                </div>
+                            </td>
+                            <td colspan="3">
+                                <div style="margin-right: 10px;">
+                                    <label for=""><strong>Afspraken</strong></label>
+                                    <div class="textaera-data">{{ attention_risk.dates }}</div>
+                                    <label for=""><strong>Toelichting</strong></label>
+                                    <div class="textaera-data">{{ attention_risk.explanation }}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            
+            <!-- <table style="border: none; color: #ffffff; margin-top: 20px;" >
+                
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">DAGBESTEDING <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-ruler"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VERSLAVING/ MIDDELENGEBRUIK <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pill"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">FINANCIËN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">GEDRAG <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">PSYCHISCHE GEZONDHEID<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-earth"><path d="M21.54 15H17a2 2 0 0 0-2 2v4.54"/><path d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"/><path d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"/><circle cx="12" cy="12" r="10"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">LICHAMELIJKE GEZONDHEID <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">FAMILIE <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #66247f; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; "><span style="font-size: small;">PARTNER/KINDEREN</span> <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-baby"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class=" border-bottom  py-2 mb-1" style="background-color: #88549a; border-radius: 6px; display: flex; justify-content: start; gap: 6px; width: 670px;">
+                                <span style="color: white; font-weight: 500;text-transform: uppercase; width: 150px; padding-left: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">VRIENDEN <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span>
+                                <div>
+                                    <div>
+                                        <div style="display: flex; gap: 18px; color: white;">
+                                            <label for="">Aandacht</label>
+                                            <label for="">Risico</label>
+                                            <label for="" style="margin-left: 30px;">Positief</label>
+                                        </div>
+                                        <div style="display: flex; gap: 6px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                            <input type="text" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                    <div style="color: white; display: flex; flex-direction: column;">
+                                        <label for="">Afspraken</label>
+                                        <textarea name="" id="" style="width: 250px; height: 150px;"></textarea>
+                                    </div>
+                                </div>
+                                <div style="color: white; display: flex; flex-direction: column;">
+                                    <label for="">Toelichting</label>
+                                    <textarea name="" id="" style="width: 250px; height: 204px;"></textarea>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table> -->
+            
+            <div class=" border-bottom" style="background-color: #f6f6f6; padding: 20px; border-radius: 6px; margin-top: 20px;">
                 <h3>Contactmomenten toezichthouder en begeleider</h3>
                 <span>Begeleider en toezichthouder informeren elkaar <strong>in ieder geval:</strong></span>
                 <ul>
@@ -351,7 +456,7 @@
                     <li>bij het plegen van een nieuw delict waarbij cliënt is gearresteerd door de politie en in de cel is geplaatst.</li>
                 </ul>
             </div>
-            <div class=" border-bottom my-5 py-3" style="background-color: #e9eaf7; padding: 10px; border-radius: 6px;">
+            <div class=" border-bottom" style="background-color: #e9eaf7; padding: 20px; border-radius: 6px; margin-top: 20px;">
                 <h3 style="font-weight: 700;">Mogelijkheid meldingen aan het OM/politie</h3>
                 <span>Begeleider en toezichthouder informeren elkaar <strong>in ieder geval:</strong></span>
                 <ul>
@@ -360,32 +465,59 @@
                     <li>De reclassering kan melding maken bij het OM als de cliënt de afspraken van deze overeenkomst niet nakomt. </li>
                 </ul>
             </div>
-            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px; margin-top: 20px;">
                 <h3 style="font-weight: 700;">Ondertekening</h3>
                 <div style="display: flex; justify-content: space-between; max-width: 600px;"><span >Plaats: </span> <span>Datum:</span></div>
             </div>
-            <div class="border-top border-bottom my-5 bg-succes" style="background-color: #e8f1da; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr">
-                <div class="d-flex flex-column" style="display: flex; justify-content: space-between;">
-                    <span class=" text-white px-2" style="background-color: #76b82a;">Cliënt</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{client_full_name}}"></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
-                </div>
-                <div class="d-flex flex-column" style="background-color: #e1edfa; justify-content: space-between;">
-                    <span class=" text-white px-2" style="background-color: #3ea3dc;">Reclassering</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{probation_full_name}}"></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
-                </div>
-                <div class="d-flex flex-column" style="background-color: #fde8d5; justify-content: space-between;">
-                    <span class=" text-white px-2" style="background-color: #ef7e26;">Zorginstelling</span>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Naam:</label><input type="text" value="{{healthcare_institution_name}}"></div>
-                    <div class="d-flex flex-column px-2 pt-2" style="font-weight: 500;"><label for="">Functie:</label><input type="text" value="{{healthcare_institution_function}}"/></div>
-                    <div class="d-flex flex-column px-2 pb-2" style="font-weight: 500;"><label for="">Handtekening:</label><textarea type="text"></textarea></div>
-                </div>
-            </div>
-            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+            
+            <table class="table-1" style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Cliënt</th>
+                        <th>Reclassering</th>
+                        <th>Zorginstelling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div><strong>Naam:</strong></div> <span>{{client_full_name}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Naam:</strong></div><span>{{probation_full_name}}</span>
+                        </td>
+                        <td>
+                            <div><strong>Naam:</strong></div><span>{{healthcare_institution_name}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            <div><strong>Functie:</strong></div><span>{{healthcare_institution_function}}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div><strong>Handtekening:</strong></div> <div class="signature"></div>
+                        </td>
+                        <td>
+                            <div><strong>Handtekening:</strong></div><div class="signature"></div>
+                        </td>
+                        <td>
+                            <div><strong>Handtekening</strong></div><div class="signature"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px; margin-top: 20px;">
                 <p>Op dit document is bestaande wet- en regelgeving van toepassing</p>
             </div>
-            <div class=" border-bottom my-5 py-3" style=" padding: 10px; border-radius: 6px;">
+            <div class=" border-bottom" style=" padding: 10px; border-radius: 6px; margin-top: 20px;">
                 <h3 style="font-weight: 700;">Toelichting document samenwerkingsafspraken</h3>
                 <p>tussen <strong>cliënt</strong>, <strong>reclassering</strong> en <strong>zorginstelling</strong></p>
                 <p>Het document Samenwerkingsafspraken is gemaakt om de samenwerking te verbeteren bij forensische zorgtrajecten gericht op begeleiding. Het gaat hier over de zorg die in het kader van de Wet forensische Zorg wordt geleverd.</p>
@@ -408,11 +540,91 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-        crossorigin="anonymous"></script>
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        .table-1 {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+        .table-1 th:nth-child(1) {
+            background-color: #76b82a;
+            color: white;
+            padding: 5px;
+        }
+        .table-1 td:nth-child(1) {
+            padding: 15px;
+            background-color: #e8f1da;
+            color: black;
+        }
 
+        .table-1 th:nth-child(2) {
+            background-color: #3ea3dc;
+            color: white;
+            padding: 5px;
+        }
+        .table-1 td:nth-child(2) {
+            padding: 15px;
+            background-color: #e1edfa;
+            color: black;
+        }
+
+        .table-1 th:nth-child(3) {
+            background-color: #ef7e26;
+            color: white;
+            padding: 5px;
+        }
+        .table-1 td:nth-child(3) {
+            padding: 15px;
+            background-color: #fde8d5;
+            color: black;
+        }
+        
+        .signature {
+            width: 20vw ;
+            height: 150px;
+            background-color: white;
+            border-radius: 10px;
+        }
+        .input-data {
+            background-color: white;
+            min-width: 90px;
+            min-height: 30px;
+            border-radius: 6px;
+            padding-left: 5px;
+            padding-right: 5px;
+            color: black;
+            white-space: pre-line;
+        }
+        .table-2 {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 20px;
+            overflow: hidden;
+            border-radius: 6px;
+            color: white;
+        }
+        
+
+        .table-2 tr:nth-child(odd) {
+            background-color: #66247f ;
+        }
+        .table-2 tr:nth-child(even) {
+            background-color: #88549a;
+        }
+        .textaera-data {
+            background-color: white;
+            min-width: 90px;
+            min-height: 60px;
+            border-radius: 6px;
+            padding-left: 5px;
+            color: black;
+            white-space: pre-line;
+        }
+        .png-image {
+            width: 150px;
+        }
+    </style>
 </body>
 
 </html>
