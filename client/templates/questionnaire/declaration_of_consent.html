@@ -18,8 +18,8 @@
 
   <body>
       <section id="consent-declaration">
-          <div class="m-4 pb-2" style="display: flex; justify-content: center; flex-direction: column;">
-            <div style="width: 250px; align-self: center; margin-bottom: 12px; ">
+        <div class="" style="align-items: center;">
+            <div style="width: 250px; margin-left: 50%; transform: translateX(-50%);" >
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" x="0px" y="0px" viewBox="0 0 1102 582.4" style="enable-background:new 0 0 1102 582.4;" xml:space="preserve">
                     <style type="text/css">
                         .st0{fill:#AB5335;}
@@ -69,49 +69,49 @@
                     </g>
                 </svg>
             </div>
-              <div class="text-center">
-                  <h3 class="display-7 fw-bold">Instemmingsverklaring voor een Jeugdige in een Jeugdzorginstelling*</h3>
+              <div class="text-center" style="margin-top: 26px;">
+                  <h3 class="display-7 fw-bold">Instemmingsverklaring voor een Jeugdige in een Jeugdzorginstelling</h3>
               </div>
-              <div class=" py-3">
+              <div style="padding-top: 15px; padding-bottom: 15px;">
                   <table>
                       <tr>
                           <td style="min-width: 400px; display: flex; flex-direction: column; gap: 55px;">
-                              <b class="text-primary">*Instemmingsverklaring*</b>
-                              <p class="m-0">*Naam jeugdige:* {{ youth_name }} </p>
-                              <p class="m-0">*Geboortedatum:* {{ date_of_birth }} </p>
-                              <p class="m-0">*Naam ouder/voogd:* {{ parent_guardian_name }} </p>
-                              <p class="m-0">*Adres:* {{ address }} </p>
-                              <p class="m-0">*Jeugdzorginstelling:* {{ youth_care_institution }} </p>
-                              <p class="m-0">*Omschrijving van de voorgestelde hulpverlening of behandeling:* {{ proposed_assistance_description }} </p>
+                              <b class="text-primary">Instemmingsverklaring</b>
+                              <p class="m-0">Naam jeugdige: <strong>{{ youth_name }}</strong> </p>
+                              <p class="m-0">Geboortedatum: <strong>{{ date_of_birth }}</strong> </p>
+                              <p class="m-0">Naam ouder/voogd: <strong>{{ parent_guardian_name }}</strong> </p>
+                              <p class="m-0">Adres: <strong>{{ address }}</strong> </p>
+                              <p class="m-0">Jeugdzorginstelling: <strong>{{ youth_care_institution }}</strong> </p>
+                              <p class="m-0">Omschrijving van de voorgestelde hulpverlening of behandeling: <strong>{{ proposed_assistance_description }}</strong> </p>
                           </td>
                       </tr>
                   </table>
               </div>
-              <div class="py-3">
-                    <p>{{ proposed_assistance_description }}</p>
+              <div style="padding-top: 15px; padding-bottom: 15px;">
+                    <p><strong>{{ proposed_assistance_description }}</strong></p>
               </div>
-              <div class="py-3">
-                    <p>Verklaring van de jeugdige en/of wettelijk vertegenwoordiger: {{ statement_by_representative }}  </p>
+              <div style="padding-top: 15px; padding-bottom: 15px;">
+                    <p>Verklaring van de jeugdige en/of wettelijk vertegenwoordiger: <strong>{{ statement_by_representative }}</strong>  </p>
               </div>
-              <div class="py-3">
-                    <p>Hierbij geef ik, {{ parent_guardian_name }}, als wettelijk vertegenwoordiger van {{ youth_name }}, toestemming voor de voorgestelde hulpverlening, behandeling, of actie zoals hierboven beschreven. Ik heb uitleg gekregen over de aard en doelen van de hulpverlening, de mogelijke risico's en voordelen, en alternatieve opties. Ik begrijp wat de voorgestelde hulpverlening inhoudt en ga akkoord met de uitvoering ervan. </p>
+              <div style="padding-top: 15px; padding-bottom: 15px;">
+                    <p>Hierbij geef ik, <strong>{{ parent_guardian_name }}</strong>, als wettelijk vertegenwoordiger van <strong>{{ youth_name }}</strong>, toestemming voor de voorgestelde hulpverlening, behandeling, of actie zoals hierboven beschreven. Ik heb uitleg gekregen over de aard en doelen van de hulpverlening, de mogelijke risico's en voordelen, en alternatieve opties. Ik begrijp wat de voorgestelde hulpverlening inhoudt en ga akkoord met de uitvoering ervan. </p>
               </div>
-              <div class="py-3">
+              <div style="padding-top: 15px; padding-bottom: 15px;">
                     <p>Ik begrijp dat ik op elk moment mijn instemming kan intrekken of vragen kan stellen over de voortgang van de hulpverlening. Ik ben geïnformeerd over mijn recht om een kopie van deze instemmingsverklaring te ontvangen en te bewaren. </p>
               </div>
 
               <ul style="list-style: none; display: flex; flex-direction: column; gap: 15px; padding: 0%; color: black;">
                 <li style="margin-bottom: 26px;"><span>Handtekeningen: </span></li>
-                <li style="margin-bottom: 36px;"><span>Naam ouder/voogd: {{ parent_guardian_name }}</span></li>
-                <li><span>Handtekening ouder/voogd: ____________________________</span></li>
-                <li><span>Datum: {{ parent_guardian_signature_date }} </span></li>
-                <li><span>Naam jeugdige (indien toepasselijk): {{ youth_name }}</span></li>
-                <li><span>Handtekening jeugdige: ____________________________</span></li>
-                <li style="margin-bottom: 36px;"><span>Datum: ____________________________ </span></li>
+                <li style="margin-bottom: 36px;"><span>Naam ouder/voogd: <strong>{{ parent_guardian_name }}</strong></span></li>
+                <li style="margin-bottom: 36px;"><span>Handtekening ouder/voogd:</span></li>
+                <li><span>Datum: <strong>{{ parent_guardian_signature_date }}</strong> </span></li>
+                <li><span>Naam jeugdige (indien toepasselijk): <strong>{{ youth_name }}</strong></span></li>
+                <li style="margin-bottom: 36px;"><span>Handtekening jeugdige: </span></li>
+                <li style="margin-bottom: 36px;"><span>Datum:  </span></li>
                 <li style="margin-bottom: 36px;"><span>Contactinformatie voor vragen en meer informatie: </span></li>
-                <li><span>{{ contact_person_name }}</span></li>
-                <li ><span>{{ contact_phone_number }}</span></li>
-                <li ><span>{{ contact_email }}</span></li>
+                <li><strong>{{ contact_person_name }}</strong></li>
+                <li ><strong>{{ contact_phone_number }}</strong></li>
+                <li ><strong>{{ contact_email }}</strong></li>
                 <li ><span>Text BoxMet deze instemmingsverklaring wordt formeel toestemming gegeven voor de voorgestelde zorg en begeleiding, wat zorgt voor duidelijkheid en wederzijdse afspraken tussen de jeugdzorginstelling en de betrokken partijen.</span></li>
               </ul>
           </div>
