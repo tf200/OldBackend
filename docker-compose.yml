@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  backend:
+  backend: # default port is 8000
     image: ${AWS_REGISTRY}/healthy:latest
     command: bash -c "daphne healty.asgi:application --bind 0.0.0.0 --port 8000"
     env_file:
@@ -13,14 +13,12 @@ services:
       - celery
       - redis
 
-  frontend:
+  frontend: # default port is 3000
     image: ${AWS_REGISTRY}/maicare-frontend:latest
-    ports:
-      - 3000:3000
     environment:
       # Connect the fontend to the backend
-      NEXT_PUBLIC_WS_URL: wss://backend:8000/ws/
-      NEXT_PUBLIC_API_URL: http://backend:8000/
+      NEXT_PUBLIC_WS_URL: wss://maicare-api.devteam.cc/ws/
+      NEXT_PUBLIC_API_URL: https://maicare-api.devteam.cc
     networks:
       - public
     depends_on:
@@ -48,8 +46,11 @@ services:
       - 80:80
       - 443:443
     environment:
-      DOMAIN_NAME: https://maicare.devteam.cc
-      REVERSE_PROXY: frontend:3000
+      FRONTEND_DOMAIN_NAME: https://maicare.devteam.cc
+      FRONTEND_SERVER: frontend:3000
+
+      BACKEND_DOMAIN_NAME: https://maicare-api.devteam.cc
+      BACKEND_SERVER: backend:8000
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
