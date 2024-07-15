@@ -41,7 +41,8 @@ jobs:
           docker push ${{ env.ECR_REGISTRY }}/healthy:latest
           docker push ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
 
-  deploy_to_testing_environment:
+  deploy:
+    name: Deploy to Development Server
     env:
       SERVER: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
       SOURCE: .env docker-compose.yml caddy
@@ -75,10 +76,10 @@ jobs:
 
             cd ~/core
             # Pull the new image
-            docker-compose pull web celery
+            docker-compose pull frontend backend celery
 
             # Stop and remove the old container
-            docker rm -fv core_web_1 core_celery_1
+            docker rm -fv core_frontend_1 core_backend_1 core_celery_1 || true
 
             # Up everything
             docker-compose up -d --remove-orphans
