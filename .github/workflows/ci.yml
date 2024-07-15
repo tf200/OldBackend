@@ -84,6 +84,17 @@ jobs:
             # Up everything
             docker-compose up -d --remove-orphans
 
+            # Rebuild the frontend (for public .env variables)
+
+            # -> updating the .env file
+            docker exec core_frontend_1 sh -c "env | grep NEXT_PUBLIC > .env"
+
+            # -> building the frontend
+            docker exec core_frontend_1 npm run build
+
+            # -> restarting the frontend
+            docker-compose restart frontend
+
             # Run migrations
             # Nothing yet
 
