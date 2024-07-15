@@ -7,11 +7,13 @@ from ninja.pagination import paginate
 
 from ai.filters import AIGeneratedReportSchemaFilter
 from ai.models import AIGeneratedReport
-from ai.schemas import AIGeneratedReportSchema, ReportSchema
+from ai.schemas import AIGeneratedReportSchema, ReportSchema, SmartFormulaResultSchema
 from ai.tasks import ai_summarize
-from ai.utils import ai_enhance_report
+from ai.utils import ai_enhance_report, ai_smart_formula
+from assessments.models import Assessment, AssessmentDomain
 from client.models import ClientDetails
-from employees.models import ProgressReport
+from client.schemas import DatePeriodSchema, ObjectiveProgressReportSchema
+from employees.models import DomainGoal, DomainObjective, ProgressReport
 from system.utils import NinjaCustomPagination
 
 router = Router()
@@ -68,3 +70,56 @@ def generate_report_summary(request: HttpRequest, client_id: int, start_date: st
         start_date=start,
         end_date=end,
     )
+
+
+@router.post(
+    "/objectives/{int:objective_id}/progress-reports/generate",
+    response=ObjectiveProgressReportSchema | None,
+)
+def generate_objective_progress_report(
+    request: HttpRequest,
+    objective_id: int,
+    payload: DatePeriodSchema,
+):
+    # Generate the objective reports for the period
+    objective = get_object_or_404(DomainObjective, id=objective_id)
+
+    return objective.ai_generate_progress_report(
+        start_date=str(payload.start_date), end_date=str(payload.end_date)
+    )
+
+
+@router.post("/smart-formula/{int:domainId}/{int:levelId}", response=SmartFormulaResultSchema)
+def ai_smart_formula_generator(
+    request: HttpRequest, domainId: int, levelId: int, period: DatePeriodSchema
+):
+
+    result = {"goals": []}
+
+    domain = AssessmentDomain.objects.get(id=domainId)
+    assessment: Assessment = domain.assessments.filter(level=levelId).first()
+
+    if domain and assessment:
+        goals: list[str] = assessment.parse_content_as_goals()
+
+        for goal in goals:
+            ai_objectives = ai_smart_formula(
+                goal=goal,
+                domain=domain.name,
+                format="JSON",
+                objective_number=3,
+                language="Netherlands Dutch",
+                start_date=period.start_date,
+                end_date=period.end_date,
+            )
+
+            result["goals"].append(
+                {
+                    "goal_name": goal,
+                    "objectives": (
+                        ai_objectives.get("objectives") if isinstance(ai_objectives, dict) else []
+                    ),
+                }
+            )
+
+    return result

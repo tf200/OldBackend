@@ -62,7 +62,7 @@ class ProgressReportCreateView(generics.CreateAPIView):
 
 
 class ProgressReportRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, IsMemberOfManagement]
+    # permission_classes = [IsAuthenticated, IsMemberOfManagement] # disable authentication
     serializer_class = ClientprogressSerializer
     queryset = ProgressReport.objects.all()
 
@@ -401,11 +401,12 @@ class EmployeeProfileCreateView(APIView):
             last_name = employee_data.get("last_name", "")
             email = employee_data.get("private_email_address", "")
             username = generate_unique_username(first_name, last_name)
+            location = get_object_or_404(Location, id=employee_data["location"])
+            employee_data.pop("location")
 
             # Generate a plain text password
-            plain_text_password = (
-                generate_random_password()
-            )  # Implement this function to generate a secure password
+            # Implement this function to generate a secure password
+            plain_text_password = generate_random_password()
 
             user, user_created = CustomUser.objects.get_or_create(username=username)
             if user_created:
@@ -413,11 +414,8 @@ class EmployeeProfileCreateView(APIView):
                 user.set_password(plain_text_password)
                 user.save()
 
-                # Now, send the plain text password via email
-                send_login_credentials(user, username, plain_text_password)
-
-                default_group, group_created = Group.objects.get_or_create(name="Default")
-                default_group.user_set.add(user)
+                # default_group, group_created = Group.objects.get_or_create(name="Default")
+                # default_group.user_set.add(user)
             else:
                 if hasattr(user, "profile"):
                     return Response(
@@ -426,7 +424,13 @@ class EmployeeProfileCreateView(APIView):
                     )
 
             try:
-                employee_profile = EmployeeProfile.objects.create(user=user, **employee_data)
+                employee_profile = EmployeeProfile.objects.create(
+                    user=user, **employee_data, location=location
+                )
+
+                # Send the login credentials to the user
+                send_login_credentials(employee_profile, username, plain_text_password)
+
                 serializer = EmployeeCRUDSerializer(employee_profile)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except IntegrityError as e:

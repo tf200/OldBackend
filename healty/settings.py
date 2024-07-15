@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "system",
     "assessments",
+    "healty",
     "ai",
     "authentication",
     "client",
@@ -163,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE: str = os.getenv("TZ", "UTC")
 
 USE_I18N = True
 
@@ -173,12 +174,13 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-USE_S3: bool = bool(int(os.getenv("DEBUG", 0)))
+USE_S3: bool = bool(int(os.getenv("USE_S3", 0)))
 
 if USE_S3:
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+    AWS_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
     AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL", None)
     AWS_S3_REGION_NAME: str = os.getenv("AWS_S3_REGION_NAME", "us-east-2")  # e.g., us-east-2
     AWS_S3_CUSTOM_DOMAIN: str = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
@@ -188,13 +190,14 @@ if USE_S3:
     STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
     # Media files
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
     MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 else:
     STATIC_URL = "/static/"
-    STATIC_ROOT = os.path.join(BASE_DIR, "static")
     MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 AUTH_USER_MODEL = "authentication.CustomUser"
@@ -248,7 +251,8 @@ broker_connection_retry = True
 CELERY_TASK_TIME_LIMIT = 900
 CELERY_TASK_SOFT_TIME_LIMIT = 850
 
-MEDICATION_RECORDS_CREATATION: int = 60  # in minutes
+MEDICATION_RECORDS_CREATATION: int = 1  # in minutes
+PROTECTED_EMAIL_EXPIRATION_DAYS: int = 7  # in days (this is for protected email expiration days)
 
 CELERY_BEAT_SCHEDULE = {
     "clear_temporary_files_daily": {
@@ -277,9 +281,8 @@ CELERY_BEAT_SCHEDULE = {
     },
     "create_and_send_medication_record_notification": {
         "task": "client.tasks.create_and_send_medication_record_notification",
-        "schedule": crontab(
-            minute=f"*/{MEDICATION_RECORDS_CREATATION}",
-        ),  # every hour
+        "schedule": crontab(minute=f"*/{MEDICATION_RECORDS_CREATATION}"),  # in minutes
+        # "schedule": MEDICATION_RECORDS_CREATATION * 60,  # in seconds
     },
     "send_contract_reminders": {
         "task": "client.tasks.send_contract_reminders",
@@ -293,7 +296,17 @@ CELERY_BEAT_SCHEDULE = {
     #     "task": "client.tasks.record_goals_and_objectives_history",
     #     "schedule": crontab(minute="0", hour="1", day_of_month="*"),  # everyday (must be everyday)
     # },
+    "send_medication_report_to_client_emergency_contacts": {
+        "task": "client.tasks.send_medication_report_to_client_emergency_contacts",
+        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every week
+    },
+    "send_weekly_progress_report_to_emergency_contacts": {
+        "task": "client.tasks.send_weekly_progress_report_to_emergency_contacts",
+        "schedule": crontab(minute="1", hour="0", day_of_week="0"),  # every week
+    },
 }
+
+FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
 
 # for easyaudit
 DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
@@ -313,4 +326,4 @@ OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4")
 # Default tax
 DEFAULT_TAX: int = 0  # 0%
 
-VERSION: str = "0.0.1.a45"
+VERSION: str = "0.0.1.a62"

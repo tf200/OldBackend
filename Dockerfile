@@ -13,7 +13,8 @@ RUN apt-get update && \
     python3-pip \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
-    graphviz
+    graphviz \
+    celery
 
 
 COPY requirements.txt .

@@ -34,16 +34,18 @@ class AppointmentAttachmentSerializer(serializers.ModelSerializer):
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    temporary_file_ids = serializers.ListField(
-        child=serializers.UUIDField(), write_only=True, required=False
-    )
+    # temporary_file_ids = serializers.ListField(
+    #     child=serializers.UUIDField(), write_only=True, required=False
+    # )
     attachment_ids_to_delete = serializers.ListField(
         child=serializers.IntegerField(), write_only=True, required=False, allow_null=True
     )
+    attachments = serializers.SerializerMethodField()
 
     class Meta:
         model = Appointment
         fields = [
+            "id",
             "title",
             "description",
             "appointment_type",
@@ -54,17 +56,27 @@ class AppointmentSerializer(serializers.ModelSerializer):
             "location",
             "temporary_file_ids",
             "attachment_ids_to_delete",
+            "attachments",
         ]
         extra_kwargs = {
             "employees": {"required": False},
             "clients": {"required": False},
             "attachment_ids_to_delete": {"required": False},
+            "id": {"read_only": True},
         }
+
+    def get_attachments(self, obj: Appointment):
+        return obj.get_attachments()
+
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data["attachments"] = ["ssss"]
+    #     return data
 
     def create(self, validated_data):
         with transaction.atomic():
-            temporary_file_ids = validated_data.pop("temporary_file_ids", [])
-            attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
+            # temporary_file_ids = validated_data.pop("temporary_file_ids", [])
+            # attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
             employees_data = validated_data.pop("employees", [])
             clients_data = validated_data.pop("clients", [])
 
@@ -76,40 +88,40 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 appointment.clients.set(clients_data)
 
             # Bulk delete specified attachments
-            if attachment_ids_to_delete:
-                AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
+            # if attachment_ids_to_delete:
+            #     AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
 
             # Fetch all TemporaryFiles in one go
-            temp_files = TemporaryFile.objects.filter(id__in=temporary_file_ids)
-            attachments = []
+            # temp_files = TemporaryFile.objects.filter(id__in=temporary_file_ids)
+            # attachments = []
 
-            for temp_file in temp_files:
-                old_key = temp_file.file.name
-                new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
+            # for temp_file in temp_files:
+            #     old_key = temp_file.file.name
+            #     new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
 
-                move_file_s3(old_key, new_key)
+            #     move_file_s3(old_key, new_key)
 
-                attachments.append(
-                    AppointmentAttachment(
-                        appointment=appointment,
-                        file=f"{settings.MEDIA_URL}{new_key}",
-                        name=temp_file.file.name.split("/")[-1],
-                    )
-                )
+            #     attachments.append(
+            #         AppointmentAttachment(
+            #             appointment=appointment,
+            #             file=f"{settings.MEDIA_URL}{new_key}",
+            #             name=temp_file.file.name.split("/")[-1],
+            #         )
+            #     )
 
-                temp_file.delete()
+            #     temp_file.delete()
 
             # Bulk create attachments
-            AppointmentAttachment.objects.bulk_create(attachments)
+            # AppointmentAttachment.objects.bulk_create(attachments)
 
             return appointment
 
     def update(self, instance, validated_data):
         with transaction.atomic():
-            temporary_file_ids = validated_data.pop("temporary_file_ids", [])
+            # temporary_file_ids = validated_data.pop("temporary_file_ids", [])
+            # attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
             employees_data = validated_data.pop("employees", None)
             clients_data = validated_data.pop("clients", None)
-            attachment_ids_to_delete = validated_data.pop("attachment_ids_to_delete", [])
 
             # Update instance fields
             for attr, value in validated_data.items():
@@ -123,22 +135,21 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 instance.clients.set(clients_data)
 
             # Handle temporary file attachments
-            for file_id in temporary_file_ids:
-                temp_file = TemporaryFile.objects.get(id=file_id)
-                old_key = temp_file.file.name
-                new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
-                move_file_s3(old_key, new_key)
-                AppointmentAttachment.objects.create(
-                    appointment=instance,
-                    file=f"{settings.MEDIA_URL}{new_key}",
-                    name=temp_file.file.name.split("/")[-1],
-                )
-                temp_file.delete()
+            # for file_id in temporary_file_ids:
+            #     temp_file = TemporaryFile.objects.get(id=file_id)
+            #     old_key = temp_file.file.name
+            #     new_key = f"appointment_attachments/{old_key.split('/')[-1]}"
+            #     move_file_s3(old_key, new_key)
+            #     AppointmentAttachment.objects.create(
+            #         appointment=instance,
+            #         file=f"{settings.MEDIA_URL}{new_key}",
+            #         name=temp_file.file.name.split("/")[-1],
+            #     )
+            #     temp_file.delete()
 
             # Delete specified attachments
-            if attachment_ids_to_delete:
-                print("here")
-                AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
+            # if attachment_ids_to_delete:
+            #     AppointmentAttachment.objects.filter(id__in=attachment_ids_to_delete).delete()
 
             return instance
 

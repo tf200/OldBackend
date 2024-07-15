@@ -1,4 +1,10 @@
 
-{$DOMAIN_NAME:localhost} {
-    reverse_proxy {$REVERSE_PROXY}
+# For frontend service
+{$FRONTEND_DOMAIN_NAME:localhost} {
+    reverse_proxy {$FRONTEND_SERVER}
+}
+
+# For backend service
+{$BACKEND_DOMAIN_NAME:localhost} {
+    reverse_proxy {$BACKEND_SERVER}
 }

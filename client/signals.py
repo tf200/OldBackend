@@ -6,9 +6,10 @@ from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from loguru import logger
 
+from employees.models import ProgressReport
 from system.models import AttachmentFile
 
-from .models import ClientDetails, ClientStatusHistory
+from .models import ClientDetails, ClientEmergencyContact, ClientStatusHistory, Incident
 
 
 @receiver(pre_save, sender=ClientDetails)
@@ -43,3 +44,34 @@ def create_client_profile_status_history_on_create(
     if created:
         # Status changed
         ClientStatusHistory.objects.create(client=instance, status=instance.status)
+
+
+# send progree report to client emergency contacts once created
+@receiver(post_save, sender=ProgressReport)
+def send_progress_report_to_client_emergency_contacts(
+    sender: type[ProgressReport], instance: ProgressReport, created: bool, **kwargs
+):
+    # if created:
+    #     # Send progress report to client emergency contacts
+    #     instance.send_progress_report_to_emergency_contacts()
+    pass
+
+
+# Send incident report to client emergency contacts once created
+@receiver(post_save, sender=Incident)
+def send_incident_to_client_emergency_contacts(
+    sender: type[Incident], instance: Incident, created: bool, **kwargs
+):
+    if created:
+        # Send incident report to client emergency contacts
+        instance.send_incident_to_emergency_contacts()
+
+
+# Send verification email to client emergency contacts once created
+@receiver(post_save, sender=ClientEmergencyContact)
+def send_verification_email_for_emergency_contacts(
+    sender: type[ClientEmergencyContact], instance: ClientEmergencyContact, created: bool, **kwargs
+):
+    if created:
+        # Send ClientEmergencyContact report to client emergency contacts
+        instance.send_verification_email()

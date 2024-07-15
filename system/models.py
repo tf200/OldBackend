@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import datetime
 import os
+import random
+import string
 import uuid
 from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
 from django.db import models
+from django.template.loader import render_to_string
+from django.utils import timezone
 from loguru import logger
 
 from authentication.models import Location
@@ -88,6 +93,7 @@ class Notification(models.Model):
         INVOICE_EXPIRED = "invoice_expired", "Invoice expired"
         INVOICE_CREATED = "invoice_created", "Invoice created"
         PROGRESS_REPORT_AVAILABLE = "progress_report_available", "Progress Report Available"
+        PROGRESS_REPORT_CREATED = "progress_report_created", "Progress Report Created"
         MEDICATION_TIME = "medication_time", "Medication Time"
         CONTRACT_REMINDER = "contract_reminder", "Contract Reminder"
 
@@ -258,3 +264,81 @@ class Expense(models.Model):
             return self.amount / Decimal(other)
         if isinstance(other, Decimal):
             return self.amount / other
+
+    def __lt__(self, other: Expense | int | float | Decimal) -> bool:
+        if isinstance(other, Expense):
+            return self.amount < other.amount
+        if isinstance(other, (int, float)):
+            return self.amount < Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount < other
+
+    def __le__(self, other: Expense | int | float | Decimal) -> bool:
+        if isinstance(other, Expense):
+            return self.amount <= other.amount
+        if isinstance(other, (int, float)):
+            return self.amount <= Decimal(other)
+        if isinstance(other, Decimal):
+            return self.amount <= other
+
+
+def get_expiration_date() -> datetime.datetime:
+    return timezone.now() + datetime.timedelta(days=settings.PROTECTED_EMAIL_EXPIRATION_DAYS)
+
+
+# Create a protected Email model
+class ProtectedEmail(models.Model):
+    class EMAIL_TYPES(models.TextChoices):
+        INCIDENT_REPORT = "incident_report", "Incident Report"
+        MEDICAL_REPORT = "medical_report", "Medical Report"
+        PROGRESS_REPORT = "progress_report", "Progress Report"
+
+    uuid = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True)
+    email = models.EmailField()
+    subject = models.CharField(max_length=255, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    email_type = models.CharField(choices=EMAIL_TYPES.choices)
+    expired_at = models.DateTimeField(
+        default=get_expiration_date, help_text="The date when the email will expire"
+    )
+    metadata = models.JSONField(default=dict, null=True, blank=True)
+    passkey = models.CharField(max_length=30, default="")
+    created = models.DateTimeField(auto_now_add=True)
+
+    def notify(self, *, title: str | None = None, short_description: str | None = None) -> None:
+        if title is None:
+            title = ""
+        if short_description is None:
+            short_description = ""
+
+        # Generate a passkey and save it
+        self.passkey = self.generate_passkey()
+        self.save()
+
+        generated_link: str = self.generate_link()
+        # the content should include the generated link as well as the passkey
+        params: dict[str, Any] = {
+            "title": title,
+            "description": short_description,
+            "passkey": self.passkey,
+            "generated_link": generated_link,
+            "expiration_date": self.expired_at,
+            "company_name": DBSettings.get("CONTACT_COMPANY_NAME", ""),
+        }
+
+        content: str = render_to_string("email_templates/protected_email.html", params)
+
+        # Send the email
+        send_mail_async(
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            subject=self.subject,
+            message=content,
+            recipient_list=[self.email],
+        )
+
+    def generate_link(self) -> str:
+        return f"{settings.FRONTEND_BASE_URL}/protected-email/{self.uuid}"
+
+    def generate_passkey(self, max_length=8) -> str:
+        chars = string.ascii_uppercase + string.digits
+        return "".join(random.choices(chars, k=max_length))

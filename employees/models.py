@@ -9,14 +9,17 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from loguru import logger
 
 from adminmodif.models import Group, Permission
+from ai.utils import generate_ai_objective_progress_report
 from assessments.models import AssessmentDomain
 from authentication.models import Location
-from client.models import ClientDetails
-from system.models import Notification
+from client.models import ClientDetails, SelectedMaturityMatrixAssessment
+from system.models import DBSettings, Notification, ProtectedEmail
+from system.utils import send_mail_async
 
 
 class EmployeeProfile(models.Model):
@@ -47,6 +50,12 @@ class EmployeeProfile(models.Model):
         Location, on_delete=models.SET_NULL, null=True, related_name="employee_location"
     )
     has_borrowed = models.BooleanField(default=False)
+
+    out_of_service = models.BooleanField(default=False, null=True, blank=True)
+    is_archived = models.BooleanField(default=False, null=True, blank=True)
+
+    class Meta:
+        ordering = ("-id",)
 
     def __str__(self) -> str:
         return f"Employee: {self.first_name} ({self.pk})"
@@ -199,7 +208,19 @@ class ProgressReport(models.Model):
         CONTACT_JOURNAL = "contact_journal", "Contact Journal"
         OTHER = "other", "Other"
 
-    client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE)
+    class EmotionalStates(models.TextChoices):
+        NORMAL = "normal", "Normal"
+        EXCITED = "excited", "Excited"
+        HAPPY = "happy", "Happy"
+        SAD = "sad", "Sad"
+        ANGRY = "angry", "Angry"
+        ANXIOUS = "anxious", "Anxious"
+        DEPRESSED = "depressed", "Depressed"
+        # OTHER = "other", "Other"
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="progress_reports", on_delete=models.CASCADE
+    )
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=50, blank=True, null=True)
     report_text = models.TextField()
@@ -212,8 +233,58 @@ class ProgressReport(models.Model):
     )
 
     type = models.CharField(choices=Types.choices, default=Types.OTHER)
+    emotional_state = models.CharField(
+        choices=EmotionalStates.choices, default=EmotionalStates.NORMAL
+    )
 
     created = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def send_progress_report_to_emergency_contacts(self):
+        # Send a Secure email to the emergency contacts
+        for contact in self.client.emergency_contact.filter(goals_reports=True).all():  # type: ignore
+            if contact.email:
+                ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Progress Report for {self.client.first_name} {self.client.last_name}",
+                    content="",
+                    email_type=ProtectedEmail.EMAIL_TYPES.PROGRESS_REPORT,
+                    metadata={"progress_report_id": self.pk},
+                ).notify(
+                    title="Progress Report",
+                    short_description=f"An progress report is available of {self.client.first_name} {self.client.last_name}.",
+                )
+
+        # Send to emergency contacts
+        # report = render_to_string(
+        #     "email_templates/progress_report.html",
+        #     {
+        #         "client": self.client,
+        #         "progress_report": self,
+        #         "company_name": DBSettings.get("CONTACT_COMPANY_NAME"),
+        #     },
+        # )
+
+        # send_mail_async(
+        #     subject="Progress Report",
+        #     message=report,
+        #     from_email=None,
+        #     recipient_list=[contact.email],
+        #     fail_silently=False,
+        # )
+
+        # # Create a notification for a progress report
+        # notification = Notification.objects.create(
+        #     title="Progress Report sent.",
+        #     event=Notification.EVENTS.PROGRESS_REPORT_CREATED,
+        #     content="You have a progress report.",
+        #     receiver=self.client.user,
+        #     metadata={"progress_report_id": self.id},
+        # )
+
+        # notification.notify()
 
 
 class Measurement(models.Model):
@@ -281,8 +352,10 @@ class ClientMedication(models.Model):
     client = models.ForeignKey(ClientDetails, on_delete=models.CASCADE, related_name="medications")
     administered_by = models.ForeignKey(
         EmployeeProfile,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="medications_administered",
+        null=True,
+        blank=True,
     )
 
     is_critical = models.BooleanField(default=False)
@@ -316,9 +389,11 @@ class ClientMedication(models.Model):
 
         for slot in self.slots:
             day = datetime.fromisoformat(slot["date"].split(".")[0])
+
             for time in slot["times"]:
-                hours, minutes = [int(value) for value in time.split(":")]
-                available_datetime.append(day.replace(hour=hours, minute=minutes))
+                if time:
+                    hours, minutes = [int(value) for value in time.split(":")]
+                    available_datetime.append(day.replace(hour=hours, minute=minutes))
 
         return available_datetime
 
@@ -366,15 +441,39 @@ class ClientMedicationRecord(models.Model):
         notification.notify()
 
         # Send to the employee
-        notification = Notification.objects.create(
-            title=f"Medication record (#{self.id}).",
-            event=Notification.EVENTS.MEDICATION_TIME,
-            content=f"You have a medication record to fill up.",
-            receiver=self.client_medication.administered_by.user,
-            metadata={"medication_id": self.client_medication.id, "medication_record_id": self.id},
-        )
+        if self.client_medication.administered_by:
+            notification = Notification.objects.create(
+                title=f"Medication record (#{self.id}).",
+                event=Notification.EVENTS.MEDICATION_TIME,
+                content=f"You have a medication record to fill up.",
+                receiver=self.client_medication.administered_by.user,
+                metadata={
+                    "medication_id": self.client_medication.id,
+                    "medication_record_id": self.id,
+                },
+            )
 
-        notification.notify()
+            notification.notify()
+        else:
+            # Send to the employees that have "receive_medication_notifications" permission
+            employees = EmployeeProfile.objects.all()
+            for employee in employees:
+                logger.debug(f"Send Medical Notification {self.id} to employee")
+
+                medication_record_link = f"{settings.FRONTEND_BASE_URL}/clients/{employee.pk}/medications/{self.client_medication.pk}/records"
+
+                if employee.has_permission("medication.notifications.receive"):
+                    notification = Notification.objects.create(
+                        title=f"Medication record (#{self.id}).",
+                        event=Notification.EVENTS.MEDICATION_TIME,
+                        content=f"You have a medication record to fill up ({medication_record_link}).",
+                        receiver=employee.user,
+                        metadata={
+                            "medication_id": self.client_medication.id,
+                            "medication_record_id": self.id,
+                        },
+                    )
+                    notification.notify()
 
 
 class ClientGoals(models.Model):
@@ -425,7 +524,7 @@ class Incident(models.Model):
     reported_by = models.ForeignKey(
         EmployeeProfile, on_delete=models.CASCADE, related_name="reported_incidents"
     )
-    involved_children = models.ManyToManyField(ClientDetails, related_name="incidents")
+    involved_children = models.ManyToManyField(ClientDetails, related_name="incidents_list")
     date_reported = models.DateTimeField(default=timezone.now)
     date_of_incident = models.DateTimeField()
     location = models.CharField(max_length=255)
@@ -473,6 +572,10 @@ class DomainGoal(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
+    selected_maturity_matrix_assessment = models.ForeignKey(
+        SelectedMaturityMatrixAssessment, related_name="goals", on_delete=models.CASCADE, null=True
+    )
+
     is_approved = models.BooleanField(default=False)
 
     updated = models.DateTimeField(auto_now=True)
@@ -523,6 +626,26 @@ class DomainObjective(models.Model):
     def __str__(self) -> str:
         return f"Objective: {self.title}"
 
+    def ai_generate_progress_report(
+        self, start_date: str, end_date: str
+    ) -> ObjectiveProgressReport | None:
+        # Generate a progress report based on the history
+        # Get the history of the objective
+        history = self.history.filter(date__range=[start_date, end_date]).all()  # type: ignore
+
+        if history:
+            rating = round(sum([h.rating for h in history]) / len(history), 1)
+            report_text: str = generate_ai_objective_progress_report(self, history)
+
+            report = ObjectiveProgressReport.objects.create(
+                objective=self,
+                title=f"Objective Progress Report: {start_date} - {end_date}",
+                report_text=report_text,
+                rating=rating,
+            )
+            return report
+        return None
+
 
 class ObjectiveHistory(models.Model):
     rating = models.FloatField(default=0)
@@ -555,6 +678,26 @@ class ObjectiveHistory(models.Model):
 
         result = super().save(*args, **kwargs)
         return result
+
+
+class ObjectiveProgressReport(models.Model):
+    objective = models.ForeignKey(
+        DomainObjective, related_name="progress_reports", on_delete=models.CASCADE
+    )
+    title = models.CharField(
+        max_length=255
+    )  # this should include dates (e.g. Progress Report: 2021-10-10 - 2021-10-17)
+    report_text = models.TextField(null=True)
+    rating = models.FloatField(
+        default=0
+    )  # Overall rating based on the objectives history (generated by AI)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"Objective Progress Report: {self.title}"
 
 
 class GoalHistory(models.Model):

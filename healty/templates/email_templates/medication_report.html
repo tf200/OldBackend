@@ -1,0 +1,40 @@
+{% extends "email_templates/layouts/base.html" %}
+{% load static %}
+
+{% block title %}Medical Report{% endblock %}
+
+{% block content %}
+    <h1>Medication Report</h1>
+    
+    <h2>Client Information</h2>
+    <p>Name: {{ client.first_name }} {{ client.last_name }}</p>
+    <p>Email: {{ client.email }}</p>
+    <p>Phone: {{ client.phone_number }}</p>
+    
+    <h2>Medication Records</h2>
+    {% for medication, medication_records in selected_medications %}
+        <h3>{{ medication.name }} ({{ medication.dosage }})</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Dosage</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in medication_records %}
+                    <tr>
+                        <td>{{ record.time }}</td>
+                        <td>{{ medication.dosage }}</td>
+                        <td>{{ record.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+    
+    <p>Feel free to contact us if you have any questions or concerns.</p>
+    
+    <p>Best regards.</p>
+{% endblock %}

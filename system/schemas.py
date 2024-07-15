@@ -7,7 +7,13 @@ from ninja import Field, ModelSchema, Schema
 from adminmodif.models import Group
 from authentication.models import CustomUser
 from employees.models import GroupAccess
-from system.models import AttachmentFile, DBSettings, Expense, Notification
+from system.models import (
+    AttachmentFile,
+    DBSettings,
+    Expense,
+    Notification,
+    ProtectedEmail,
+)
 
 
 class DBSettingsSchema(Schema):
@@ -162,3 +168,13 @@ class GroupAccessInput(ModelSchema):
 
 class GroupAccessDelete(Schema):
     group_access_id: int
+
+
+class ProtectedEmailSchema(ModelSchema):
+    class Meta:
+        model = ProtectedEmail
+        fields = "__all__"
+
+
+class PassKeySchema(Schema):
+    passkey: str

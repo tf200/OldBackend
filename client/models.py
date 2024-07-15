@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import calendar
 import os
+import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -15,9 +17,14 @@ from django.utils import timezone
 from loguru import logger
 from weasyprint import HTML
 
-from assessments.models import AssessmentDomain
+from ai.utils import ai_summarize
+from assessments.models import Assessment, AssessmentDomain
 from authentication.models import Location
-from system.models import AttachmentFile, DBSettings, Notification
+from system.models import AttachmentFile, DBSettings, Notification, ProtectedEmail
+from system.utils import send_mail_async
+
+if TYPE_CHECKING:
+    from employees.models import ProgressReport
 
 
 def generate_invoice_id() -> str:
@@ -43,8 +50,19 @@ class Sender(models.Model):
     client_number = models.CharField(max_length=20, null=True, blank=True)
     email_adress = models.CharField(max_length=20, null=True, blank=True)
 
-    def __str__(self):
+    class Meta:
+        ordering = ("-id",)
+
+    def __str__(self) -> str:
         return f"{self.name} (#{self.pk})"
+
+    def get_contacts(self) -> list[Contact]:
+        contact_ids = ClientTypeContactRelation.objects.filter(client_type=self).values_list(
+            "contact", flat=True
+        )
+
+        # Get all the Contact instances
+        return list(Contact.objects.filter(id__in=contact_ids).all())
 
 
 ClientType = Sender  # For backword compatibility
@@ -101,8 +119,12 @@ class ClientDetails(models.Model):
     departure_reason = models.CharField(max_length=255, null=True, blank=True)
     departure_report = models.TextField(null=True, blank=True)
     gps_position = models.JSONField(default=list)
-    # class Meta:
-    #     verbose_name = "Client"
+
+    maturity_domains = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ("-id",)
+        verbose_name = "Client"
 
     def generate_the_monthly_invoice(self, send_notifications=False) -> Invoice | None:
         """This function mush be called on once a month (to avoid invoice duplicate)."""
@@ -183,11 +205,74 @@ class ClientDetails(models.Model):
         return super().save(*args, **kwargs)
 
     def get_domain_ids(self) -> list[int]:
-        care_plans = CarePlan.objects.filter(client__id=self.pk).all()
-        domain_ids: list[int] = []
-        for care_plan in care_plans:
-            domain_ids.extend([domain.id for domain in care_plan.domains.all()])
-        return list(set(domain_ids))
+        return list(self.maturity_domains)
+
+        # care_plans = CarePlan.objects.filter(client__id=self.pk).all()
+        # domain_ids: list[int] = []
+        # for care_plan in care_plans:
+        #     domain_ids.extend([domain.id for domain in care_plan.domains.all()])
+        # return list(set(domain_ids))
+
+    def get_selected_domains(self) -> list[int]:
+        return list(self.maturity_domains)
+
+    def documents_info(self) -> dict:
+        documents = self.documents.all()  # type: ignore
+        available_document_labels = set(dict(ClientDocuments.Labels.choices).keys())
+        uploaded_document_labels = set([doc.label for doc in documents])
+
+        ## remove the "other" from documents labels
+        available_document_labels.discard("other")  # type: ignore
+        uploaded_document_labels.discard("other")
+
+        not_uploaded_document_labels = available_document_labels - uploaded_document_labels
+        # Return the number of uploaded document an the number of not uploaded documents
+        return {
+            "total_uploaded": len(documents),
+            "total_not_uploaded": len(available_document_labels - uploaded_document_labels),
+            "uploaded_document_labels": uploaded_document_labels,
+            "not_uploaded_document_labels": not_uploaded_document_labels,
+        }
+
+    def send_weekly_progress_report(self) -> None:
+        """Send a weekly progress report to the client emergency contacts"""
+        current_date = timezone.now()
+        current_weekday = current_date.weekday()
+        # week range
+        end_week = current_date - timedelta(days=current_weekday)
+        start_week = end_week - timedelta(days=7)
+
+        progress_reports: list[ProgressReport] = list(
+            self.progress_reports.filter(created__gte=start_week, created__lte=end_week).all()
+        )
+
+        if progress_reports:
+            report: str = (
+                f"This is a summary of the progress reports for the past week ({start_week:%b %d} - {end_week:%b %d})\n\n"
+            )
+
+            # Create a summary report for the week
+            for progress_report in progress_reports:
+                report += f"<b>📄 Report (#{progress_report.pk}) for {progress_report.created}:\n- type: {progress_report.get_type_display()}\n- emotional state: {progress_report.get_emotional_state_display()}</b>\n\n{ai_summarize(progress_report.report_text, default='no content')}\n\n"
+
+            for contact in self.emergency_contact.filter(incidents_reports=True).all():
+                # send the report
+                protected_email = ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Weekly Progress Report ({start_week:%b %d} - {end_week:%b %d})",
+                    content=report,
+                    metadata={
+                        "client_id": self.pk,
+                        "sender_id": contact.pk,
+                    },
+                )
+
+                logger.debug(f"Sending Progress weekly report to {contact.email}")
+                protected_email.notify()
+
+    def get_maturity_matrices(self) -> list[MaturityMatrix]:
+        "get maturity matrices for the client"
+        return list(MaturityMatrix.objects.filter(client__id=self.pk).all())
 
     def __str__(self) -> str:
         return f"Client: {self.first_name} {self.last_name} ({self.pk})"
@@ -256,6 +341,11 @@ class ClientDiagnosis(models.Model):
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
+class ContactRelationship(models.Model):
+    name = models.CharField(max_length=100)
+    soft_delete = models.BooleanField(default=False)
+
+
 class ClientEmergencyContact(models.Model):
     client = models.ForeignKey(
         ClientDetails, on_delete=models.CASCADE, related_name="emergency_contact"
@@ -276,9 +366,44 @@ class ClientEmergencyContact(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)  # this is for email verification
+    uuid = models.UUIDField(null=True, blank=True)  # this is used for email verification
     medical_reports = models.BooleanField(default=False)
     incidents_reports = models.BooleanField(default=False)
-    goals_reports = models.BooleanField(default=False)
+    goals_reports = models.BooleanField(
+        default=False
+    )  # this is used to send Progress Reports to the emergency contact
+
+    def send_verification_email(self) -> None:
+        # Send verification email to the emergency contact
+
+        # Generate a unique uuid
+        self.uuid = uuid.uuid4()
+        self.save()
+
+        send_mail_async(
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            subject="Email Verification",
+            recipient_list=[self.email],
+            message="",
+            html_message=render_to_string(
+                "email_templates/email_verification.html",
+                {
+                    "first_name": self.first_name,
+                    "last_name": self.last_name,
+                    "verification_link": f"{settings.FRONTEND_BASE_URL}/verify-network-email/{self.uuid}",
+                    "company_name": DBSettings.get("CONTACT_COMPANY_NAME", ""),
+                },
+            ),
+        )
+
+    def verify_email(self, uuid: uuid.UUID) -> bool:
+        if self.uuid == uuid:
+            self.is_verified = True
+            self.uuid = None
+            self.save()
+            return True
+        return False
 
 
 class Treatments(models.Model):
@@ -304,12 +429,25 @@ class ClientAllergy(models.Model):
 
 
 class ClientDocuments(models.Model):
+    class Labels(models.TextChoices):
+        REGISTRATION_FORM = ("registration_form", "Registration Form")
+        INTAKE_FORM = ("intake_form", "Intake Form")
+        CONSENT_FORM = ("consent_form", "Consent Form")
+        RISK_ASSESSMENT = ("risk_assessment", "Risk Assessment")
+        SELF_RELIANCE_MATRIX = ("self_reliance_matrix", "Self-reliance Matrix")
+        FORCE_INVENTORY = ("force_inventory", "Force Inventory")
+        CARE_PLAN = ("care_plan", "Care Plan")
+        SIGNALING_PLAN = ("signaling_plan", "Signaling Plan")
+        COOPERATION_AGREEMENT = ("cooperation_agreement", "Cooperation Agreement")
+        OTHER = ("other", "Other")
+
     user = models.ForeignKey(ClientDetails, related_name="documents", on_delete=models.CASCADE)
     documents = models.FileField(upload_to="client_documents/")
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     original_filename = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.BigIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    label = models.CharField(choices=Labels.choices, default=Labels.OTHER, max_length=100)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -645,12 +783,15 @@ class Invoice(models.Model):
             "client_full_name": f"{self.client.first_name} {self.client.last_name}",
             "client_id": self.client.id,
             "client_date_of_birth": self.client.date_of_birth,
+            "client_bsn": self.client.bsn,
             # Sender
             "company_name": sender.name if sender else "",
             "email": sender.email_adress if sender else "",
             "address": sender.address if sender else "",
             "KVK": sender.BTWnumber if sender else "",
             "BTW": sender.KVKnumber if sender else "",
+            "sender": sender,
+            "sender_contacts": sender.get_contacts() if sender else [],
             # Site info
             "site_name": DBSettings.get("SITE_NAME"),
             "invoice_footer": DBSettings.get("INVOICE_FOOTER"),
@@ -844,8 +985,11 @@ class SenderContactRelation(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
+ClientTypeContactRelation = SenderContactRelation  # an alias for backward compatibility
+
+
 class TemporaryFile(models.Model):
-    id = models.CharField(primary_key=True, default=generate_invoice_id, editable=False)
+    id = models.CharField(primary_key=True, default=uuid.uuid4, editable=False)
     file = models.FileField(upload_to="temporary_files/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -958,6 +1102,9 @@ class CarePlan(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     domains = models.ManyToManyField(AssessmentDomain, related_name="care_plans")
 
+    class Meta:
+        ordering = ("-id",)
+
 
 class CareplanAtachements(models.Model):
     careplan = models.ForeignKey(
@@ -966,3 +1113,629 @@ class CareplanAtachements(models.Model):
     attachement = models.FileField(upload_to="clients_pics/")
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(null=True, max_length=100)
+
+
+class Incident(models.Model):
+    class ReporterInvolvement(models.TextChoices):
+        DIRECTLY_INVOLVED = "directly_involved", "Directly involved"
+        WITNESS = "witness", "Witness"
+        FOUND_AFTERWARDS = "found_afterwards", "Found afterwards"
+        ALARMED = "alarmed", "Alarmed"
+
+    class IncidentSeverity(models.TextChoices):
+        NEAR_INCIDENT = "near_incident", "Near Incident"
+        LESS_SERIOUS = "less_serious", "Less Serious"
+        SERIOUS = "serious", "Serious"
+        FATAL = "fatal", "Fatal"
+
+    class RecurrenceRisk(models.TextChoices):
+        VERY_LOW = "very_low", "Very Low"
+        MEANS = "means", "Means"
+        HIGH = "high", "High"
+        VERY_HIGH = "very_high", "Very High"
+
+    class PhysicalInjury(models.TextChoices):
+        NO_INJURIES = "no_injuries", "No Injuries"
+        NOT_NOTICEABLE_YET = "not_noticeable_yet", "Not Noticeable Yet"
+        BRUISING_SWELLING = "bruising_swelling", "Bruising/Swelling"
+        SKIN_INJURY = "skin_injury", "Skin Injury"
+        BROKEN_BONES = "broken_bones", "Broken Bones"
+        SHORTNESS_OF_BREATH = "shortness_of_breath", "Shortness of Breath"
+        DEATH = "death", "Death"
+        OTHER = "other", "Other"
+
+    class PsychologicalDamage(models.TextChoices):
+        NO = "no", "No"
+        NOT_NOTICEABLE_YET = "not_noticeable_yet", "Not Noticeable Yet"
+        DROWSINESS = "drowsiness", "Drowsiness"
+        UNREST = "unrest", "Unrest"
+        OTHER = "other", "Other"
+
+    class NeededConsultation(models.TextChoices):
+        NO = "no", "No"
+        NOT_CLEAR_YET = "not_clear", "Not Clear Yet"
+        HOSPITALIZATION = "hospitalization", "Hospitalization"
+        CONSULT_GP = "consult_gp", "Consult GP"
+
+    employee_fullname = models.CharField(max_length=100)
+    employee_position = models.CharField(max_length=100)
+    location = models.ForeignKey(
+        Location, related_name="incident", on_delete=models.SET_NULL, null=True
+    )
+    reporter_involvement = models.CharField(
+        max_length=100,
+        choices=ReporterInvolvement.choices,
+    )
+    inform_who = models.JSONField(default=list)
+    incident_date = models.DateField()
+    runtime_incident = models.CharField(max_length=100)
+
+    incident_type = models.CharField(max_length=100)
+    passing_away = models.BooleanField(default=False)
+    self_harm = models.BooleanField(default=False)
+    violence = models.BooleanField(default=False)
+    fire_water_damage = models.BooleanField(default=False)
+    accident = models.BooleanField(default=False)
+    client_absence = models.BooleanField(default=False)
+    medicines = models.BooleanField(default=False)
+    organization = models.BooleanField(default=False)
+    use_prohibited_substances = models.BooleanField(default=False)
+    other_notifications = models.BooleanField(default=False)
+    severity_of_incident = models.CharField(
+        max_length=100,
+        choices=IncidentSeverity.choices,
+    )
+    incident_explanation = models.TextField(null=True, blank=True)
+    recurrence_risk = models.CharField(
+        max_length=100,
+        choices=RecurrenceRisk.choices,
+    )
+    incident_prevent_steps = models.TextField(null=True, blank=True)
+    incident_taken_measures = models.TextField(null=True, blank=True)
+
+    technical = models.JSONField(default=list)
+    organizational = models.JSONField(default=list)
+    mese_worker = models.JSONField(default=list)
+    client_options = models.JSONField(default=list)
+    other_cause = models.CharField(max_length=100, null=True, blank=True)
+    cause_explanation = models.TextField(default="", null=True, blank=True)
+
+    physical_injury = models.CharField(
+        max_length=100,
+        choices=PhysicalInjury.choices,
+    )
+    physical_injury_desc = models.TextField(default="", null=True, blank=True)
+    psychological_damage = models.CharField(
+        max_length=100,
+        choices=PsychologicalDamage.choices,
+    )
+    psychological_damage_desc = models.TextField(default="", null=True, blank=True)
+    needed_consultation = models.CharField(
+        max_length=100,
+        choices=NeededConsultation.choices,
+    )
+
+    succession = models.JSONField(default=list)
+    succession_desc = models.TextField(default="", null=True, blank=True)
+    other = models.BooleanField(default=False)
+    other_desc = models.CharField(max_length=100, null=True, blank=True)
+
+    additional_appointments = models.TextField(default="", null=True, blank=True)
+    employee_absenteeism = models.JSONField(default=list)
+
+    client = models.ForeignKey(ClientDetails, related_name="incidents", on_delete=models.CASCADE)
+
+    soft_delete = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def send_incident_to_emergency_contacts(self) -> None:
+        # Send a notification to the emergency contacts
+        for contact in self.client.emergency_contact.filter(incidents_reports=True).all():  # type: ignore
+            if contact.email:
+                content: str = ""  # we may not need the content.
+
+                ProtectedEmail.objects.create(
+                    email=contact.email,
+                    subject=f"Incident Report for {self.client.first_name} {self.client.last_name}",
+                    content=content,
+                    email_type=ProtectedEmail.EMAIL_TYPES.INCIDENT_REPORT,
+                    metadata={"incident_id": self.pk},
+                ).notify(
+                    title="Incident Report",
+                    short_description=f"An incident report is available of {self.client.first_name} {self.client.last_name}.",
+                )
+
+
+class CollaborationAgreement(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="collaboration_agreements", on_delete=models.CASCADE
+    )
+    # Client: (full name, SKN, client number, phone)
+    client_full_name = models.CharField(max_length=100)
+    client_SKN = models.CharField(max_length=100)
+    client_number = models.CharField(max_length=100)
+    client_phone = models.CharField(max_length=100)
+
+    # Probation: (full name, Organization, phone)
+    probation_full_name = models.CharField(max_length=100)
+    probation_organization = models.CharField(max_length=100)
+    probation_phone = models.CharField(max_length=100)
+
+    # Healthcare institution: (name, Organization, phone, function)
+    healthcare_institution_name = models.CharField(max_length=100)
+    healthcare_institution_organization = models.CharField(max_length=100)
+    healthcare_institution_phone = models.CharField(max_length=100)
+    healthcare_institution_function = models.CharField(max_length=100)
+
+    contact_agreements = models.TextField()
+
+    # attachment
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    """
+    [
+        {
+            type: living | datetime | addiction_resources_use | finances | behaviour | psychic_health | physical_health | family | partner_children | friends
+            attention: str
+            risk: str
+            positive: str
+            dates: text
+            explanation: text
+        },
+        ...
+    ]
+    """
+    attention_risks = models.JSONField(default=list)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def download_link(self, refresh=False) -> str:
+        """return a link of the collaboration agreement PDF"""
+
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        context = {
+            # Client
+            "client_full_name": self.client_full_name,
+            "client_SKN": self.client_SKN,
+            "client_number": self.client_number,
+            "client_phone": self.client_phone,
+            # Probation
+            "probation_full_name": self.probation_full_name,
+            "probation_organization": self.probation_organization,
+            "probation_phone": self.probation_phone,
+            # Healthcare institution
+            "healthcare_institution_name": self.healthcare_institution_name,
+            "healthcare_institution_organization": self.healthcare_institution_organization,
+            "healthcare_institution_phone": self.healthcare_institution_phone,
+            "healthcare_institution_function": self.healthcare_institution_function,
+            # Contact agreements
+            "contact_agreements": self.contact_agreements,
+            # Attention risks
+            "attention_risks": self.attention_risks,
+        }
+
+        html_string = render_to_string("questionnaire/collaboration_agreement.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = f"Collaboration_Agreement_{self.client_full_name}_{self.probation_full_name}_{self.healthcare_institution_name}.pdf"
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Collaboration_Agreement"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
+
+
+class RiskAssessment(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, related_name="risk_assessments", on_delete=models.CASCADE
+    )
+
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=100)
+    date_of_intake = models.DateTimeField()
+    intaker_position_name = models.CharField(max_length=100)
+
+    family_situation = models.TextField()
+    education_work = models.TextField()
+    current_living_situation = models.TextField()
+    social_network = models.TextField()
+    previous_assistance = models.TextField()
+
+    behaviour_at_school_work = models.TextField()
+    people_skills = models.TextField()
+    emotional_status = models.TextField()
+    self_image_self_confidence = models.TextField()
+    stress_factors = models.TextField()
+
+    committed_offences_description = models.TextField()
+    offences_frequency_seriousness = models.TextField()
+    age_first_offense = models.TextField()
+    circumstances_surrounding_crimes = models.TextField()
+
+    offenses_recations = models.TextField()
+    personal_risk_factors = models.TextField()
+    environmental_risk_factors = models.TextField()
+    behaviour_recurrence_risk = models.TextField()
+    abuse_substance_risk = models.TextField()
+
+    person_strengths = models.TextField()
+    positive_influences = models.TextField()
+    available_support_assistance = models.TextField()
+    person_strategies = models.TextField()
+
+    specific_needs = models.TextField()
+    recommended_interventions = models.TextField()
+    other_agencies_involvement = models.TextField()
+    risk_management_plan_of_actions = models.TextField()
+
+    findings_summary = models.TextField()
+    institution_advice = models.TextField()
+    inclusion = models.TextField()
+    intaker_name = models.CharField(max_length=100)
+    report_date = models.DateField()
+
+    regular_evaluation_plan = models.CharField(max_length=255)
+    success_criteria = models.CharField(max_length=255)
+    time_table = models.CharField(max_length=255)
+
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def download_link(self, refresh=False) -> str:
+        """return a link of the risk assessment PDF"""
+
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        context = {
+            # Client
+            "youth_name": f"{self.client.first_name} {self.client.last_name}",
+            "date_of_birth": self.date_of_birth,
+            "gender": self.gender,
+            "date_of_intake": self.date_of_intake,
+            "intaker_position_name": self.intaker_position_name,
+            "family_situation": self.family_situation,
+            "education_work": self.education_work,
+            "current_living_situation": self.current_living_situation,
+            "social_network": self.social_network,
+            "previous_assistance": self.previous_assistance,
+            "behaviour_at_school_work": self.behaviour_at_school_work,
+            "people_skills": self.people_skills,
+            "emotional_status": self.emotional_status,
+            "self_image_self_confidence": self.self_image_self_confidence,
+            "stress_factors": self.stress_factors,
+            "committed_offences_description": self.committed_offences_description,
+            "offences_frequency_seriousness": self.offences_frequency_seriousness,
+            "age_first_offense": self.age_first_offense,
+            "circumstances_surrounding_crimes": self.circumstances_surrounding_crimes,
+            "offenses_recations": self.offenses_recations,
+            "personal_risk_factors": self.personal_risk_factors,
+            "environmental_risk_factors": self.environmental_risk_factors,
+            "behaviour_recurrence_risk": self.behaviour_recurrence_risk,
+            "abuse_substance_risk": self.abuse_substance_risk,
+            "person_strengths": self.person_strengths,
+            "positive_influences": self.positive_influences,
+            "available_support_assistance": self.available_support_assistance,
+            "person_strategies": self.person_strategies,
+            "specific_needs": self.specific_needs,
+            "recommended_interventions": self.recommended_interventions,
+            "other_agencies_involvement": self.other_agencies_involvement,
+            "risk_management_plan_of_actions": self.risk_management_plan_of_actions,
+            "findings_summary": self.findings_summary,
+            "institution_advice": self.institution_advice,
+            "inclusion": self.inclusion,
+            "intaker_name": self.intaker_name,
+            "report_date": self.report_date,
+            "regular_evaluation_plan": self.regular_evaluation_plan,
+            "success_criteria": self.success_criteria,
+            "time_table": self.time_table,
+        }
+
+        html_string = render_to_string("questionnaire/risk_assessment.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = (
+            f"Risk_Assessment{self.client.first_name}_{self.client.last_name}.pdf"
+        )
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Risk_Assessment"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
+
+
+class ConsentDeclaration(models.Model):
+    youth_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    parent_guardian_name = models.CharField(max_length=255)
+    address = models.TextField()
+    youth_care_institution = models.CharField(max_length=255)
+    proposed_assistance_description = models.TextField()
+    statement_by_representative = models.TextField()
+    parent_guardian_signature_date = models.DateField()
+    juvenile_name = models.CharField(max_length=255, blank=True, null=True)
+    juvenile_signature_date = models.DateField(blank=True, null=True)
+    representative_name = models.CharField(max_length=255)
+    representative_signature_date = models.DateField()
+    contact_person_name = models.CharField(max_length=255)
+    contact_phone_number = models.CharField(max_length=20)
+    contact_email = models.EmailField()
+
+    # still need to add more fields
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="consent_declarations", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    # attachment
+    pdf_attachment = models.OneToOneField(
+        AttachmentFile, on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self):
+        return f"{self.youth_name} - {self.youth_care_institution}"
+
+    def download_link(self, refresh=False) -> str:
+        """return a link of the consent declaration PDF"""
+
+        # check if the PDF is already generated
+        if self.pdf_attachment and refresh is False:
+            return self.pdf_attachment.file.url
+
+        context = {
+            # Client
+            "youth_name": self.youth_name,
+            "date_of_birth": self.date_of_birth,
+            "parent_guardian_name": self.parent_guardian_name,
+            "address": self.address,
+            "youth_care_institution": self.youth_care_institution,
+            "proposed_assistance_description": self.proposed_assistance_description,
+            "statement_by_representative": self.statement_by_representative,
+            "parent_guardian_signature_date": self.parent_guardian_signature_date,
+            "juvenile_name": self.juvenile_name,
+            "juvenile_signature_date": self.juvenile_signature_date,
+            "representative_name": self.representative_name,
+            "representative_signature_date": self.representative_signature_date,
+            "contact_person_name": self.contact_person_name,
+            "contact_phone_number": self.contact_phone_number,
+            "contact_email": self.contact_email,
+        }
+
+        html_string = render_to_string("questionnaire/declaration_of_consent.html", context)
+        html = HTML(string=html_string)
+        pdf_content = html.write_pdf()
+        new_attachment = AttachmentFile()
+        new_attachment.name = (
+            f"Consent_declaration{self.client.first_name}_{self.client.last_name}.pdf"
+        )
+        new_attachment.file.save(
+            new_attachment.name, ContentFile(pdf_content if pdf_content else "")
+        )
+        new_attachment.size = new_attachment.file.size
+        new_attachment.is_used = True
+        new_attachment.tag = "Consent_Declaration"
+        new_attachment.save()
+
+        # Assign the generated PDF.
+        if self.pdf_attachment:
+            self.pdf_attachment.delete()  # Delete the old one in case of refresh is True
+
+        self.pdf_attachment = new_attachment
+
+        return new_attachment.file.url
+
+
+class YouthCareIntake(models.Model):
+    class ServiceChoices(models.TextChoices):
+        OUTPATIENT_CARE = "outpatient_care", "Outpatient care"
+        SHELTERED_HOUSING = "sheltered_housing", "Sheltered housing"
+        ASSISTED_LIVING = "assisted_living", "Assisted Living"
+
+    class FinancingActs(models.TextChoices):
+        WMO = ("WMO", "WMO")
+        ZVW = ("ZVW", "ZVW")
+        WLZ = ("WLZ", "WLZ")
+        JW = ("JW", "JW")
+        WPG = ("WPG", "WPG")
+
+    class FinancingOptions(models.TextChoices):
+        ZIN = ("ZIN", "ZIN")
+        PGB = ("PGB", "PGB")
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="youth_care_intakes", on_delete=models.CASCADE
+    )
+
+    name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=30)
+    nationality = models.CharField(max_length=100)
+    bsn = models.CharField(max_length=20)
+
+    address = models.TextField()
+    postcode = models.CharField(max_length=20)
+    residence = models.CharField(max_length=100)
+
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
+
+    referrer_name = models.CharField(max_length=255)
+    referrer_organization = models.CharField(max_length=255)
+    referrer_function = models.CharField(max_length=255)
+    referrer_phone_number = models.CharField(max_length=20)
+    referrer_email = models.EmailField()
+
+    service_choice = models.CharField(max_length=20, choices=ServiceChoices.choices)
+    financing_acts = models.CharField(max_length=20, choices=FinancingActs.choices)
+    financing_options = models.CharField(max_length=20, choices=FinancingOptions.choices)
+    financing_other = models.CharField(max_length=255, blank=True, null=True)
+
+    registration_reason = models.TextField()
+    current_situation_background = models.TextField()
+
+    previous_aid_agencies_involved = models.BooleanField(default=False)
+    previous_aid_agencies_details = models.TextField(blank=True, null=True)
+
+    medical_conditions = models.BooleanField(default=False)
+    medical_conditions_details = models.TextField(blank=True, null=True)
+
+    medication_use = models.BooleanField(default=False)
+    medication_details = models.TextField(blank=True, null=True)
+
+    allergies_or_dietary_needs = models.BooleanField(default=False)
+    allergies_or_dietary_details = models.TextField(blank=True, null=True)
+
+    addictions = models.BooleanField(default=False)
+    addictions_details = models.TextField(blank=True, null=True)
+
+    school_or_daytime_activities = models.BooleanField(default=False)
+    school_daytime_name = models.CharField(max_length=255, blank=True, null=True)
+    current_class_level = models.CharField(max_length=100, blank=True, null=True)
+    school_contact_person = models.CharField(max_length=255, blank=True, null=True)
+    school_contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    school_contact_email = models.EmailField(blank=True, null=True)
+
+    important_people = models.TextField(blank=True, null=True)
+    external_supervisors_involved = models.BooleanField(default=False)
+    external_supervisors_details = models.TextField(blank=True, null=True)
+
+    special_circumstances = models.TextField(blank=True, null=True)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self):
+        return f"{self.name} - {self.date_of_birth}"
+
+
+class DataSharingStatement(models.Model):
+    youth_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    parent_guardian_name = models.CharField(max_length=255)
+    address = models.TextField()
+    youth_care_institution = models.CharField(max_length=255)
+
+    data_description = models.TextField()
+    data_purpose = models.TextField()
+    third_party_names = models.TextField()
+
+    statement = models.TextField()
+
+    # Signatures
+    parent_guardian_signature_name = models.CharField(max_length=255)
+    parent_guardian_signature = models.CharField(max_length=255)
+    parent_guardian_signature_date = models.DateField()
+
+    juvenile_name = models.CharField(max_length=255, blank=True, null=True)
+    juvenile_signature_date = models.DateField(blank=True, null=True)
+
+    institution_representative_name = models.CharField(max_length=255)
+    institution_representative_signature = models.CharField(max_length=255)
+    institution_representative_signature_date = models.DateField()
+
+    # Contact Information
+    contact_person_name = models.CharField(max_length=255)
+    contact_phone_number = models.CharField(max_length=20)
+    contact_email = models.EmailField()
+
+    client = models.ForeignKey(
+        ClientDetails, related_name="data_sharing_statements", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.youth_name} - {self.date_of_birth}"
+
+
+class MaturityMatrix(models.Model):
+    client = models.ForeignKey(
+        ClientDetails, on_delete=models.CASCADE, related_name="maturity_matrices"
+    )
+
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    is_approved = models.BooleanField(default=False)
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    assessments = models.ManyToManyField(
+        Assessment,
+        through="SelectedMaturityMatrixAssessment",
+    )
+
+    class Meta:
+        ordering = ("-created",)
+
+    def get_selected_assessments(self) -> list["SelectedMaturityMatrixAssessment"]:
+        # raise NotImplementedError(
+        #     "'get_selected_assessments' This method should be implemented in the child class."
+        # )
+        ...
+
+
+class SelectedMaturityMatrixAssessment(models.Model):
+    maturitymatrix = models.ForeignKey(
+        MaturityMatrix, related_name="selected_assessments", on_delete=models.CASCADE
+    )
+    assessment = models.ForeignKey(
+        Assessment, related_name="selected_assessments", on_delete=models.CASCADE
+    )
+
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created",)

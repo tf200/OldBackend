@@ -1,0 +1,26 @@
+{% extends "email_templates/layouts/base.html" %}
+{% load static %}
+
+{% block title %}Secure Email - {{ title }}{% endblock %}
+
+{% block content %}
+    <h1>Secure Email</h1>
+    <div>
+        You have received a secure email.<br>
+
+        This secure email is regarding the following:<br>
+        {{ description }}
+        <br>
+        <br>
+
+        <b>You can view this email by clicking the link below and using the passkey:</b><br>
+        <p>Passkey: <b>{{ passkey }}</b></p><br>
+        <p>Link: <a href="{{ generated_link }}">Click to View</a></p><br>
+        <br>
+        <b>Note: The link is available till {{ expiration_date }}, after that it will expire.</b><br><br>
+    </div>
+    
+    <p>Feel free to contact us if you have any questions or concerns.</p>
+    
+    <p>Best regards.</p>
+{% endblock %}

@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from .api import api
 
@@ -30,3 +32,8 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
     path("", api.urls),
 ]
+
+# Add static and media files
+# For media & assets
+urlpatterns.extend(static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))  # type: ignore
+urlpatterns.extend(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))  # type: ignore

@@ -1,0 +1,20 @@
+{% extends "email_templates/layouts/base.html" %}
+{% load static %}
+
+{% block title %}Progress Report{% endblock %}
+
+{% block content %}
+    <h1>Progress Report ({{ progress_report.date }})</h1>
+    
+    <h2>Client Information</h2>
+    <p>Name: {{ client.first_name }} {{ client.last_name }}</p>
+    <p>Email: {{ client.email }}</p>
+    <p>Phone: {{ client.phone_number }}</p>
+    <p>Emotional State: {{ progress_report.emotional_state | title }}</p>
+        
+    <div>{{ progress_report.report_text }}</div>    
+    
+    <p>Feel free to contact us if you have any questions or concerns.</p>
+    
+    <p>Best regards.</p>
+{% endblock %}

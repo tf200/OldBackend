@@ -9,6 +9,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "healty.settings")
 
 app = Celery("healty")
 
+app.conf.update(enable_utc=True, timezone=settings.TIME_ZONE)
+
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys

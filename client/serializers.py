@@ -1,3 +1,5 @@
+import json
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -13,6 +15,7 @@ from .models import *
 class ClientDetailsSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
     attachments = serializers.SerializerMethodField()
+    document_info = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientDetails
@@ -47,6 +50,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
             "departure_reason",
             "departure_report",
             "gps_position",
+            "document_info",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
@@ -69,6 +73,9 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         attachments = AttachmentFile.objects.filter(id__in=attachment_ids, is_used=True)
         return AttchementFileSerialize(attachments, many=True).data
 
+    def get_document_info(self, obj: ClientDetails):
+        return obj.documents_info()
+
 
 class ClientDetailsNestedSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,6 +95,7 @@ class ClientEmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientEmergencyContact
         fields = "__all__"
+        read_only_fields = ("uuid",)
 
 
 class ClientDocumentsSerializers(serializers.ModelSerializer):
@@ -246,9 +254,8 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 class ClientTypeSerializer(serializers.ModelSerializer):
-    contacts = ContactSerializer(
-        many=True, required=False
-    )  # Set `required=False` if contacts are optional
+
+    contacts = serializers.ListField(child=serializers.DictField(), required=False)
 
     class Meta:
         model = ClientType
@@ -271,16 +278,40 @@ class ClientTypeSerializer(serializers.ModelSerializer):
         contacts_data = validated_data.pop(
             "contacts", []
         )  # Safely remove contacts with a default empty list
+
         client_type = ClientType.objects.create(**validated_data)
+
         for contact_data in contacts_data:
             contact, created = Contact.objects.get_or_create(**contact_data)
             ClientTypeContactRelation.objects.create(client_type=client_type, contact=contact)
+
         return client_type
 
-    def get_contacts(self, obj):
-        # Assuming 'contact_relations' is the related_name for the ForeignKey in ClientTypeContactRelation
-        contacts = [relation.contact for relation in obj.contact_relations.all()]
-        return ContactSerializer(contacts, many=True).data
+    def update(self, instance: ClientType, validated_data):
+        contacts_data = validated_data.pop("contacts", [])
+
+        # Update the ClientType instance with other validated data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update or create contacts
+        for contact_data in contacts_data:
+            contact, created = Contact.objects.get_or_create(**contact_data)
+            ClientTypeContactRelation.objects.get_or_create(client_type=instance, contact=contact)
+
+        return instance
+
+    def to_representation(self, instance: ClientType):
+        data = super().to_representation(instance)
+        data["contacts"] = ContactSerializer(instance.get_contacts(), many=True).data
+        return data
+
+    # def get_contacts(self, obj: ClientType):
+    #     # List all the Contacts instances related to the ClientType instance
+    #     contacts = obj.get_contacts()
+
+    #     return ContactSerializer(contacts, many=True).data
 
 
 class TemporaryFileSerializer(serializers.ModelSerializer):
@@ -424,7 +455,8 @@ class CarePlanSerializer(serializers.ModelSerializer):
             instance.save()
 
             # Delete all previous domains
-            instance.domains.clear()
+            if domain_ids:
+                instance.domains.clear()
 
             # register the new domains
             for domain_id in domain_ids:

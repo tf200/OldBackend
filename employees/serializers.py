@@ -167,6 +167,8 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
             "experience",
             "location",
             "has_borrowed",
+            "out_of_service",
+            "is_archived",
         ]
 
 

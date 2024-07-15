@@ -9,11 +9,20 @@ from client.models import (
     ClientDetails,
     ClientState,
     ClientStatusHistory,
+    CollaborationAgreement,
+    ConsentDeclaration,
+    ContactRelationship,
     Contract,
     ContractType,
     ContractWorkingHours,
+    DataSharingStatement,
+    Incident,
     Invoice,
     InvoiceHistory,
+    MaturityMatrix,
+    RiskAssessment,
+    SelectedMaturityMatrixAssessment,
+    YouthCareIntake,
 )
 from employees.models import (
     ClientMedication,
@@ -22,6 +31,7 @@ from employees.models import (
     DomainObjective,
     GoalHistory,
     ObjectiveHistory,
+    ObjectiveProgressReport,
 )
 from system.models import AttachmentFile
 from system.schemas import AttachmentFileSchema
@@ -204,7 +214,9 @@ class ClientMedicationSchema(ModelSchema):
 
     @staticmethod
     def resolve_administered_by_name(medication: ClientMedication) -> str:
-        return f"{medication.administered_by.last_name} {medication.administered_by.last_name}"
+        if medication.administered_by:
+            return f"{medication.administered_by.last_name} {medication.administered_by.last_name}"
+        return ""
 
 
 class MedicationRecordSchema(ModelSchema):
@@ -406,3 +418,239 @@ class ClientStateSchemaPatch(Schema):
 class GPSPositionSchemaInput(Schema):
     latitude: str
     longitude: str
+
+
+class ContactRelationshipSchema(ModelSchema):
+
+    class Meta:
+        model = ContactRelationship
+        fields = "__all__"
+
+
+class ContactRelationshipInput(Schema):
+    name: str
+
+
+class IncidentSchema(ModelSchema):
+    client_id: int
+    location_id: int
+
+    class Meta:
+        model = Incident
+        exclude = ("soft_delete", "location", "client")
+
+
+class IncidentInput(ModelSchema):
+    client_id: int
+    location_id: int
+    reporter_involvement: Literal["directly_involved", "witness", "found_afterwards", "alarmed"]
+    severity_of_incident: Literal["near_incident", "less_serious", "serious", "fatal"]
+    recurrence_risk: Literal["very_low", "means", "high", "very_high"]
+    physical_injury: Literal[
+        "no_injuries",
+        "not_noticeable_yet",
+        "bruising_swelling",
+        "skin_injury",
+        "broken_bones",
+        "shortness_of_breath",
+        "death",
+        "other",
+    ]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest", "other"]
+    needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
+
+    class Meta:
+        model = Incident
+        exclude = ("created", "updated", "id", "client", "location", "soft_delete")
+
+
+class IncidentPatch(ModelSchema):
+    location_id: int
+    reporter_involvement: Literal["directly_involved", "witness", "found_afterwards", "alarmed"]
+    severity_of_incident: Literal["near_incident", "less_serious", "serious", "fatal"]
+    recurrence_risk: Literal["very_low", "means", "high", "very_high"]
+    physical_injury: Literal[
+        "no_injuries",
+        "not_noticeable_yet",
+        "bruising_swelling",
+        "skin_injury",
+        "broken_bones",
+        "shortness_of_breath",
+        "death",
+        "other",
+    ]
+    psychological_damage: Literal["no", "not_noticeable_yet", "drowsiness", "unrest", "other"]
+    needed_consultation: Literal["no", "not_clear", "hospitalization", "consult_gp"]
+
+    class Meta:
+        model = Incident
+        exclude = ("created", "updated", "id", "client", "location", "soft_delete")
+
+
+class CollaborationAgreementSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = CollaborationAgreement
+        exclude = ("client",)
+
+
+class CollaborationAgreementInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = CollaborationAgreement
+        exclude = ("client", "id", "updated", "created")
+
+
+class RiskAssessmentSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = RiskAssessment
+        exclude = ("client",)
+
+
+class RiskAssessmentInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = RiskAssessment
+        exclude = ("client", "id", "updated", "created")
+
+
+class ConsentDeclarationSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ConsentDeclaration
+        exclude = ("client",)
+
+
+class ConsentDeclarationInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = ConsentDeclaration
+        exclude = ("client", "id", "updated", "created")
+
+
+class YouthCareIntakeSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = YouthCareIntake
+        exclude = ("client",)
+
+
+class YouthCareIntakeInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = YouthCareIntake
+        exclude = ("client", "id", "updated", "created")
+
+
+class DataSharingStatementSchema(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = DataSharingStatement
+        exclude = ("client",)
+
+
+class DataSharingStatementInput(ModelSchema):
+    client_id: int
+
+    class Meta:
+        model = DataSharingStatement
+        exclude = ("client", "id", "updated", "created")
+
+
+class ObjectiveProgressReportSchema(ModelSchema):
+    objective_id: int
+
+    class Meta:
+        model = ObjectiveProgressReport
+        exclude = ("objective",)
+
+
+class DatePeriodSchema(Schema):
+    start_date: date
+    end_date: date
+
+
+class DomainListSchema(Schema):
+    domains: list[int]
+
+
+#############
+
+
+class MaturityMatrixSchema(ModelSchema):
+    client_id: int
+    selected_assessments: list["SelectedMaturityMatrixAssessmentSchema"]
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "assessments")
+
+
+class AssessmentPayloadSchema(Schema):
+    domain_id: int
+    level: int
+    goal_ids: list[int]
+
+
+class MaturityMatrixInput(ModelSchema):
+    client_id: int
+    start_date: date
+    end_date: date
+    maturity_matrix: list[AssessmentPayloadSchema]
+
+    class Meta:
+        model = MaturityMatrix
+        exclude = ("client", "id", "created", "updated", "is_approved", "assessments")
+
+
+class SelectedMaturityMatrixAssessmentSchema(ModelSchema):
+    assessment_id: int
+    maturitymatrix_id: int
+    goals: list[DomainGoalSchema]
+    domain_id: int
+    level: int
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment")
+
+    @staticmethod
+    def resolve_level(obj: SelectedMaturityMatrixAssessment) -> int:
+        return obj.assessment.level
+
+    @staticmethod
+    def resolve_domain_id(obj: SelectedMaturityMatrixAssessment) -> int:
+        if obj.assessment.domain:
+            return obj.assessment.domain.pk
+        return 0
+
+
+class SelectedMaturityMatrixAssessmentInput(ModelSchema):
+    assessment_id: int
+    maturitymatrix_id: int
+
+    # What about goals?
+    # goals: list[DomainGoalSchema]
+
+    class Meta:
+        model = SelectedMaturityMatrixAssessment
+        exclude = ("maturitymatrix", "assessment", "id", "created", "updated")
+
+
+class DocumentLinkSchema(Schema):
+    link: str
+
+
+class DocumentLinkInput(Schema):
+    id: int
+    type: Literal["risk_assessment", "collaboration_agreement", "consent_declaration"]

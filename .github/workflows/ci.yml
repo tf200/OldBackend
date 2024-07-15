@@ -29,27 +29,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          mask-password: 'true'
+          mask-password: "true"
 
       - name: Build Docker images
         run: |
           docker build -t ${{ env.ECR_REGISTRY }}/healthy:latest .
           docker tag ${{ env.ECR_REGISTRY }}/healthy:latest ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
-          
-          # Push the images to ECR
-          docker build -t ${{ env.ECR_REGISTRY }}/my_celery:latest --file celery/Dockerfile .
-          docker tag ${{ env.ECR_REGISTRY }}/my_celery:latest ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
 
       - name: Push the image to ECR Hub
         run: |
           docker push ${{ env.ECR_REGISTRY }}/healthy:latest
           docker push ${{ env.ECR_REGISTRY }}/healthy:${{ github.ref_name }}
 
-          docker push ${{ env.ECR_REGISTRY }}/my_celery:latest
-          docker push ${{ env.ECR_REGISTRY }}/my_celery:${{ github.ref_name }}
-
-
-  deploy_to_testing_environment:
+  deploy:
+    name: Deploy to Development Server
     env:
       SERVER: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
       SOURCE: .env docker-compose.yml caddy
@@ -67,7 +60,6 @@ jobs:
           # Copy the main services
           sshpass -p "${{ secrets.VPS_PASS }}" rsync -aP -e "ssh -p ${{ secrets.VPS_PORT }} -o StrictHostKeyChecking=no" ${{ env.SOURCE }} ${{ env.SERVER }}:${{ env.DESTINATION }}
 
-
       - name: Deploy now
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -84,13 +76,24 @@ jobs:
 
             cd ~/core
             # Pull the new image
-            docker-compose pull web celery
+            docker-compose pull frontend backend celery
 
             # Stop and remove the old container
-            docker rm -fv core_web_1 core_celery_1
+            docker rm -fv core_frontend_1 core_backend_1 core_celery_1 || true
 
             # Up everything
             docker-compose up -d --remove-orphans
+
+            # Rebuild the frontend (for public .env variables)
+
+            # -> updating the .env file
+            docker exec core_frontend_1 sh -c "env | grep NEXT_PUBLIC > .env"
+
+            # -> building the frontend
+            docker exec core_frontend_1 sh -c "npx next telemetry disable && npm run build"
+
+            # -> restarting the frontend
+            docker-compose restart frontend
 
             # Run migrations
             # Nothing yet
@@ -100,6 +103,9 @@ jobs:
 
             # Some space clean up
             docker image prune -f
+
+            # Restart the celery beat tasks
+            sleep 5 && docker exec -u root core_celery_1 python3 manage.py refresh_celery_beat_tasks
 
             # Inform me/us
             # nothing yet
