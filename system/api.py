@@ -437,3 +437,4 @@ def verify_network_email(request: HttpRequest, uuid: UUID):
     contact = get_object_or_404(ClientEmergencyContact, uuid=uuid)
     contact.verify_email(uuid)
     return 204, {}
+    
