@@ -17,6 +17,7 @@ from pathlib import Path
 from celery.schedules import crontab
 from dotenv import load_dotenv
 from loguru import logger
+from sqlalchemy import true
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +40,7 @@ logger.add(
 SECRET_KEY = "django-insecure-vrw!mq7f#wac=db+jgzumdn-slvi@ce7*@-!ks3!6)1*#dx!&="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv("DEBUG", 0)))
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -131,11 +132,11 @@ ASGI_APPLICATION = "healty.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", ""),
-        "USER": os.getenv("DB_USER", ""),
-        "PASSWORD": os.getenv("DB_PASS", ""),
-        "HOST": os.getenv("DB_HOST", ""),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "NAME": "mydb",  # Name of the database you created
+        "USER": "myuser",  # PostgreSQL username
+        "PASSWORD": "mypassword",  # PostgreSQL password
+        "HOST": "localhost",  # The PostgreSQL container is running locally
+        "PORT": "5432",  # The port PostgreSQL is exposed on
     }
 }
 
@@ -174,27 +175,27 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-USE_S3: bool = bool(int(os.getenv("USE_S3", 0)))
+# USE_S3: False
 
-if USE_S3:
-    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
-    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-    AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
-    AWS_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
-    AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL", None)
-    AWS_S3_REGION_NAME: str = os.getenv("AWS_S3_REGION_NAME", "us-east-2")  # e.g., us-east-2
-    AWS_S3_CUSTOM_DOMAIN: str = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+# if USE_S3:
+#     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
+#     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+#     AWS_STORAGE_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+#     AWS_BUCKET_NAME: str = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+#     AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL", None)
+#     AWS_S3_REGION_NAME: str = os.getenv("AWS_S3_REGION_NAME", "us-east-2")  # e.g., us-east-2
+#     AWS_S3_CUSTOM_DOMAIN: str = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
-    # Static files (CSS, JavaScript, Images)
-    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
-    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+#     # Static files (CSS, JavaScript, Images)
+#     STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+#     STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-    # Media files
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-else:
-    STATIC_URL = "/static/"
-    MEDIA_URL = "/media/"
+#     # Media files
+#     MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+#     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# else:
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

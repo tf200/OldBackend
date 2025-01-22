@@ -33,6 +33,8 @@ urlpatterns = [
     path("", api.urls),
 ]
 
+
+
 # Add static and media files
 # For media & assets
 urlpatterns.extend(static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))  # type: ignore

@@ -10,17 +10,13 @@ services:
     command: bash -c "make serve"
     volumes:
       - ./:/healthy
-
-  frontend:
-    command: npm run dev
-
-  celery:
-    image: healthy:latest
-    #    working_dir: /healthy
-    user: ${UID:-1000}:${UID:-1000}
-    command: celery -A healty.celery worker --beat -l DEBUG --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    # build:
-    #   context: .
-    #   dockerfile: ./celery/Dockerfile
-    volumes:
-      - ./:/healthy
+  # celery:
+  #   image: healthy:latest
+  #   #    working_dir: /healthy
+  #   user: ${UID:-1000}:${UID:-1000}
+  #   command: celery -A healty.celery worker --beat -l DEBUG --scheduler django_celery_beat.schedulers:DatabaseScheduler
+  #   # build:
+  #   #   context: .
+  #   #   dockerfile: ./celery/Dockerfile
+  #   volumes:
+  #     - ./:/healthy
